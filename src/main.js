@@ -124,7 +124,7 @@ nutrientPage.innerHTML = `
     <button id="close-info-btn" style="padding:12px 24px; background:#1a2233; color:#fffdd0; font-size:18px; font-weight:bold; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer;">返回大廳</button>
     <h2 style="color:#fffdd0; font-size:28px; border-bottom:2px solid #00ffcc; padding-bottom:10px; margin-bottom:15px;">護眼營養素與眼睛構造對照表</h2>
     <p style="color:#8b9bb4; font-size:15px; line-height:1.6; margin-bottom:20px; background:#162b2b; padding:15px; border-radius:8px;">
-        <strong style="color:#00ffcc;">閱讀重點｜</strong>營養素通常是維持組織正常功能或降低缺乏風險，不能取代眼科檢查與治療。Propolins 最適合定位在視網膜色素上皮（RPE），目前證據為人類細胞與動物模型，尚非人體臨床療效。
+        <strong style="color:#00ffcc;">閱讀重點｜</strong>營養素通常是維持組織正常功能或降低缺乏風險，不能取代眼科檢查與治療。Propolins 最適合定位在視網膜色素上皮（RPE），目前證據為人類細胞與動物模型。
     </p>
     <div style="overflow-x:auto; margin-bottom:30px;">
         <table style="width:100%; border-collapse:collapse; color:#fffdd0; font-size:15px; line-height:1.5;">

@@ -19,6 +19,10 @@ let breathPhase = 'INHALE';
 let testPhase = 'LEFT_EYE'; 
 let testTimeLeft = 15; 
 
+// 【新增】通用休息狀態參數
+let isResting = false;
+let restTimeLeft = 0;
+
 // ==========================================
 // 2. 音效系統 (Web Audio API)
 // ==========================================
@@ -143,7 +147,6 @@ function createModuleCard(title, desc, onClick, highlight = false) {
     return card;
 }
 
-// 【修改】移除了 (SOP) 名稱
 menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => startTraining('sop')));
 menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，並結合 Z 軸遠近對焦。", () => startTraining('stretch')));
 menuGrid.appendChild(createModuleCard("🎮 睫狀肌深空追光", "【放鬆遊戲】死盯流星飛向深空，強迫睫狀肌徹底看遠放鬆。", () => startTraining('chaser')));
@@ -211,7 +214,6 @@ document.body.appendChild(renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0xfffdd0, 0.6);
 scene.add(ambientLight);
 
-// 【修改】Y 軸微調，並在 animate 中鎖死 Z 軸不讓它亂飄
 const sopGroup = new THREE.Group();
 sopGroup.position.y = 12; 
 const sopGeo = new THREE.SphereGeometry(8, 32, 32);
@@ -262,7 +264,6 @@ breatheGroup.add(particleSystem);
 breatheGroup.position.z = -20;
 scene.add(breatheGroup);
 
-// 【修改】流星顏色加深為深金色 (0xffd700)
 const chaserGroup = new THREE.Group();
 const chaserOrb = new THREE.Mesh(new THREE.SphereGeometry(3, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true }));
 chaserOrb.add(new THREE.PointLight(0xffd700, 2.5, 80)); 
@@ -293,6 +294,10 @@ function spawnStimulusBall() {
 // ==========================================
 function startTraining(type) {
     currentModule = type;
+    // 【修改】每次開始新模組時重置休息狀態
+    isResting = false;
+    restTimeLeft = 0;
+    
     dashboardUI.style.display = 'none';
     trainingUI.style.display = 'block';
     backBtn.style.display = 'block';
@@ -318,6 +323,7 @@ function startTraining(type) {
 
 function returnToDashboard() {
     currentModule = 'DASHBOARD';
+    isResting = false;
     dashboardUI.style.display = 'flex';
     trainingUI.style.display = 'none';
     backBtn.style.display = 'none';
@@ -345,21 +351,55 @@ function updateTrainingUI() {
             titleUI.innerText = "請用力閉上雙眼，徹底放鬆"; 
             timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; 
         }
+    // 【修改】加入 isResting 判斷，渲染閉眼休息 UI
     } else if (currentModule === 'stretch') {
-        if (stretchTimeLeft <= 0) { trainingUI.style.top = '50%'; titleUI.innerText = "🎉 眼肌與焦距重訓完成！"; timerUI.innerText = ""; } 
-        else { trainingUI.style.top = '80%'; titleUI.innerText = "保持頭部靜止\n跟隨光球移動伸展眼肌"; timerUI.innerText = `剩餘 ${stretchTimeLeft} 秒`; }
+        if (stretchTimeLeft > 0) { 
+            trainingUI.style.top = '80%'; 
+            titleUI.innerText = "保持頭部靜止\n跟隨光球移動伸展眼肌"; 
+            timerUI.innerText = `剩餘 ${stretchTimeLeft} 秒`; 
+        } 
+        else if (isResting) {
+            trainingUI.style.top = '50%'; 
+            titleUI.innerText = "請閉眼休息5秒鐘"; 
+            timerUI.innerText = `休息 ${restTimeLeft} 秒`;
+        }
+        else { 
+            trainingUI.style.top = '50%'; 
+            titleUI.innerText = "🎉 眼肌與焦距重訓完成！"; 
+            timerUI.innerText = ""; 
+        }
     } else if (currentModule === 'chaser') {
-        if (chaserTimeLeft <= 0) {
-            trainingUI.style.top = '50%'; titleUI.innerHTML = `🎮 遊戲結束！<br>您成功追蹤了 <span style="color:#00ffcc;">${chaserScore}</span> 顆深空流星`; timerUI.innerText = "睫狀肌已獲得充分的遠眺放鬆";
-        } else {
-            trainingUI.style.top = '80%'; titleUI.innerHTML = `【睫狀肌深空追光】<br><span style='font-size:16px; color:#8b9bb4;'>死盯流星飛向最深處直到消失<br>(已追蹤: ${chaserScore} 顆)</span>`; timerUI.innerText = `遊戲剩餘：${chaserTimeLeft} 秒`;
+        if (chaserTimeLeft > 0) {
+            trainingUI.style.top = '80%'; 
+            titleUI.innerHTML = `【睫狀肌深空追光】<br><span style='font-size:16px; color:#8b9bb4;'>死盯流星飛向最深處直到消失<br>(已追蹤: ${chaserScore} 顆)</span>`; 
+            timerUI.innerText = `遊戲剩餘：${chaserTimeLeft} 秒`;
+        } 
+        else if (isResting) {
+            trainingUI.style.top = '50%'; 
+            titleUI.innerText = "請閉眼休息5秒鐘"; 
+            timerUI.innerText = `休息 ${restTimeLeft} 秒`;
+        }
+        else {
+            trainingUI.style.top = '50%'; 
+            titleUI.innerHTML = `🎮 遊戲結束！<br>您成功追蹤了 <span style="color:#00ffcc;">${chaserScore}</span> 顆深空流星`; 
+            timerUI.innerText = "睫狀肌已獲得充分的遠眺放鬆";
         }
     } else if (currentModule === 'breathe') {
-        if (breatheTimeLeft <= 0) {
-            trainingUI.style.top = '50%'; titleUI.innerText = "🌌 視覺神經與自律神經已深度重置"; timerUI.innerText = "現在您的眼睛處於最佳狀態";
-        } else {
-            trainingUI.style.top = '85%'; const actionText = breathPhase === 'INHALE' ? "跟隨星雲【緩慢吸氣】" : "跟隨星雲【徹底吐氣】";
-            titleUI.innerHTML = `<span style="font-size: 28px;">${actionText}</span><br><span style='font-size:16px; color:#8b9bb4;'>(請不要對焦任何星星，放寬視野)</span>`; timerUI.innerText = `深度放鬆中：${breatheTimeLeft} 秒`;
+        if (breatheTimeLeft > 0) {
+            trainingUI.style.top = '85%'; 
+            const actionText = breathPhase === 'INHALE' ? "跟隨星雲【緩慢吸氣】" : "跟隨星雲【徹底吐氣】";
+            titleUI.innerHTML = `<span style="font-size: 28px;">${actionText}</span><br><span style='font-size:16px; color:#8b9bb4;'>(請不要對焦任何星星，放寬視野)</span>`; 
+            timerUI.innerText = `深度放鬆中：${breatheTimeLeft} 秒`;
+        }
+        else if (isResting) {
+            trainingUI.style.top = '50%'; 
+            titleUI.innerText = "請閉眼休息5秒鐘"; 
+            timerUI.innerText = `休息 ${restTimeLeft} 秒`;
+        }
+        else {
+            trainingUI.style.top = '50%'; 
+            titleUI.innerText = "🌌 視覺神經與自律神經已深度重置"; 
+            timerUI.innerText = "現在您的眼睛處於最佳狀態";
         }
     } else if (currentModule === 'amsler' || currentModule === 'astigmatism') {
         if (testPhase === 'COMPLETED') {
@@ -383,10 +423,8 @@ function animate() {
 
     if (currentModule === 'sop' && phase !== 'COMPLETED') {
         focusTarget.rotation.x += 0.002; focusTarget.rotation.y += 0.003; 
-        
-        // 【修改】鎖定 Z 軸不動，只做原地放大縮小
         focusTarget.position.z = -50; 
-        const scale = 1 + Math.cos(timeDelta) * 0.25; // 加大呼吸起伏感
+        const scale = 1 + Math.cos(timeDelta) * 0.25; 
         focusTarget.scale.set(scale, scale, scale);
 
         const targetOpacity = (phase === 'CLOSING') ? 0.05 : 1.0;
@@ -408,7 +446,6 @@ function animate() {
         stretchOrb.scale.setScalar(1 + Math.cos(speed * 3) * 0.1);
         
         const isMobile = window.innerWidth < 600;
-        // 【修改】再次縮小 X 軸邊界極限到 8.5，確保不被螢幕切斷
         const xAmplitude = isMobile ? 8.5 : 18; 
         const yAmplitude = isMobile ? 12 : 8; 
         const zCenter = -30;
@@ -427,8 +464,6 @@ function animate() {
         else {
             const progress = (chaserOrb.position.z + 10) / -110; 
             const currentScale = Math.max(0, 1 - progress * 0.9); chaserOrb.scale.set(currentScale, currentScale, currentScale);
-            
-            // 【修改】讓實心狀態維持得更久，直到非常遠的地方才開始淡出
             chaserOrb.material.opacity = 1 - Math.pow(progress, 3); 
         }
     }
@@ -447,6 +482,18 @@ animate();
 // ==========================================
 setInterval(() => {
     if (currentModule === 'DASHBOARD') return;
+
+    // 【新增】處理模組二、三、四的通用閉眼休息倒數
+    if ((currentModule === 'stretch' || currentModule === 'chaser' || currentModule === 'breathe') && isResting) {
+        restTimeLeft--;
+        if (restTimeLeft <= 0) {
+            isResting = false; // 休息結束
+            playDingSound();   // 播放結束提示音
+        }
+        updateTrainingUI();
+        return; // 在休息期間，暫停原本模組的時間流動
+    }
+
     if (currentModule === 'sop') {
         if (phase === 'COMPLETED') return;
         sopTimeLeft--;
@@ -456,13 +503,35 @@ setInterval(() => {
             else if (phase === 'CLOSING') { cycle++; if (cycle > maxCycles) { phase = 'COMPLETED'; playDingSound(); } else { phase = 'LOOKING'; sopTimeLeft = 10; playDingSound(); } }
         }
     } 
-    else if (currentModule === 'stretch') { if (stretchTimeLeft <= 0) return; stretchTimeLeft--; if (stretchTimeLeft <= 0) playDingSound(); }
-    else if (currentModule === 'chaser') { if (chaserTimeLeft <= 0) return; chaserTimeLeft--; if (chaserTimeLeft <= 0) playDingSound(); }
+    else if (currentModule === 'stretch') { 
+        if (stretchTimeLeft <= 0) return; 
+        stretchTimeLeft--; 
+        if (stretchTimeLeft <= 0) {
+            isResting = true;
+            restTimeLeft = 5;
+            playDingSound(); // 進入休息時先「叮」一聲
+        }
+    }
+    else if (currentModule === 'chaser') { 
+        if (chaserTimeLeft <= 0) return; 
+        chaserTimeLeft--; 
+        if (chaserTimeLeft <= 0) {
+            isResting = true;
+            restTimeLeft = 5;
+            playDingSound(); 
+        }
+    }
     else if (currentModule === 'breathe') {
-        if (breatheTimeLeft <= 0) return; breatheTimeLeft--;
-        if (breatheTimeLeft % 10 === 5) { breathPhase = 'INHALE'; playDingSound(); } 
-        else if (breatheTimeLeft % 10 === 0) { breathPhase = 'EXHALE'; playDingSound(); }
-        if (breatheTimeLeft <= 0) playDingSound(); 
+        if (breatheTimeLeft <= 0) return; 
+        breatheTimeLeft--;
+        if (breatheTimeLeft > 0) {
+            if (breatheTimeLeft % 10 === 5) { breathPhase = 'INHALE'; playDingSound(); } 
+            else if (breatheTimeLeft % 10 === 0) { breathPhase = 'EXHALE'; playDingSound(); }
+        } else {
+            isResting = true;
+            restTimeLeft = 5;
+            playDingSound(); 
+        }
     }
     else if (currentModule === 'amsler' || currentModule === 'astigmatism') {
         if (testPhase === 'COMPLETED') return; testTimeLeft--;

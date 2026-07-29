@@ -99,7 +99,7 @@ async function initializeLiff() {
 }
 initializeLiff();
 
-// 【新增】衛教資訊互動視窗 (Modal)
+// 衛教資訊互動視窗 (Modal)
 const infoModal = document.createElement('div');
 infoModal.style.position = 'absolute';
 infoModal.style.top = '0';
@@ -115,13 +115,13 @@ infoModal.style.boxSizing = 'border-box';
 infoModal.style.fontFamily = 'sans-serif';
 document.body.appendChild(infoModal);
 
-// 【新增】營養素頁面內容
+// 【修改】營養素頁面內容，套用統一的按鈕樣式
 const nutrientPage = document.createElement('div');
 nutrientPage.style.maxWidth = '800px';
 nutrientPage.style.margin = '0 auto';
 nutrientPage.style.paddingBottom = '50px';
 nutrientPage.innerHTML = `
-    <button id="close-info-btn" style="padding:10px 20px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer;">返回大廳</button>
+    <button id="close-info-btn" style="padding:12px 24px; background:#1a2233; color:#fffdd0; font-size:18px; font-weight:bold; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer;">返回大廳</button>
     <h2 style="color:#fffdd0; font-size:28px; border-bottom:2px solid #00ffcc; padding-bottom:10px; margin-bottom:15px;">護眼營養素與眼睛構造對照表</h2>
     <p style="color:#8b9bb4; font-size:15px; line-height:1.6; margin-bottom:20px; background:#162b2b; padding:15px; border-radius:8px;">
         <strong style="color:#00ffcc;">閱讀重點｜</strong>營養素通常是維持組織正常功能或降低缺乏風險，不能取代眼科檢查與治療。Propolins 最適合定位在視網膜色素上皮（RPE），目前證據為人類細胞與動物模型，尚非人體臨床療效。
@@ -184,14 +184,14 @@ nutrientPage.innerHTML = `
 `;
 infoModal.appendChild(nutrientPage);
 
-// 【新增】RPE 說明頁面內容
+// 【修改】RPE 說明頁面內容，套用統一的按鈕樣式
 const rpePage = document.createElement('div');
 rpePage.style.maxWidth = '800px';
 rpePage.style.margin = '0 auto';
 rpePage.style.paddingBottom = '50px';
-rpePage.style.display = 'none'; // 預設隱藏
+rpePage.style.display = 'none'; 
 rpePage.innerHTML = `
-    <button id="back-to-nutrient-btn" style="padding:10px 20px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer;">🔙 返回護眼營養素</button>
+    <button id="back-to-nutrient-btn" style="padding:12px 24px; background:#1a2233; color:#fffdd0; font-size:18px; font-weight:bold; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer;">🔙 返回護眼營養素</button>
     <h2 style="color:#fffdd0; font-size:28px; border-bottom:2px solid #00ffcc; padding-bottom:10px; margin-bottom:20px;">🏭 垃圾處理廠與清潔工：認識 RPE</h2>
     
     <div style="color:#8b9bb4; font-size:16px; line-height:1.8;">
@@ -243,42 +243,6 @@ document.getElementById('close-info-btn').onclick = () => {
 };
 
 // ==========================================
-// 【新增】大廳：護眼常見營養素 (放置於模組一正上方)
-// ==========================================
-const infoBanner = document.createElement('div');
-infoBanner.style.width = '100%';
-infoBanner.style.maxWidth = '800px';
-infoBanner.style.backgroundColor = '#162b2b';
-infoBanner.style.border = '1px solid #00ffcc';
-infoBanner.style.borderRadius = '12px';
-infoBanner.style.padding = '20px';
-infoBanner.style.marginBottom = '25px'; // 讓它與下方模組格網保持距離
-infoBanner.style.cursor = 'pointer';
-infoBanner.style.boxShadow = '0 0 15px rgba(0, 255, 204, 0.2)';
-infoBanner.style.textAlign = 'center';
-infoBanner.style.transition = 'all 0.2s ease';
-infoBanner.innerHTML = `
-    <h3 style="color:#00ffcc; font-size:22px; margin-bottom:10px;">📖 護眼常見營養素與 RPE 百科</h3>
-    <p style="color:#8b9bb4; font-size:16px; margin:0;">點擊了解護眼成分作用部位，以及視網膜垃圾處理廠 (RPE) 的重要性</p>
-`;
-infoBanner.onmouseover = () => {
-    infoBanner.style.transform = 'translateY(-3px)';
-    infoBanner.style.boxShadow = '0 0 25px rgba(0, 255, 204, 0.4)';
-};
-infoBanner.onmouseout = () => {
-    infoBanner.style.transform = 'translateY(0)';
-    infoBanner.style.boxShadow = '0 0 15px rgba(0, 255, 204, 0.2)';
-};
-infoBanner.onclick = () => {
-    dashboardUI.style.display = 'none';
-    infoModal.style.display = 'block';
-    nutrientPage.style.display = 'block';
-    rpePage.style.display = 'none';
-    infoModal.scrollTo(0,0);
-};
-dashboardUI.appendChild(infoBanner);
-
-// ==========================================
 // 大廳選單配置
 // ==========================================
 const menuGrid = document.createElement('div');
@@ -289,25 +253,25 @@ menuGrid.style.width = '100%';
 menuGrid.style.maxWidth = '800px';
 dashboardUI.appendChild(menuGrid);
 
-function createModuleCard(title, desc, onClick, highlight = false) {
+// 【修改】為 createModuleCard 加入 color 參數，控制各模組外框與光暈
+function createModuleCard(title, desc, onClick, color) {
     const card = document.createElement('div');
-    card.style.backgroundColor = highlight ? '#162b2b' : '#1a2233'; 
-    card.style.border = `1px solid ${highlight ? '#00ffcc' : '#2a3a5a'}`;
+    card.style.backgroundColor = '#1a2233'; 
+    card.style.border = `1px solid ${color}`;
     card.style.borderRadius = '12px';
     card.style.padding = '24px 20px'; 
     card.style.cursor = 'pointer';
     card.style.transition = 'all 0.2s ease';
-    card.style.boxShadow = highlight ? '0 0 15px rgba(0, 255, 204, 0.2)' : 'none';
+    card.style.boxShadow = 'none';
 
     card.onmouseover = () => {
-        card.style.borderColor = '#00ffcc';
         card.style.transform = 'translateY(-3px)';
-        if(highlight) card.style.boxShadow = '0 0 25px rgba(0, 255, 204, 0.4)';
+        // 動態生成對應顏色的光暈
+        card.style.boxShadow = `0 0 15px ${color}66`;
     };
     card.onmouseout = () => {
-        card.style.borderColor = highlight ? '#00ffcc' : '#2a3a5a';
         card.style.transform = 'translateY(0)';
-        if(highlight) card.style.boxShadow = '0 0 15px rgba(0, 255, 204, 0.2)';
+        card.style.boxShadow = 'none';
     };
 
     const h3 = document.createElement('h3');
@@ -327,12 +291,27 @@ function createModuleCard(title, desc, onClick, highlight = false) {
     return card;
 }
 
-menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => startTraining('sop')));
-menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，並結合 Z 軸遠近對焦。", () => startTraining('stretch')));
-menuGrid.appendChild(createModuleCard("🎮 睫狀肌深空追光", "【放鬆遊戲】死盯流星飛向深空，強迫睫狀肌徹底看遠放鬆。", () => startTraining('chaser')));
-menuGrid.appendChild(createModuleCard("🌌 星雲散焦與神經放鬆", "【深度冥想】釋放隧道視覺，同步 3D 粒子星雲進行共振呼吸。", () => startTraining('breathe'), true)); 
-menuGrid.appendChild(createModuleCard("🔍 黃斑部自我檢測", "經典阿姆斯勒方格表數位化，快篩視網膜病變風險。", () => startTraining('amsler')));
-menuGrid.appendChild(createModuleCard("👁️ 散光軸向自我檢測", "放射鐘測試。檢測是否因散光未矯正而導致嚴重疲勞。", () => startTraining('astigmatism')));
+// 【修改】將衛教區塊融入網格，並分配 7 種獨立的專屬顏色
+menuGrid.appendChild(createModuleCard("📖 護眼常見營養素與 RPE 百科", "點擊了解護眼成分作用部位，以及視網膜垃圾處理廠 (RPE) 的重要性", () => {
+    dashboardUI.style.display = 'none';
+    infoModal.style.display = 'block';
+    nutrientPage.style.display = 'block';
+    rpePage.style.display = 'none';
+    infoModal.scrollTo(0,0);
+}, '#00ffcc')); // 螢光青綠
+
+menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => startTraining('sop'), '#ff9900')); // 暖橘色
+
+menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，並結合 Z 軸遠近對焦。", () => startTraining('stretch'), '#00aaff')); // 亮藍色
+
+menuGrid.appendChild(createModuleCard("🎮 睫狀肌深空追光", "【放鬆遊戲】死盯流星飛向深空，強迫睫狀肌徹底看遠放鬆。", () => startTraining('chaser'), '#ff55ff')); // 螢光粉紅
+
+menuGrid.appendChild(createModuleCard("🌌 星雲散焦與神經放鬆", "【深度冥想】釋放隧道視覺，同步 3D 粒子星雲進行共振呼吸。", () => startTraining('breathe'), '#b026ff')); // 冥想深紫
+
+menuGrid.appendChild(createModuleCard("🔍 黃斑部自我檢測", "經典阿姆斯勒方格表數位化，快篩視網膜病變風險。", () => startTraining('amsler'), '#ffff00')); // 警告鮮黃
+
+menuGrid.appendChild(createModuleCard("👁️ 散光軸向自我檢測", "放射鐘測試。檢測是否因散光未矯正而導致嚴重疲勞。", () => startTraining('astigmatism'), '#ff3333')); // 注意亮紅
+
 
 const trainingUI = document.createElement('div');
 trainingUI.style.position = 'absolute';

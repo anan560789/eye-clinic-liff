@@ -103,13 +103,12 @@ async function initializeLiff() {
 }
 initializeLiff();
 
-// 【修改】建立統一的主內容容器，確保所有區塊的寬度與對齊完全一致
 const contentContainer = document.createElement('div');
 contentContainer.style.width = '100%';
 contentContainer.style.maxWidth = '800px';
 contentContainer.style.display = 'flex';
 contentContainer.style.flexDirection = 'column';
-contentContainer.style.gap = '20px'; // 區塊間距統一
+contentContainer.style.gap = '20px'; 
 contentContainer.style.marginBottom = '40px';
 dashboardUI.appendChild(contentContainer);
 
@@ -131,7 +130,6 @@ infoModal.style.boxSizing = 'border-box';
 infoModal.style.fontFamily = 'sans-serif';
 document.body.appendChild(infoModal);
 
-// 營養素頁面
 const nutrientPage = document.createElement('div');
 nutrientPage.style.maxWidth = '800px';
 nutrientPage.style.margin = '0 auto';
@@ -140,7 +138,7 @@ nutrientPage.innerHTML = `
     <button id="close-info-btn" style="padding:10px 20px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer;">返回大廳</button>
     <h2 style="color:#fffdd0; font-size:28px; border-bottom:2px solid #00ffcc; padding-bottom:10px; margin-bottom:15px;">護眼營養素與眼睛構造對照表</h2>
     <p style="color:#8b9bb4; font-size:15px; line-height:1.6; margin-bottom:20px; background:#162b2b; padding:15px; border-radius:8px;">
-        <strong style="color:#00ffcc;">閱讀重點｜</strong>營養素通常是維持組織正常功能或降低缺乏風險，不能取代眼科檢查與治療。Propolins 最適合定位在視網膜色素上皮（RPE），目前證據為人類細胞與動物模型，尚非人體臨床療效。
+        <strong style="color:#00ffcc;">閱讀重點｜</strong>營養素通常是維持組織正常功能或降低缺乏風險，不能取代眼科檢查與治療。Propolins 最適合定位在視網膜色素上皮（RPE），目前證據為人類細胞與動物模型。
     </p>
     <div style="overflow-x:auto; margin-bottom:30px;">
         <table style="width:100%; border-collapse:collapse; color:#fffdd0; font-size:15px; line-height:1.5;">
@@ -160,7 +158,7 @@ nutrientPage.innerHTML = `
                 <tr style="background:#162b2b;">
                     <td style="padding:12px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">Propolins (尤其G)</td>
                     <td style="padding:12px; border:1px solid #2a3a5a;">視網膜色素上皮RPE；外層視網膜界面</td>
-                    <td style="padding:12px; border:1px solid #2a3a5a;">細胞實驗顯示可提高損傷下存活；乾性AMD大鼠模型中，ERG c-wave部分恢復表示RPE功能改善 (細胞+動物前臨床證據)。</td>
+                    <td style="padding:12px; border:1px solid #2a3a5a;">細胞實驗顯示可提高損傷下存活；乾性AMD大鼠模型中，ERG c-wave部分恢復表示RPE功能改善。</td>
                 </tr>
                 <tr>
                     <td style="padding:12px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">維生素A／β-胡蘿蔔素</td>
@@ -191,7 +189,6 @@ nutrientPage.innerHTML = `
 `;
 infoModal.appendChild(nutrientPage);
 
-// RPE 說明頁面
 const rpePage = document.createElement('div');
 rpePage.style.maxWidth = '800px';
 rpePage.style.margin = '0 auto';
@@ -238,13 +235,12 @@ document.getElementById('close-info-btn').onclick = () => {
 };
 
 // ==========================================
-// 【統一外框設計】大廳：護眼常見營養素 Banner
+// 大廳：護眼常見營養素 Banner
 // ==========================================
 const infoBanner = document.createElement('div');
 infoBanner.style.width = '100%';
 infoBanner.style.backgroundColor = '#162b2b';
-// 統一加上 #00ffcc 螢光彩色外框
-infoBanner.style.border = '1px solid #00ffcc'; 
+infoBanner.style.border = '2px solid #00ffcc'; 
 infoBanner.style.borderRadius = '12px';
 infoBanner.style.padding = '20px';
 infoBanner.style.cursor = 'pointer';
@@ -274,29 +270,35 @@ infoBanner.onclick = () => {
 contentContainer.appendChild(infoBanner);
 
 // ==========================================
-// 【統一外框設計】大廳選單配置
+// 大廳選單配置 (套用強制對齊與彩色外框)
 // ==========================================
 const menuGrid = document.createElement('div');
 menuGrid.style.display = 'grid';
 menuGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(280px, 1fr))'; 
 menuGrid.style.gap = '20px';
 menuGrid.style.width = '100%';
+// 確保 grid 內的項目垂直自動伸展至等高
+menuGrid.style.alignItems = 'stretch'; 
 contentContainer.appendChild(menuGrid);
 
-function createModuleCard(title, desc, onClick) {
+function createModuleCard(title, desc, onClick, borderColor) {
     const card = document.createElement('div');
     card.style.backgroundColor = '#1a2233'; 
-    // 統一加上 #00ffcc 螢光彩色外框，保證大小與上方一致
-    card.style.border = `1px solid #00ffcc`;
+    // 【修改】套用傳入的專屬彩色外框
+    card.style.border = `2px solid ${borderColor}`;
     card.style.borderRadius = '12px';
     card.style.padding = '24px 20px'; 
     card.style.cursor = 'pointer';
     card.style.transition = 'all 0.2s ease';
     card.style.boxSizing = 'border-box';
+    // 【修改】強制卡片填滿高度，解決高低不齊的問題
+    card.style.height = '100%'; 
+    card.style.display = 'flex';
+    card.style.flexDirection = 'column';
 
     card.onmouseover = () => {
         card.style.transform = 'translateY(-3px)';
-        card.style.boxShadow = '0 0 25px rgba(0, 255, 204, 0.4)';
+        card.style.boxShadow = `0 0 25px ${borderColor}90`; // 產生同色系光暈
     };
     card.onmouseout = () => {
         card.style.transform = 'translateY(0)';
@@ -315,17 +317,20 @@ function createModuleCard(title, desc, onClick) {
     p.style.color = '#8b9bb4';
     p.style.fontSize = '16px'; 
     p.style.lineHeight = '1.6';
+    p.style.flexGrow = '1'; // 讓內文自動伸展填滿剩餘空間
     card.appendChild(p);
+    
     card.onclick = onClick;
     return card;
 }
 
-menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => startTraining('sop')));
-menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，並結合 Z 軸遠近對焦。", () => startTraining('stretch')));
-menuGrid.appendChild(createModuleCard("🎮 睫狀肌深空追光", "【放鬆遊戲】死盯流星飛向深空，強迫睫狀肌徹底看遠放鬆。", () => startTraining('chaser')));
-menuGrid.appendChild(createModuleCard("🌌 星雲散焦與神經放鬆", "【深度冥想】釋放隧道視覺，同步 3D 粒子星雲進行共振呼吸。", () => startTraining('breathe'))); 
-menuGrid.appendChild(createModuleCard("🔍 黃斑部自我檢測", "經典阿姆斯勒方格表數位化，快篩視網膜病變風險。", () => startTraining('amsler')));
-menuGrid.appendChild(createModuleCard("👁️ 散光軸向自我檢測", "放射鐘測試。檢測是否因散光未矯正而導致嚴重疲勞。", () => startTraining('astigmatism')));
+// 分配 6 種鮮豔的螢光色彩
+menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => startTraining('sop'), '#FF6B6B')); // 珊瑚紅
+menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，並結合 Z 軸遠近對焦。", () => startTraining('stretch'), '#4D96FF')); // 科技藍
+menuGrid.appendChild(createModuleCard("🎮 睫狀肌深空追光", "【放鬆遊戲】死盯流星飛向深空，強迫睫狀肌徹底看遠放鬆。", () => startTraining('chaser'), '#6BCB77')); // 護眼綠
+menuGrid.appendChild(createModuleCard("🌌 星雲散焦與神經放鬆", "【深度冥想】釋放隧道視覺，同步 3D 粒子星雲進行共振呼吸。", () => startTraining('breathe'), '#FFD93D')); // 星雲黃
+menuGrid.appendChild(createModuleCard("🔍 黃斑部自我檢測", "經典阿姆斯勒方格表數位化，快篩視網膜病變風險。", () => startTraining('amsler'), '#9D4EDD')); // 檢測紫
+menuGrid.appendChild(createModuleCard("👁️ 散光軸向自我檢測", "放射鐘測試。檢測是否因散光未矯正而導致嚴重疲勞。", () => startTraining('astigmatism'), '#FF9F1C')); // 散光橘
 
 // ==========================================
 // 大廳底部：隱藏式產品推廣按鈕
@@ -354,7 +359,7 @@ adBannerBtn.onclick = () => {
 contentContainer.appendChild(adBannerBtn);
 
 // ==========================================
-// 產品推廣互動視窗 (慧祐全排版設計)
+// 產品推廣互動視窗 (慧祐全排版設計 + NBM圖片Logo)
 // ==========================================
 const adModal = document.createElement('div');
 adModal.style.position = 'absolute';
@@ -397,42 +402,37 @@ adWhiteBox.style.borderRadius = '20px';
 adWhiteBox.style.padding = '30px 20px';
 adWhiteBox.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.5)';
 adWhiteBox.innerHTML = `
-    <!-- 品牌 Header -->
+    <!-- 品牌 Header (替換為圖片 Logo) -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
         <div style="font-weight:900; font-size:18px; color:#b8982a;">PP<span style="color:#333;">LS</span> <span style="font-size:12px; color:#999; font-weight:normal; letter-spacing:1px;">INSIDE</span></div>
-        <div style="font-size:15px; color:#2d8a4e; font-weight:bold; display:flex; align-items:center; gap:5px;">
-            <span style="font-size:18px;">🌿</span> NBM 彥臣生技
+        <div style="display:flex; align-items:center;">
+            <img src="./NBM logo.jpg" alt="NBM Logo" style="height:40px; object-fit:contain;">
         </div>
     </div>
     
     <h2 style="text-align:center; color:#1A4B82; font-size:28px; font-weight:bold; margin-bottom:40px;">補充眼睛完整營養</h2>
     
-    <!-- 💎 完美致敬「慧祐全」的斜角幾何單一包裝設計 -->
+    <!-- 💎 單一包裝設計 -->
     <div style="display:flex; justify-content:center; margin-bottom:45px;">
         <div style="width: 260px; height: 380px; position: relative; background: #fff; border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; border: 1px solid #eaeaea;">
             
-            <!-- 右側藍色斜角幾何色塊 -->
             <div style="position: absolute; right: 0; top: 0; width: 45%; height: 100%; background-color: #1A4B82; clip-path: polygon(25% 0, 100% 0, 100% 100%, 0 100%);"></div>
 
-            <!-- 內部文字排版 -->
             <div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; padding: 30px 20px; box-sizing: border-box; display: flex; flex-direction: column; text-align: left; z-index: 2;">
                 
                 <div style="font-size: 13px; color: #666; font-weight: bold; margin-bottom: 25px;">PPLs® VisionCare</div>
 
-                <!-- 產品 1 -->
                 <div style="margin-bottom: 35px;">
                     <div style="font-size: 14px; font-weight: bold; color: #666; margin-bottom: 2px;">第二代</div>
                     <div style="font-size: 28px; font-weight: 900; color: #1A4B82; border-bottom: 3px solid #1A4B82; display: inline-block; padding-bottom: 4px;">視祐全</div>
                     <div style="font-size: 13px; font-weight: bold; color: #333; margin-top: 8px;">專利配方效果好</div>
                 </div>
 
-                <!-- 產品 2 -->
                 <div>
                     <div style="font-size: 28px; font-weight: 900; color: #1A4B82; border-bottom: 3px solid #1A4B82; display: inline-block; padding-bottom: 4px;">新視祐全</div>
                     <div style="font-size: 13px; font-weight: bold; color: #333; margin-top: 8px;">加了魚油更滋潤</div>
                 </div>
 
-                <!-- 底部專利標章模擬 -->
                 <div style="margin-top: auto; font-size: 11px; color: #666; font-weight: bold;">◼ 連續榮獲多項專利肯定</div>
             </div>
         </div>

@@ -1,0 +1,10 @@
+/* src/style.css */
+body {
+  margin: 0;
+  overflow: hidden; /* 隱藏滾動條，讓 3D 畫面完美填滿 */
+  background-color: #111; /* 深色背景，降低散光與視覺疲勞 */
+}
+
+#app {
+  display: none; /* 隱藏原本 Vite 預設的 HTML 文字內容 */
+}

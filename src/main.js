@@ -1,7 +1,7 @@
 // src/main.js
 import './style.css';
 import * as THREE from 'three';
-import liff from '@line/liff'; // 🌟 引入 LINE LIFF SDK
+import liff from '@line/liff'; 
 
 // ==========================================
 // 1. 應用程式全域狀態
@@ -53,26 +53,31 @@ dashboardUI.style.backgroundColor = '#0f141e';
 dashboardUI.style.display = 'flex';
 dashboardUI.style.flexDirection = 'column';
 dashboardUI.style.alignItems = 'center';
-dashboardUI.style.justifyContent = 'center';
+// 將內容改為靠上對齊，並增加上下 padding 讓手機滑動更順暢
+dashboardUI.style.justifyContent = 'flex-start';
+dashboardUI.style.padding = '50px 20px'; 
 dashboardUI.style.fontFamily = 'sans-serif';
 dashboardUI.style.zIndex = '10';
 dashboardUI.style.overflowY = 'auto'; 
-dashboardUI.style.padding = '40px 0';
+dashboardUI.style.boxSizing = 'border-box';
 document.body.appendChild(dashboardUI);
 
 const dashTitle = document.createElement('h1');
 dashTitle.innerText = "👁️ 數位眼科與視覺復健中心";
 dashTitle.style.color = '#fffdd0';
-dashTitle.style.fontSize = '32px';
-dashTitle.style.marginBottom = '10px';
-dashTitle.style.letterSpacing = '2px';
+dashTitle.style.fontSize = '30px'; // 稍微微調適應手機
+dashTitle.style.textAlign = 'center'; // 置中
+dashTitle.style.marginBottom = '15px';
+dashTitle.style.letterSpacing = '1px';
 dashboardUI.appendChild(dashTitle);
 
 const dashSubtitle = document.createElement('p');
-dashSubtitle.innerText = "系統載入中，請稍候..."; // 預設文字
+dashSubtitle.innerText = "系統載入中，請稍候..."; 
 dashSubtitle.style.color = '#8b9bb4';
-dashSubtitle.style.fontSize = '16px';
-dashSubtitle.style.marginBottom = '40px';
+dashSubtitle.style.fontSize = '18px'; // 【優化】字體放大
+dashSubtitle.style.textAlign = 'center'; // 置中
+dashSubtitle.style.lineHeight = '1.5';
+dashSubtitle.style.marginBottom = '30px';
 dashboardUI.appendChild(dashSubtitle);
 
 // 🌟 LIFF 初始化魔法陣
@@ -81,11 +86,10 @@ async function initializeLiff() {
         await liff.init({ liffId: '2010891900-u4t0FhJ6' });
         if (liff.isLoggedIn()) {
             const profile = await liff.getProfile();
-            // 如果成功抓到 LINE 資料，用客製化問候語歡迎會員！
-            dashSubtitle.innerText = `歡迎回來，${profile.displayName}！請選擇您的專屬放鬆模組`;
-            dashSubtitle.style.color = '#00ffcc'; // 變成專屬的螢光亮綠色
+            dashSubtitle.innerText = `歡迎回來，${profile.displayName}！\n請選擇您的專屬放鬆模組`;
+            dashSubtitle.style.color = '#00ffcc'; 
         } else {
-            dashSubtitle.innerText = "請選擇您的專屬眼部放鬆與訓練模組 (未登入 LINE)";
+            dashSubtitle.innerText = "請選擇您的專屬眼部放鬆與訓練模組\n(未登入 LINE)";
         }
     } catch (err) {
         console.error('LIFF 初始化失敗:', err);
@@ -96,10 +100,10 @@ initializeLiff();
 
 const menuGrid = document.createElement('div');
 menuGrid.style.display = 'grid';
-menuGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))'; 
+menuGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(280px, 1fr))'; 
 menuGrid.style.gap = '20px';
-menuGrid.style.maxWidth = '900px';
-menuGrid.style.width = '90%';
+menuGrid.style.width = '100%';
+menuGrid.style.maxWidth = '800px';
 dashboardUI.appendChild(menuGrid);
 
 function createModuleCard(title, desc, onClick, highlight = false) {
@@ -107,7 +111,7 @@ function createModuleCard(title, desc, onClick, highlight = false) {
     card.style.backgroundColor = highlight ? '#162b2b' : '#1a2233'; 
     card.style.border = `1px solid ${highlight ? '#00ffcc' : '#2a3a5a'}`;
     card.style.borderRadius = '12px';
-    card.style.padding = '20px';
+    card.style.padding = '24px 20px'; // 增加內距
     card.style.cursor = 'pointer';
     card.style.transition = 'all 0.2s ease';
     card.style.boxShadow = highlight ? '0 0 15px rgba(0, 255, 204, 0.2)' : 'none';
@@ -126,15 +130,15 @@ function createModuleCard(title, desc, onClick, highlight = false) {
     const h3 = document.createElement('h3');
     h3.innerText = title;
     h3.style.color = '#fffdd0';
-    h3.style.fontSize = '18px';
-    h3.style.marginBottom = '8px';
+    h3.style.fontSize = '22px'; // 【優化】標題字體顯著放大
+    h3.style.marginBottom = '12px';
     card.appendChild(h3);
 
     const p = document.createElement('p');
     p.innerText = desc;
     p.style.color = '#8b9bb4';
-    p.style.fontSize = '13px';
-    p.style.lineHeight = '1.4';
+    p.style.fontSize = '16px'; // 【優化】說明文字放大
+    p.style.lineHeight = '1.6';
     card.appendChild(p);
     card.onclick = onClick;
     return card;
@@ -152,7 +156,7 @@ trainingUI.style.position = 'absolute';
 trainingUI.style.left = '50%';
 trainingUI.style.top = '70%'; 
 trainingUI.style.transform = 'translate(-50%, -50%)';
-trainingUI.style.width = '100%';
+trainingUI.style.width = '90%'; // 限制寬度適應手機
 trainingUI.style.textAlign = 'center';
 trainingUI.style.pointerEvents = 'none';
 trainingUI.style.transition = 'top 0.8s ease-in-out';
@@ -163,10 +167,11 @@ document.body.appendChild(trainingUI);
 const titleUI = document.createElement('div');
 titleUI.style.color = '#fffdd0';
 titleUI.style.fontFamily = 'sans-serif';
-titleUI.style.fontSize = '30px';
+titleUI.style.fontSize = '26px'; // 稍微調配以適應手機寬度
 titleUI.style.fontWeight = 'bold';
 titleUI.style.letterSpacing = '1px';
-titleUI.style.marginBottom = '10px';
+titleUI.style.marginBottom = '15px';
+titleUI.style.lineHeight = '1.4';
 trainingUI.appendChild(titleUI);
 
 const timerUI = document.createElement('div');
@@ -180,11 +185,13 @@ backBtn.innerText = "返回大廳";
 backBtn.style.position = 'absolute';
 backBtn.style.top = '20px';
 backBtn.style.left = '20px';
-backBtn.style.padding = '8px 16px';
+backBtn.style.padding = '12px 24px'; // 【優化】加大點擊範圍
 backBtn.style.backgroundColor = '#1a2233';
 backBtn.style.color = '#fffdd0';
+backBtn.style.fontSize = '18px'; // 【優化】字體放大
+backBtn.style.fontWeight = 'bold';
 backBtn.style.border = '1px solid #2a3a5a';
-backBtn.style.borderRadius = '6px';
+backBtn.style.borderRadius = '8px';
 backBtn.style.cursor = 'pointer';
 backBtn.style.display = 'none';
 backBtn.style.zIndex = '20';
@@ -253,14 +260,15 @@ breatheGroup.add(particleSystem);
 breatheGroup.position.z = -20;
 scene.add(breatheGroup);
 
+// 【優化】睫狀肌追光遊戲：初始尺寸放大為半徑 3 (原本為 1)
 const chaserGroup = new THREE.Group();
-const chaserOrb = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffffaa, transparent: true }));
-chaserOrb.add(new THREE.PointLight(0xffffaa, 1.5, 50));
+const chaserOrb = new THREE.Mesh(new THREE.SphereGeometry(3, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffffaa, transparent: true }));
+chaserOrb.add(new THREE.PointLight(0xffffaa, 2.5, 80)); // 增強光暈
 chaserGroup.add(chaserOrb);
 scene.add(chaserGroup);
 
 function resetChaserOrb() {
-    chaserOrb.position.set((Math.random() - 0.5) * 30, (Math.random() - 0.5) * 15, -10);
+    chaserOrb.position.set((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 15, -10);
     chaserOrb.scale.set(1, 1, 1);
     chaserOrb.material.opacity = 1;
 }
@@ -310,31 +318,31 @@ function returnToDashboard() {
 function updateTrainingUI() {
     if (currentModule === 'sop') {
         if (phase === 'COMPLETED') { trainingUI.style.top = '50%'; titleUI.innerText = "🎉 3 回合深層放鬆完成！"; timerUI.innerText = ""; } 
-        else if (phase === 'LOOKING') { trainingUI.style.top = '70%'; titleUI.innerText = `(第 ${cycle}/${maxCycles} 回合) 請柔和注視中心橘點`; timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; } 
+        else if (phase === 'LOOKING') { trainingUI.style.top = '70%'; titleUI.innerText = `(第 ${cycle}/${maxCycles} 回合)\n請柔和注視中心橘點`; timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; } 
         else if (phase === 'CLOSING') { trainingUI.style.top = '50%'; titleUI.innerText = "請用力閉上雙眼，徹底放鬆"; timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; }
     } else if (currentModule === 'stretch') {
         if (stretchTimeLeft <= 0) { trainingUI.style.top = '50%'; titleUI.innerText = "🎉 眼肌與焦距重訓完成！"; timerUI.innerText = ""; } 
-        else { trainingUI.style.top = '80%'; titleUI.innerText = "保持頭部靜止，跟隨光球移動以伸展眼肌並對焦"; timerUI.innerText = `剩餘 ${stretchTimeLeft} 秒`; }
+        else { trainingUI.style.top = '80%'; titleUI.innerText = "保持頭部靜止\n跟隨光球移動伸展眼肌"; timerUI.innerText = `剩餘 ${stretchTimeLeft} 秒`; }
     } else if (currentModule === 'chaser') {
         if (chaserTimeLeft <= 0) {
             trainingUI.style.top = '50%'; titleUI.innerHTML = `🎮 遊戲結束！<br>您成功追蹤了 <span style="color:#00ffcc;">${chaserScore}</span> 顆深空流星`; timerUI.innerText = "睫狀肌已獲得充分的遠眺放鬆";
         } else {
-            trainingUI.style.top = '85%'; titleUI.innerHTML = `【睫狀肌深空追光】<br><span style='font-size:18px; color:#8b9bb4;'>死盯發光的流星，跟隨它飛向最深處直到消失 (已追蹤: ${chaserScore} 顆)</span>`; timerUI.innerText = `遊戲剩餘：${chaserTimeLeft} 秒`;
+            trainingUI.style.top = '80%'; titleUI.innerHTML = `【睫狀肌深空追光】<br><span style='font-size:16px; color:#8b9bb4;'>死盯流星飛向最深處直到消失<br>(已追蹤: ${chaserScore} 顆)</span>`; timerUI.innerText = `遊戲剩餘：${chaserTimeLeft} 秒`;
         }
     } else if (currentModule === 'breathe') {
         if (breatheTimeLeft <= 0) {
-            trainingUI.style.top = '50%'; titleUI.innerText = "🌌 視覺神經與自律神經已深度重置"; timerUI.innerText = "現在您的眼睛處於最佳狀態，可以進行檢測了";
+            trainingUI.style.top = '50%'; titleUI.innerText = "🌌 視覺神經與自律神經已深度重置"; timerUI.innerText = "現在您的眼睛處於最佳狀態";
         } else {
-            trainingUI.style.top = '90%'; const actionText = breathPhase === 'INHALE' ? "跟隨星雲【緩慢吸氣】" : "跟隨星雲【徹底吐氣】";
-            titleUI.innerHTML = `<span style="font-size: 32px;">${actionText}</span><br><span style='font-size:18px; color:#8b9bb4;'>(請不要對焦任何星星，放寬視野感受整個畫面)</span>`; timerUI.innerText = `深度放鬆中：${breatheTimeLeft} 秒`;
+            trainingUI.style.top = '85%'; const actionText = breathPhase === 'INHALE' ? "跟隨星雲【緩慢吸氣】" : "跟隨星雲【徹底吐氣】";
+            titleUI.innerHTML = `<span style="font-size: 28px;">${actionText}</span><br><span style='font-size:16px; color:#8b9bb4;'>(請不要對焦任何星星，放寬視野)</span>`; timerUI.innerText = `深度放鬆中：${breatheTimeLeft} 秒`;
         }
     } else if (currentModule === 'amsler' || currentModule === 'astigmatism') {
         if (testPhase === 'COMPLETED') {
             trainingUI.style.top = '50%'; titleUI.innerText = "檢測完成！若有異常請檢查視力與散光度數"; timerUI.innerText = "點擊左上角返回大廳";
         } else {
-            trainingUI.style.top = '85%'; const eyeText = testPhase === 'LEFT_EYE' ? "左眼" : "右眼"; const coverText = testPhase === 'LEFT_EYE' ? "右眼" : "左眼";
-            if(currentModule === 'amsler') { titleUI.innerHTML = `【檢測${eyeText}】請遮住${coverText}，死盯中心白點<br><span style='font-size:20px; color:#8b9bb4;'>(觀察周圍網格是否扭曲或有黑影)</span>`; } 
-            else { titleUI.innerHTML = `【檢測${eyeText}】請遮住${coverText}，注視中心紅點<br><span style='font-size:20px; color:#8b9bb4;'>(觀察放射線條，是否有些特別黑粗、有些卻模糊發淡？)</span>`; }
+            trainingUI.style.top = '80%'; const eyeText = testPhase === 'LEFT_EYE' ? "左眼" : "右眼"; const coverText = testPhase === 'LEFT_EYE' ? "右眼" : "左眼";
+            if(currentModule === 'amsler') { titleUI.innerHTML = `【檢測${eyeText}】請遮住${coverText}，死盯中心白點<br><span style='font-size:16px; color:#8b9bb4;'>(觀察周圍網格是否扭曲或有黑影)</span>`; } 
+            else { titleUI.innerHTML = `【檢測${eyeText}】請遮住${coverText}，注視中心紅點<br><span style='font-size:16px; color:#8b9bb4;'>(觀察線條是否有些特別黑粗、或模糊發淡？)</span>`; }
             timerUI.innerText = `檢測中：${testTimeLeft} 秒`;
         }
     }
@@ -362,8 +370,15 @@ function animate() {
     }
 
     if (currentModule === 'stretch' && stretchTimeLeft > 0) {
-        const speed = time * 0.0012; stretchOrb.scale.setScalar(1 + Math.cos(speed * 3) * 0.1);
-        stretchOrb.position.set(Math.sin(speed) * 18, Math.sin(speed * 2) * 8, -30 + Math.sin(speed * 0.5) * 20);
+        const speed = time * 0.0012; 
+        stretchOrb.scale.setScalar(1 + Math.cos(speed * 3) * 0.1);
+        
+        // 【優化】RWD 手機邊界偵測：如果是手機寬度，縮小 X 軸擺幅，放大 Y 軸擺幅
+        const isMobile = window.innerWidth < 600;
+        const xAmplitude = isMobile ? 9 : 18; 
+        const yAmplitude = isMobile ? 12 : 8; 
+        
+        stretchOrb.position.set(Math.sin(speed) * xAmplitude, Math.sin(speed * 2) * yAmplitude, -30 + Math.sin(speed * 0.5) * 20);
     }
     
     if (currentModule === 'breathe' || currentModule === 'chaser') {

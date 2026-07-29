@@ -143,7 +143,8 @@ function createModuleCard(title, desc, onClick, highlight = false) {
     return card;
 }
 
-menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩 (SOP)", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => startTraining('sop')));
+// 【修改】移除了 (SOP) 名稱
+menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => startTraining('sop')));
 menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，並結合 Z 軸遠近對焦。", () => startTraining('stretch')));
 menuGrid.appendChild(createModuleCard("🎮 睫狀肌深空追光", "【放鬆遊戲】死盯流星飛向深空，強迫睫狀肌徹底看遠放鬆。", () => startTraining('chaser')));
 menuGrid.appendChild(createModuleCard("🌌 星雲散焦與神經放鬆", "【深度冥想】釋放隧道視覺，同步 3D 粒子星雲進行共振呼吸。", () => startTraining('breathe'), true)); 
@@ -158,7 +159,6 @@ trainingUI.style.transform = 'translate(-50%, -50%)';
 trainingUI.style.width = '90%'; 
 trainingUI.style.textAlign = 'center';
 trainingUI.style.pointerEvents = 'none';
-// 加入過渡動畫，讓文字往上漂浮時更平滑
 trainingUI.style.transition = 'top 1.2s cubic-bezier(0.25, 1, 0.5, 1)';
 trainingUI.style.textShadow = '0px 4px 15px rgba(0, 0, 0, 0.9), 0px 0px 5px rgba(0, 0, 0, 1)';
 trainingUI.style.display = 'none'; 
@@ -211,9 +211,9 @@ document.body.appendChild(renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0xfffdd0, 0.6);
 scene.add(ambientLight);
 
-// 【修改】將整個 SOP 球體群組往上移 (Y=18)，這樣球體就會在螢幕上半部的空白處
+// 【修改】Y 軸微調，並在 animate 中鎖死 Z 軸不讓它亂飄
 const sopGroup = new THREE.Group();
-sopGroup.position.y = 18; 
+sopGroup.position.y = 12; 
 const sopGeo = new THREE.SphereGeometry(8, 32, 32);
 const sopMat = new THREE.MeshStandardMaterial({ color: 0x6b8e23, emissive: 0x2e4b1c, wireframe: true, transparent: true });
 const focusTarget = new THREE.Mesh(sopGeo, sopMat);
@@ -262,9 +262,10 @@ breatheGroup.add(particleSystem);
 breatheGroup.position.z = -20;
 scene.add(breatheGroup);
 
+// 【修改】流星顏色加深為深金色 (0xffd700)
 const chaserGroup = new THREE.Group();
-const chaserOrb = new THREE.Mesh(new THREE.SphereGeometry(3, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffffaa, transparent: true }));
-chaserOrb.add(new THREE.PointLight(0xffffaa, 2.5, 80)); 
+const chaserOrb = new THREE.Mesh(new THREE.SphereGeometry(3, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true }));
+chaserOrb.add(new THREE.PointLight(0xffd700, 2.5, 80)); 
 chaserGroup.add(chaserOrb);
 scene.add(chaserGroup);
 
@@ -278,7 +279,6 @@ const allModules = [sopGroup, stretchGroup, amslerGroup, astigGroup, breatheGrou
 allModules.forEach(m => m.visible = false);
 const stimulusBalls = [];
 
-// 【修改】小球生成時，直接加到 sopGroup 裡，這樣它們就會跟著球體一起在上方出現
 function spawnStimulusBall() {
     const ballGeo = new THREE.SphereGeometry(0.8, 32, 32);
     const ballMat = new THREE.MeshBasicMaterial({ color: 0xf5f5dc, transparent: true, opacity: 0.8, depthWrite: false });
@@ -329,20 +329,19 @@ function returnToDashboard() {
 }
 
 function updateTrainingUI() {
-    // 【修改】SOP 的文字一開始在下 (70%)，完成時往上漂浮到球體中間 (35%)
     if (currentModule === 'sop') {
         if (phase === 'COMPLETED') { 
-            trainingUI.style.top = '35%'; // 往上漂浮到正中間
+            trainingUI.style.top = '35%'; 
             titleUI.innerText = "🎉 3 回合深層放鬆完成！"; 
             timerUI.innerText = ""; 
         } 
         else if (phase === 'LOOKING') { 
-            trainingUI.style.top = '70%'; // 乖乖待在下方
+            trainingUI.style.top = '70%'; 
             titleUI.innerText = `(第 ${cycle}/${maxCycles} 回合)\n請柔和注視中心橘點`; 
             timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; 
         } 
         else if (phase === 'CLOSING') { 
-            trainingUI.style.top = '70%'; // 乖乖待在下方
+            trainingUI.style.top = '70%'; 
             titleUI.innerText = "請用力閉上雙眼，徹底放鬆"; 
             timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; 
         }
@@ -384,10 +383,15 @@ function animate() {
 
     if (currentModule === 'sop' && phase !== 'COMPLETED') {
         focusTarget.rotation.x += 0.002; focusTarget.rotation.y += 0.003; 
-        focusTarget.position.z = -75 + Math.sin(timeDelta) * 25;
-        const scale = 1 + Math.cos(timeDelta) * 0.15; focusTarget.scale.set(scale, scale, scale);
+        
+        // 【修改】鎖定 Z 軸不動，只做原地放大縮小
+        focusTarget.position.z = -50; 
+        const scale = 1 + Math.cos(timeDelta) * 0.25; // 加大呼吸起伏感
+        focusTarget.scale.set(scale, scale, scale);
+
         const targetOpacity = (phase === 'CLOSING') ? 0.05 : 1.0;
         sopMat.opacity += (targetOpacity - sopMat.opacity) * 0.05; coreMat.opacity += (targetOpacity - coreMat.opacity) * 0.05;
+        
         for (let i = stimulusBalls.length - 1; i >= 0; i--) {
             const ball = stimulusBalls[i]; ball.position.z += 1.5;
             if (ball.position.z > -10) { ball.position.z += 3.0; ball.scale.addScalar(0.8); ball.material.opacity = 1.0; ball.material.color.setHex(0xffffff); } 
@@ -404,8 +408,8 @@ function animate() {
         stretchOrb.scale.setScalar(1 + Math.cos(speed * 3) * 0.1);
         
         const isMobile = window.innerWidth < 600;
-        // 【修改】X 軸振幅放大到 12，讓它完美貼著邊緣切齊但不被切斷
-        const xAmplitude = isMobile ? 12 : 18; 
+        // 【修改】再次縮小 X 軸邊界極限到 8.5，確保不被螢幕切斷
+        const xAmplitude = isMobile ? 8.5 : 18; 
         const yAmplitude = isMobile ? 12 : 8; 
         const zCenter = -30;
         const zAmplitude = 20;
@@ -423,7 +427,9 @@ function animate() {
         else {
             const progress = (chaserOrb.position.z + 10) / -110; 
             const currentScale = Math.max(0, 1 - progress * 0.9); chaserOrb.scale.set(currentScale, currentScale, currentScale);
-            chaserOrb.material.opacity = Math.max(0, 1 - progress * 1.2);
+            
+            // 【修改】讓實心狀態維持得更久，直到非常遠的地方才開始淡出
+            chaserOrb.material.opacity = 1 - Math.pow(progress, 3); 
         }
     }
 

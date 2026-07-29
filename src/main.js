@@ -130,59 +130,72 @@ infoModal.style.boxSizing = 'border-box';
 infoModal.style.fontFamily = 'sans-serif';
 document.body.appendChild(infoModal);
 
+// 【修改】將返回按鈕字體、內距調整為與遊戲模組一致 (18px bold)
 const nutrientPage = document.createElement('div');
 nutrientPage.style.maxWidth = '800px';
 nutrientPage.style.margin = '0 auto';
 nutrientPage.style.paddingBottom = '50px';
 nutrientPage.innerHTML = `
-    <button id="close-info-btn" style="padding:10px 20px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer;">返回大廳</button>
+    <button id="close-info-btn" style="padding:12px 24px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer; font-size:18px; font-weight:bold;">返回大廳</button>
     <h2 style="color:#fffdd0; font-size:28px; border-bottom:2px solid #00ffcc; padding-bottom:10px; margin-bottom:15px;">護眼營養素與眼睛構造對照表</h2>
-    <p style="color:#8b9bb4; font-size:15px; line-height:1.6; margin-bottom:20px; background:#162b2b; padding:15px; border-radius:8px;">
+    
+    <!-- 【修改】文字全面放大為 18px，增加易讀性 -->
+    <p style="color:#8b9bb4; font-size:18px; line-height:1.6; margin-bottom:20px; background:#162b2b; padding:15px; border-radius:8px;">
         <strong style="color:#00ffcc;">閱讀重點｜</strong>營養素通常是維持組織正常功能或降低缺乏風險，不能取代眼科檢查與治療。Propolins 最適合定位在視網膜色素上皮（RPE），目前證據為人類細胞與動物模型。
     </p>
+    
     <div style="overflow-x:auto; margin-bottom:30px;">
-        <table style="width:100%; border-collapse:collapse; color:#fffdd0; font-size:15px; line-height:1.5;">
+        <!-- 【修改】表格文字放大為 17px -->
+        <table style="width:100%; border-collapse:collapse; color:#fffdd0; font-size:17px; line-height:1.6;">
             <thead>
                 <tr style="background:#1a2233; text-align:left;">
-                    <th style="padding:12px; border:1px solid #2a3a5a;">營養素／成分</th>
-                    <th style="padding:12px; border:1px solid #2a3a5a;">主要相關部位</th>
-                    <th style="padding:12px; border:1px solid #2a3a5a;">作用與目前證據</th>
+                    <th style="padding:14px; border:1px solid #2a3a5a;">營養素／成分</th>
+                    <th style="padding:14px; border:1px solid #2a3a5a;">主要相關部位</th>
+                    <th style="padding:14px; border:1px solid #2a3a5a;">作用與目前證據</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td style="padding:12px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">葉黃素、玉米黃素</td>
-                    <td style="padding:12px; border:1px solid #2a3a5a;">黃斑部、中央凹</td>
-                    <td style="padding:12px; border:1px solid #2a3a5a;">構成黃斑色素，與中央視力、辨色有關；最直接對應黃斑部的營養素。</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">葉黃素、玉米黃素</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a;">黃斑部、中央凹</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a;">構成黃斑色素，與中央視力、辨色有關；最直接對應黃斑部的營養素。</td>
                 </tr>
                 <tr style="background:#162b2b;">
-                    <td style="padding:12px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">Propolins (尤其G)</td>
-                    <td style="padding:12px; border:1px solid #2a3a5a;">視網膜色素上皮RPE；外層視網膜界面</td>
-                    <td style="padding:12px; border:1px solid #2a3a5a;">細胞實驗顯示可提高損傷下存活；乾性AMD大鼠模型中，ERG c-wave部分恢復表示RPE功能改善。</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">Propolins (尤其G)</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a;">視網膜色素上皮RPE；外層視網膜界面</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a;">細胞實驗顯示可提高損傷下存活；乾性AMD大鼠模型中，ERG c-wave部分恢復表示RPE功能改善。</td>
                 </tr>
                 <tr>
-                    <td style="padding:12px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">維生素A／β-胡蘿蔔素</td>
-                    <td style="padding:12px; border:1px solid #2a3a5a;">視網膜桿狀細胞；角結膜</td>
-                    <td style="padding:12px; border:1px solid #2a3a5a;">維持眼表上皮；缺乏可能夜盲或乾眼。</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">維生素A／β-胡蘿蔔素</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a;">視網膜桿狀細胞；角結膜</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a;">維持眼表上皮；缺乏可能夜盲或乾眼。</td>
                 </tr>
                 <tr>
-                    <td style="padding:12px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">DHA & Omega-3</td>
-                    <td style="padding:12px; border:1px solid #2a3a5a;">感光細胞膜 / 淚膜、眼表</td>
-                    <td style="padding:12px; border:1px solid #2a3a5a;">具生理結構角色；可能影響發炎與淚膜油脂層。</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">DHA & Omega-3</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a;">感光細胞膜 / 淚膜、眼表</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a;">具生理結構角色；可能影響發炎與淚膜油脂層。</td>
                 </tr>
                 <tr>
-                    <td style="padding:12px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">維生素C、E、鋅、銅</td>
-                    <td style="padding:12px; border:1px solid #2a3a5a;">水晶體、黃斑部</td>
-                    <td style="padding:12px; border:1px solid #2a3a5a;">抗氧化營養素，組成AREDS2可延緩特定AMD惡化。不適合未經診斷自行長期高劑量服用。</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">維生素C、E、鋅、銅</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a;">水晶體、黃斑部</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a;">抗氧化營養素，組成AREDS2可延緩特定AMD惡化。不適合未經診斷自行長期高劑量服用。</td>
                 </tr>
                 <tr>
-                    <td style="padding:12px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">維生素B1、B12、葉酸</td>
-                    <td style="padding:12px; border:1px solid #2a3a5a;">視神經</td>
-                    <td style="padding:12px; border:1px solid #2a3a5a;">嚴重缺乏可能造成營養性視神經病變；主要為避免缺乏。</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">維生素B1、B12、葉酸</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a;">視神經</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a;">嚴重缺乏可能造成營養性視神經病變；主要為避免缺乏。</td>
                 </tr>
             </tbody>
         </table>
     </div>
+    <h3 style="color:#fffdd0; margin-bottom:12px; font-size:20px;">⚠️ 補充品使用注意</h3>
+    <!-- 【修改】注意事項文字放大為 17px -->
+    <ul style="color:#8b9bb4; font-size:17px; line-height:1.8; margin-bottom:30px; padding-left:20px;">
+        <li><strong style="color:#fffdd0;">不可自行點眼：</strong>專利式(II)是研究用眼科製劑，市售口服蜂膠絕不可自行滴入眼睛。</li>
+        <li><strong style="color:#fffdd0;">證據界線：</strong>Propolins 支持的是「受損RPE的細胞保護」，目前為細胞與動物前臨床證據，不能據此宣稱預防或治療人體AMD。</li>
+        <li><strong style="color:#fffdd0;">AREDS2：</strong>只適用眼科醫師判定的特定AMD；健康人或單純疲勞者不應自行套用高劑量配方。</li>
+        <li><strong style="color:#fffdd0;">就醫警訊：</strong>出現視野扭曲、單眼黑影/閃光、視力下降等，應盡快就醫，不應只靠補充品觀察。</li>
+    </ul>
     <div style="text-align:center; margin-top:40px;">
         <button id="btn-to-rpe" style="padding:15px 30px; background:#00ffcc; color:#0f141e; border:none; border-radius:30px; font-size:20px; font-weight:bold; cursor:pointer; box-shadow:0 4px 15px rgba(0,255,204,0.4);">👉 RPE 為什麼重要？</button>
     </div>
@@ -194,25 +207,26 @@ rpePage.style.maxWidth = '800px';
 rpePage.style.margin = '0 auto';
 rpePage.style.paddingBottom = '50px';
 rpePage.style.display = 'none'; 
+// 【修改】返回護眼營養素按鈕字體、內距調整為與遊戲模組一致 (18px bold)
 rpePage.innerHTML = `
-    <button id="back-to-nutrient-btn" style="padding:10px 20px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer;">🔙 返回護眼營養素</button>
+    <button id="back-to-nutrient-btn" style="padding:12px 24px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer; font-size:18px; font-weight:bold;">🔙 返回護眼營養素</button>
     <h2 style="color:#fffdd0; font-size:28px; border-bottom:2px solid #00ffcc; padding-bottom:10px; margin-bottom:20px;">🏭 垃圾處理廠與清潔工：認識 RPE</h2>
-    <div style="color:#8b9bb4; font-size:16px; line-height:1.8;">
+    <div style="color:#8b9bb4; font-size:17px; line-height:1.8;">
         <p style="margin-bottom:15px;">我們可以把眼底的「視網膜色素上皮細胞 (RPE)」想像成眼底的<strong style="color:#fffdd0;">垃圾處理廠</strong>，而上方的感光細胞則是負責看東西的員工。</p>
-        <h3 style="color:#00ffcc; margin-top:25px; margin-bottom:10px;">一、什麼是脂褐質？它是怎麼形成的？</h3>
+        <h3 style="color:#00ffcc; margin-top:25px; margin-bottom:10px; font-size:20px;">一、什麼是脂褐質？它是怎麼形成的？</h3>
         <ul style="padding-left:20px; margin-bottom:20px;">
             <li><strong>員工天天產生垃圾：</strong>感光細胞每天工作會消耗能量，並脫落大量老舊廢棄物。</li>
             <li><strong>清潔工天天回收：</strong>健康的 RPE 每天會把垃圾吞進去，用溶小體酵素徹底分解化為養分。</li>
             <li><strong>變成陳年鐵鏽：</strong>若受藍光傷害或老化，處理廠酵素變弱。卡在肚子裡的油垢經光線照射後生鏽變質，形成了永遠無法清除的<strong style="color:#ff6b6b;">「脂褐質」</strong>。</li>
         </ul>
-        <h3 style="color:#ff6b6b; margin-top:25px; margin-bottom:10px;">三、不健康的 RPE（爛工廠）帶來的災難</h3>
+        <h3 style="color:#ff6b6b; margin-top:25px; margin-bottom:10px; font-size:20px;">三、不健康的 RPE（爛工廠）帶來的災難</h3>
         <ul style="padding-left:20px; margin-bottom:25px;">
             <li><strong style="color:#fffdd0;">1. 吃再多營養也吸收不了：</strong>就算吃再多高檔葉黃素，不健康的工廠也無法吸收利用。</li>
             <li><strong style="color:#fffdd0;">2. 眼底長斑堆垃圾：</strong>肚子被脂褐質塞爆後，把垃圾往地基亂倒，形成「隱形斑(Drusen)」。</li>
             <li><strong style="color:#fffdd0;">3. 眼睛結構大毀滅：</strong>防護牆破裂，引發濕性病變；最終員工集體餓死，導致視野中央出現黑洞失明。</li>
         </ul>
         <div style="background:#162b2b; padding:20px; border-radius:10px; text-align:center; border: 1px solid #00ffcc;">
-            <p style="color:#fffdd0; font-size:18px; font-weight:bold; margin:0;">💡 總結</p>
+            <p style="color:#fffdd0; font-size:19px; font-weight:bold; margin:0;">💡 總結</p>
             <p style="color:#00ffcc; font-size:18px; margin-top:10px; margin-bottom:0;">「健康的 RPE 能幫你消滅垃圾；<br>不健康的 RPE 會讓垃圾（脂褐質）堆成高山，最後把你的視力連根拔起。」</p>
         </div>
     </div>
@@ -270,35 +284,30 @@ infoBanner.onclick = () => {
 contentContainer.appendChild(infoBanner);
 
 // ==========================================
-// 大廳選單配置 (套用強制對齊與彩色外框)
+// 大廳選單配置 (滿版對齊與彩色外框)
 // ==========================================
 const menuGrid = document.createElement('div');
-menuGrid.style.display = 'grid';
-menuGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(280px, 1fr))'; 
+// 【修改】將排列方式改為 flex column，強制 100% 滿版，大小完全跟模組一 Banner 相同
+menuGrid.style.display = 'flex';
+menuGrid.style.flexDirection = 'column';
 menuGrid.style.gap = '20px';
 menuGrid.style.width = '100%';
-// 確保 grid 內的項目垂直自動伸展至等高
-menuGrid.style.alignItems = 'stretch'; 
 contentContainer.appendChild(menuGrid);
 
 function createModuleCard(title, desc, onClick, borderColor) {
     const card = document.createElement('div');
     card.style.backgroundColor = '#1a2233'; 
-    // 【修改】套用傳入的專屬彩色外框
     card.style.border = `2px solid ${borderColor}`;
     card.style.borderRadius = '12px';
     card.style.padding = '24px 20px'; 
     card.style.cursor = 'pointer';
     card.style.transition = 'all 0.2s ease';
     card.style.boxSizing = 'border-box';
-    // 【修改】強制卡片填滿高度，解決高低不齊的問題
-    card.style.height = '100%'; 
-    card.style.display = 'flex';
-    card.style.flexDirection = 'column';
+    card.style.width = '100%'; 
 
     card.onmouseover = () => {
         card.style.transform = 'translateY(-3px)';
-        card.style.boxShadow = `0 0 25px ${borderColor}90`; // 產生同色系光暈
+        card.style.boxShadow = `0 0 25px ${borderColor}90`; 
     };
     card.onmouseout = () => {
         card.style.transform = 'translateY(0)';
@@ -317,20 +326,18 @@ function createModuleCard(title, desc, onClick, borderColor) {
     p.style.color = '#8b9bb4';
     p.style.fontSize = '16px'; 
     p.style.lineHeight = '1.6';
-    p.style.flexGrow = '1'; // 讓內文自動伸展填滿剩餘空間
     card.appendChild(p);
     
     card.onclick = onClick;
     return card;
 }
 
-// 分配 6 種鮮豔的螢光色彩
-menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => startTraining('sop'), '#FF6B6B')); // 珊瑚紅
-menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，並結合 Z 軸遠近對焦。", () => startTraining('stretch'), '#4D96FF')); // 科技藍
-menuGrid.appendChild(createModuleCard("🎮 睫狀肌深空追光", "【放鬆遊戲】死盯流星飛向深空，強迫睫狀肌徹底看遠放鬆。", () => startTraining('chaser'), '#6BCB77')); // 護眼綠
-menuGrid.appendChild(createModuleCard("🌌 星雲散焦與神經放鬆", "【深度冥想】釋放隧道視覺，同步 3D 粒子星雲進行共振呼吸。", () => startTraining('breathe'), '#FFD93D')); // 星雲黃
-menuGrid.appendChild(createModuleCard("🔍 黃斑部自我檢測", "經典阿姆斯勒方格表數位化，快篩視網膜病變風險。", () => startTraining('amsler'), '#9D4EDD')); // 檢測紫
-menuGrid.appendChild(createModuleCard("👁️ 散光軸向自我檢測", "放射鐘測試。檢測是否因散光未矯正而導致嚴重疲勞。", () => startTraining('astigmatism'), '#FF9F1C')); // 散光橘
+menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => startTraining('sop'), '#FF6B6B')); 
+menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，並結合 Z 軸遠近對焦。", () => startTraining('stretch'), '#4D96FF')); 
+menuGrid.appendChild(createModuleCard("🎮 睫狀肌深空追光", "【放鬆遊戲】死盯流星飛向深空，強迫睫狀肌徹底看遠放鬆。", () => startTraining('chaser'), '#6BCB77')); 
+menuGrid.appendChild(createModuleCard("🌌 星雲散焦與神經放鬆", "【深度冥想】釋放隧道視覺，同步 3D 粒子星雲進行共振呼吸。", () => startTraining('breathe'), '#FFD93D')); 
+menuGrid.appendChild(createModuleCard("🔍 黃斑部自我檢測", "經典阿姆斯勒方格表數位化，快篩視網膜病變風險。", () => startTraining('amsler'), '#9D4EDD')); 
+menuGrid.appendChild(createModuleCard("👁️ 散光軸向自我檢測", "放射鐘測試。檢測是否因散光未矯正而導致嚴重疲勞。", () => startTraining('astigmatism'), '#FF9F1C')); 
 
 // ==========================================
 // 大廳底部：隱藏式產品推廣按鈕
@@ -359,7 +366,7 @@ adBannerBtn.onclick = () => {
 contentContainer.appendChild(adBannerBtn);
 
 // ==========================================
-// 產品推廣互動視窗 (慧祐全排版設計 + NBM圖片Logo)
+// 產品推廣互動視窗 (Ad Modal)
 // ==========================================
 const adModal = document.createElement('div');
 adModal.style.position = 'absolute';
@@ -381,15 +388,18 @@ adContainer.style.maxWidth = '800px';
 adContainer.style.margin = '0 auto';
 adContainer.style.paddingBottom = '50px';
 
+// 【修改】將返回按鈕字體、內距調整為與遊戲模組一致 (18px bold)
 const closeAdBtn = document.createElement('button');
 closeAdBtn.innerText = "返回大廳";
-closeAdBtn.style.padding = '10px 20px';
+closeAdBtn.style.padding = '12px 24px';
 closeAdBtn.style.background = '#1a2233';
 closeAdBtn.style.color = '#fffdd0';
 closeAdBtn.style.border = '1px solid #2a3a5a';
 closeAdBtn.style.borderRadius = '8px';
 closeAdBtn.style.marginBottom = '20px';
 closeAdBtn.style.cursor = 'pointer';
+closeAdBtn.style.fontSize = '18px';
+closeAdBtn.style.fontWeight = 'bold';
 closeAdBtn.onclick = () => {
     adModal.style.display = 'none';
     dashboardUI.style.display = 'flex';
@@ -402,7 +412,6 @@ adWhiteBox.style.borderRadius = '20px';
 adWhiteBox.style.padding = '30px 20px';
 adWhiteBox.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.5)';
 adWhiteBox.innerHTML = `
-    <!-- 品牌 Header (替換為圖片 Logo) -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
         <div style="font-weight:900; font-size:18px; color:#b8982a;">PP<span style="color:#333;">LS</span> <span style="font-size:12px; color:#999; font-weight:normal; letter-spacing:1px;">INSIDE</span></div>
         <div style="display:flex; align-items:center;">
@@ -412,45 +421,35 @@ adWhiteBox.innerHTML = `
     
     <h2 style="text-align:center; color:#1A4B82; font-size:28px; font-weight:bold; margin-bottom:40px;">補充眼睛完整營養</h2>
     
-    <!-- 💎 單一包裝設計 -->
     <div style="display:flex; justify-content:center; margin-bottom:45px;">
         <div style="width: 260px; height: 380px; position: relative; background: #fff; border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; border: 1px solid #eaeaea;">
-            
             <div style="position: absolute; right: 0; top: 0; width: 45%; height: 100%; background-color: #1A4B82; clip-path: polygon(25% 0, 100% 0, 100% 100%, 0 100%);"></div>
-
             <div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; padding: 30px 20px; box-sizing: border-box; display: flex; flex-direction: column; text-align: left; z-index: 2;">
-                
                 <div style="font-size: 13px; color: #666; font-weight: bold; margin-bottom: 25px;">PPLs® VisionCare</div>
-
                 <div style="margin-bottom: 35px;">
                     <div style="font-size: 14px; font-weight: bold; color: #666; margin-bottom: 2px;">第二代</div>
                     <div style="font-size: 28px; font-weight: 900; color: #1A4B82; border-bottom: 3px solid #1A4B82; display: inline-block; padding-bottom: 4px;">視祐全</div>
                     <div style="font-size: 13px; font-weight: bold; color: #333; margin-top: 8px;">專利配方效果好</div>
                 </div>
-
                 <div>
                     <div style="font-size: 28px; font-weight: 900; color: #1A4B82; border-bottom: 3px solid #1A4B82; display: inline-block; padding-bottom: 4px;">新視祐全</div>
                     <div style="font-size: 13px; font-weight: bold; color: #333; margin-top: 8px;">加了魚油更滋潤</div>
                 </div>
-
                 <div style="margin-top: auto; font-size: 11px; color: #666; font-weight: bold;">◼ 連續榮獲多項專利肯定</div>
             </div>
         </div>
     </div>
 
-    <!-- 每日攝取量指示 -->
     <div style="text-align:center; margin-bottom:35px; font-size:20px; font-weight:bold; color:#444; line-height:2;">
         <div>維持補充 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">4</span> 粒</div>
         <div>加強提升 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">6</span> 粒</div>
     </div>
 
-    <!-- 底部行動呼籲 (CTA Box) -->
     <div style="background-color:#f4f9ff; border:2px solid #b3d4f0; border-radius:15px; padding:20px 15px; text-align:center; margin-bottom:25px;">
         <div style="color:#1A4B82; font-size:22px; font-weight:bold; margin-bottom:8px;">補充專利PPLs®配方</div>
         <div style="color:#555; font-size:15px; font-weight:bold;">營養進得去，廢物出得來</div>
     </div>
 
-    <!-- 專利字號宣告 -->
     <div style="text-align:center; color:#999; font-size:12px; line-height:1.8;">
         <div>專利字號：發明第 I 719962 號</div>
         <div>專利字號：發明第 I 766565 號</div>

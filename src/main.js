@@ -53,7 +53,6 @@ dashboardUI.style.backgroundColor = '#0f141e';
 dashboardUI.style.display = 'flex';
 dashboardUI.style.flexDirection = 'column';
 dashboardUI.style.alignItems = 'center';
-// 將內容改為靠上對齊，並增加上下 padding 讓手機滑動更順暢
 dashboardUI.style.justifyContent = 'flex-start';
 dashboardUI.style.padding = '50px 20px'; 
 dashboardUI.style.fontFamily = 'sans-serif';
@@ -63,21 +62,25 @@ dashboardUI.style.boxSizing = 'border-box';
 document.body.appendChild(dashboardUI);
 
 const dashTitle = document.createElement('h1');
-dashTitle.innerText = "👁️ 數位眼科與視覺復健中心";
+// 【優化】眼睛移到上一行，標題字體放大
+dashTitle.innerHTML = "<div style='font-size: 55px; margin-bottom: 15px;'>👁️</div>數位眼科與視覺復健中心";
 dashTitle.style.color = '#fffdd0';
-dashTitle.style.fontSize = '30px'; // 稍微微調適應手機
-dashTitle.style.textAlign = 'center'; // 置中
-dashTitle.style.marginBottom = '15px';
+dashTitle.style.fontSize = '34px'; 
+dashTitle.style.textAlign = 'center';
+dashTitle.style.marginBottom = '20px';
 dashTitle.style.letterSpacing = '1px';
 dashboardUI.appendChild(dashTitle);
 
 const dashSubtitle = document.createElement('p');
 dashSubtitle.innerText = "系統載入中，請稍候..."; 
 dashSubtitle.style.color = '#8b9bb4';
-dashSubtitle.style.fontSize = '18px'; // 【優化】字體放大
-dashSubtitle.style.textAlign = 'center'; // 置中
+// 【優化】副標題字體放大
+dashSubtitle.style.fontSize = '22px'; 
+dashSubtitle.style.textAlign = 'center';
 dashSubtitle.style.lineHeight = '1.5';
-dashSubtitle.style.marginBottom = '30px';
+dashSubtitle.style.marginBottom = '35px';
+// 【優化】避免不自然的斷詞
+dashSubtitle.style.wordBreak = 'keep-all'; 
 dashboardUI.appendChild(dashSubtitle);
 
 // 🌟 LIFF 初始化魔法陣
@@ -86,10 +89,11 @@ async function initializeLiff() {
         await liff.init({ liffId: '2010891900-u4t0FhJ6' });
         if (liff.isLoggedIn()) {
             const profile = await liff.getProfile();
-            dashSubtitle.innerText = `歡迎回來，${profile.displayName}！\n請選擇您的專屬放鬆模組`;
+            // 【優化】移除強制換行符號 \n，讓文字自動成為漂亮的一行
+            dashSubtitle.innerText = `歡迎回來，${profile.displayName}！請選擇您的專屬放鬆模組`;
             dashSubtitle.style.color = '#00ffcc'; 
         } else {
-            dashSubtitle.innerText = "請選擇您的專屬眼部放鬆與訓練模組\n(未登入 LINE)";
+            dashSubtitle.innerText = "請選擇您的專屬眼部放鬆與訓練模組 (未登入 LINE)";
         }
     } catch (err) {
         console.error('LIFF 初始化失敗:', err);
@@ -111,7 +115,7 @@ function createModuleCard(title, desc, onClick, highlight = false) {
     card.style.backgroundColor = highlight ? '#162b2b' : '#1a2233'; 
     card.style.border = `1px solid ${highlight ? '#00ffcc' : '#2a3a5a'}`;
     card.style.borderRadius = '12px';
-    card.style.padding = '24px 20px'; // 增加內距
+    card.style.padding = '24px 20px'; 
     card.style.cursor = 'pointer';
     card.style.transition = 'all 0.2s ease';
     card.style.boxShadow = highlight ? '0 0 15px rgba(0, 255, 204, 0.2)' : 'none';
@@ -130,14 +134,14 @@ function createModuleCard(title, desc, onClick, highlight = false) {
     const h3 = document.createElement('h3');
     h3.innerText = title;
     h3.style.color = '#fffdd0';
-    h3.style.fontSize = '22px'; // 【優化】標題字體顯著放大
+    h3.style.fontSize = '22px'; 
     h3.style.marginBottom = '12px';
     card.appendChild(h3);
 
     const p = document.createElement('p');
     p.innerText = desc;
     p.style.color = '#8b9bb4';
-    p.style.fontSize = '16px'; // 【優化】說明文字放大
+    p.style.fontSize = '16px'; 
     p.style.lineHeight = '1.6';
     card.appendChild(p);
     card.onclick = onClick;
@@ -156,7 +160,7 @@ trainingUI.style.position = 'absolute';
 trainingUI.style.left = '50%';
 trainingUI.style.top = '70%'; 
 trainingUI.style.transform = 'translate(-50%, -50%)';
-trainingUI.style.width = '90%'; // 限制寬度適應手機
+trainingUI.style.width = '90%'; 
 trainingUI.style.textAlign = 'center';
 trainingUI.style.pointerEvents = 'none';
 trainingUI.style.transition = 'top 0.8s ease-in-out';
@@ -167,7 +171,7 @@ document.body.appendChild(trainingUI);
 const titleUI = document.createElement('div');
 titleUI.style.color = '#fffdd0';
 titleUI.style.fontFamily = 'sans-serif';
-titleUI.style.fontSize = '26px'; // 稍微調配以適應手機寬度
+titleUI.style.fontSize = '26px'; 
 titleUI.style.fontWeight = 'bold';
 titleUI.style.letterSpacing = '1px';
 titleUI.style.marginBottom = '15px';
@@ -185,10 +189,10 @@ backBtn.innerText = "返回大廳";
 backBtn.style.position = 'absolute';
 backBtn.style.top = '20px';
 backBtn.style.left = '20px';
-backBtn.style.padding = '12px 24px'; // 【優化】加大點擊範圍
+backBtn.style.padding = '12px 24px'; 
 backBtn.style.backgroundColor = '#1a2233';
 backBtn.style.color = '#fffdd0';
-backBtn.style.fontSize = '18px'; // 【優化】字體放大
+backBtn.style.fontSize = '18px'; 
 backBtn.style.fontWeight = 'bold';
 backBtn.style.border = '1px solid #2a3a5a';
 backBtn.style.borderRadius = '8px';
@@ -260,10 +264,9 @@ breatheGroup.add(particleSystem);
 breatheGroup.position.z = -20;
 scene.add(breatheGroup);
 
-// 【優化】睫狀肌追光遊戲：初始尺寸放大為半徑 3 (原本為 1)
 const chaserGroup = new THREE.Group();
 const chaserOrb = new THREE.Mesh(new THREE.SphereGeometry(3, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffffaa, transparent: true }));
-chaserOrb.add(new THREE.PointLight(0xffffaa, 2.5, 80)); // 增強光暈
+chaserOrb.add(new THREE.PointLight(0xffffaa, 2.5, 80)); 
 chaserGroup.add(chaserOrb);
 scene.add(chaserGroup);
 
@@ -316,10 +319,21 @@ function returnToDashboard() {
 }
 
 function updateTrainingUI() {
+    // 【優化】SOP 模組的文字統一上移到 22% 的位置（球體上方的乾淨空間）
     if (currentModule === 'sop') {
-        if (phase === 'COMPLETED') { trainingUI.style.top = '50%'; titleUI.innerText = "🎉 3 回合深層放鬆完成！"; timerUI.innerText = ""; } 
-        else if (phase === 'LOOKING') { trainingUI.style.top = '70%'; titleUI.innerText = `(第 ${cycle}/${maxCycles} 回合)\n請柔和注視中心橘點`; timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; } 
-        else if (phase === 'CLOSING') { trainingUI.style.top = '50%'; titleUI.innerText = "請用力閉上雙眼，徹底放鬆"; timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; }
+        trainingUI.style.top = '22%'; // 文字移到畫面偏上方
+        if (phase === 'COMPLETED') { 
+            titleUI.innerText = "🎉 3 回合深層放鬆完成！"; 
+            timerUI.innerText = ""; 
+        } 
+        else if (phase === 'LOOKING') { 
+            titleUI.innerText = `(第 ${cycle}/${maxCycles} 回合)\n請柔和注視中心橘點`; 
+            timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; 
+        } 
+        else if (phase === 'CLOSING') { 
+            titleUI.innerText = "請用力閉上雙眼，徹底放鬆"; 
+            timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; 
+        }
     } else if (currentModule === 'stretch') {
         if (stretchTimeLeft <= 0) { trainingUI.style.top = '50%'; titleUI.innerText = "🎉 眼肌與焦距重訓完成！"; timerUI.innerText = ""; } 
         else { trainingUI.style.top = '80%'; titleUI.innerText = "保持頭部靜止\n跟隨光球移動伸展眼肌"; timerUI.innerText = `剩餘 ${stretchTimeLeft} 秒`; }
@@ -373,12 +387,14 @@ function animate() {
         const speed = time * 0.0012; 
         stretchOrb.scale.setScalar(1 + Math.cos(speed * 3) * 0.1);
         
-        // 【優化】RWD 手機邊界偵測：如果是手機寬度，縮小 X 軸擺幅，放大 Y 軸擺幅
         const isMobile = window.innerWidth < 600;
-        const xAmplitude = isMobile ? 9 : 18; 
+        // 【優化】大幅縮小手機版 X 軸擺幅，並推遠 Z 軸，確保光球絕對不被切斷
+        const xAmplitude = isMobile ? 5.5 : 18; 
         const yAmplitude = isMobile ? 12 : 8; 
+        const zCenter = isMobile ? -35 : -30;
+        const zAmplitude = isMobile ? 10 : 20;
         
-        stretchOrb.position.set(Math.sin(speed) * xAmplitude, Math.sin(speed * 2) * yAmplitude, -30 + Math.sin(speed * 0.5) * 20);
+        stretchOrb.position.set(Math.sin(speed) * xAmplitude, Math.sin(speed * 2) * yAmplitude, zCenter + Math.sin(speed * 0.5) * zAmplitude);
     }
     
     if (currentModule === 'breathe' || currentModule === 'chaser') {

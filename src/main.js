@@ -18,8 +18,6 @@ let breatheTimeLeft = 60;
 let breathPhase = 'INHALE'; 
 let testPhase = 'LEFT_EYE'; 
 let testTimeLeft = 15; 
-
-// 【新增】通用休息狀態參數
 let isResting = false;
 let restTimeLeft = 0;
 
@@ -101,6 +99,188 @@ async function initializeLiff() {
 }
 initializeLiff();
 
+// 【新增】衛教資訊互動視窗 (Modal)
+const infoModal = document.createElement('div');
+infoModal.style.position = 'absolute';
+infoModal.style.top = '0';
+infoModal.style.left = '0';
+infoModal.style.width = '100vw';
+infoModal.style.height = '100vh';
+infoModal.style.backgroundColor = '#0f141e';
+infoModal.style.zIndex = '50';
+infoModal.style.overflowY = 'auto';
+infoModal.style.display = 'none';
+infoModal.style.padding = '20px';
+infoModal.style.boxSizing = 'border-box';
+infoModal.style.fontFamily = 'sans-serif';
+document.body.appendChild(infoModal);
+
+// 【新增】營養素頁面內容
+const nutrientPage = document.createElement('div');
+nutrientPage.style.maxWidth = '800px';
+nutrientPage.style.margin = '0 auto';
+nutrientPage.style.paddingBottom = '50px';
+nutrientPage.innerHTML = `
+    <button id="close-info-btn" style="padding:10px 20px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer;">返回大廳</button>
+    <h2 style="color:#fffdd0; font-size:28px; border-bottom:2px solid #00ffcc; padding-bottom:10px; margin-bottom:15px;">護眼營養素與眼睛構造對照表</h2>
+    <p style="color:#8b9bb4; font-size:15px; line-height:1.6; margin-bottom:20px; background:#162b2b; padding:15px; border-radius:8px;">
+        <strong style="color:#00ffcc;">閱讀重點｜</strong>營養素通常是維持組織正常功能或降低缺乏風險，不能取代眼科檢查與治療。Propolins 最適合定位在視網膜色素上皮（RPE），目前證據為人類細胞與動物模型，尚非人體臨床療效。
+    </p>
+    <div style="overflow-x:auto; margin-bottom:30px;">
+        <table style="width:100%; border-collapse:collapse; color:#fffdd0; font-size:15px; line-height:1.5;">
+            <thead>
+                <tr style="background:#1a2233; text-align:left;">
+                    <th style="padding:12px; border:1px solid #2a3a5a;">營養素／成分</th>
+                    <th style="padding:12px; border:1px solid #2a3a5a;">主要相關部位</th>
+                    <th style="padding:12px; border:1px solid #2a3a5a;">作用與目前證據</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding:12px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">葉黃素、玉米黃素</td>
+                    <td style="padding:12px; border:1px solid #2a3a5a;">黃斑部、中央凹</td>
+                    <td style="padding:12px; border:1px solid #2a3a5a;">構成黃斑色素，與中央視力、辨色有關；最直接對應黃斑部的營養素。</td>
+                </tr>
+                <tr style="background:#162b2b;">
+                    <td style="padding:12px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">Propolins (尤其G)</td>
+                    <td style="padding:12px; border:1px solid #2a3a5a;">視網膜色素上皮RPE；外層視網膜界面</td>
+                    <td style="padding:12px; border:1px solid #2a3a5a;">細胞實驗顯示可提高損傷下存活；乾性AMD大鼠模型中，ERG c-wave部分恢復表示RPE功能改善 (細胞+動物前臨床證據)。</td>
+                </tr>
+                <tr>
+                    <td style="padding:12px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">維生素A／β-胡蘿蔔素</td>
+                    <td style="padding:12px; border:1px solid #2a3a5a;">視網膜桿狀細胞；角結膜</td>
+                    <td style="padding:12px; border:1px solid #2a3a5a;">維持眼表上皮；缺乏可能夜盲或乾眼。</td>
+                </tr>
+                <tr>
+                    <td style="padding:12px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">DHA & Omega-3</td>
+                    <td style="padding:12px; border:1px solid #2a3a5a;">感光細胞膜 / 淚膜、眼表</td>
+                    <td style="padding:12px; border:1px solid #2a3a5a;">具生理結構角色；可能影響發炎與淚膜油脂層。</td>
+                </tr>
+                <tr>
+                    <td style="padding:12px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">維生素C、E、鋅、銅</td>
+                    <td style="padding:12px; border:1px solid #2a3a5a;">水晶體、黃斑部</td>
+                    <td style="padding:12px; border:1px solid #2a3a5a;">抗氧化營養素，組成AREDS2可延緩特定AMD惡化。不適合未經診斷自行長期高劑量服用。</td>
+                </tr>
+                <tr>
+                    <td style="padding:12px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">維生素B1、B12、葉酸</td>
+                    <td style="padding:12px; border:1px solid #2a3a5a;">視神經</td>
+                    <td style="padding:12px; border:1px solid #2a3a5a;">嚴重缺乏可能造成營養性視神經病變；主要為避免缺乏。</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <h3 style="color:#fffdd0; margin-bottom:10px;">⚠️ 補充品使用注意</h3>
+    <ul style="color:#8b9bb4; font-size:15px; line-height:1.8; margin-bottom:30px; padding-left:20px;">
+        <li><strong style="color:#fffdd0;">不可自行點眼：</strong>專利式(II)是研究用眼科製劑，市售口服蜂膠絕不可自行滴入眼睛。</li>
+        <li><strong style="color:#fffdd0;">證據界線：</strong>Propolins 支持的是「受損RPE的細胞保護」，目前為細胞與動物前臨床證據，不能據此宣稱預防或治療人體AMD。</li>
+        <li><strong style="color:#fffdd0;">AREDS2：</strong>只適用眼科醫師判定的特定AMD；健康人或單純疲勞者不應自行套用高劑量配方。</li>
+        <li><strong style="color:#fffdd0;">就醫警訊：</strong>出現視野扭曲、單眼黑影/閃光、視力下降等，應盡快就醫，不應只靠補充品觀察。</li>
+    </ul>
+
+    <div style="text-align:center; margin-top:40px;">
+        <button id="btn-to-rpe" style="padding:15px 30px; background:#00ffcc; color:#0f141e; border:none; border-radius:30px; font-size:20px; font-weight:bold; cursor:pointer; box-shadow:0 4px 15px rgba(0,255,204,0.4);">👉 RPE 為什麼重要？</button>
+    </div>
+`;
+infoModal.appendChild(nutrientPage);
+
+// 【新增】RPE 說明頁面內容
+const rpePage = document.createElement('div');
+rpePage.style.maxWidth = '800px';
+rpePage.style.margin = '0 auto';
+rpePage.style.paddingBottom = '50px';
+rpePage.style.display = 'none'; // 預設隱藏
+rpePage.innerHTML = `
+    <button id="back-to-nutrient-btn" style="padding:10px 20px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer;">🔙 返回護眼營養素</button>
+    <h2 style="color:#fffdd0; font-size:28px; border-bottom:2px solid #00ffcc; padding-bottom:10px; margin-bottom:20px;">🏭 垃圾處理廠與清潔工：認識 RPE</h2>
+    
+    <div style="color:#8b9bb4; font-size:16px; line-height:1.8;">
+        <p style="margin-bottom:15px;">我們可以把眼底的「視網膜色素上皮細胞 (RPE)」想像成眼底的<strong style="color:#fffdd0;">垃圾處理廠</strong>，而上方的感光細胞則是負責看東西的員工。</p>
+        
+        <h3 style="color:#00ffcc; margin-top:25px; margin-bottom:10px;">一、什麼是脂褐質？它是怎麼形成的？</h3>
+        <ul style="padding-left:20px; margin-bottom:20px;">
+            <li><strong>員工天天產生垃圾：</strong>感光細胞每天工作會消耗能量，並脫落大量老舊廢棄物。</li>
+            <li><strong>清潔工天天回收：</strong>健康的 RPE 每天會把垃圾吞進去，用溶小體酵素徹底分解化為養分。</li>
+            <li><strong>變成陳年鐵鏽：</strong>若受藍光傷害或老化，處理廠酵素變弱。那些卡在肚子裡無法消化的油垢，經光線照射後生鏽變質，就形成了永遠無法清除的<strong style="color:#ff6b6b;">「脂褐質」</strong>。</li>
+        </ul>
+
+        <h3 style="color:#00ffcc; margin-top:25px; margin-bottom:10px;">二、健康的 RPE（好工廠）如何保護眼睛？</h3>
+        <ul style="padding-left:20px; margin-bottom:20px;">
+            <li><strong>天天清空垃圾：</strong>不讓垃圾有機會生鏽變成脂褐質。</li>
+            <li><strong>自帶超強防護罩：</strong>利用天然防曬劑(黑色素與抗氧化酶)擋掉有害光線。</li>
+            <li><strong>精準控管原料：</strong>順暢處理維生素 A，不讓其亂結塊。</li>
+        </ul>
+
+        <h3 style="color:#ff6b6b; margin-top:25px; margin-bottom:10px;">三、不健康的 RPE（爛工廠）帶來的災難</h3>
+        <ul style="padding-left:20px; margin-bottom:25px;">
+            <li><strong style="color:#fffdd0;">1. 吃再多營養也吸收不了：</strong>運輸卡車停擺，就算吃再多高檔葉黃素，不健康的工廠也無法吸收利用。</li>
+            <li><strong style="color:#fffdd0;">2. 眼底長斑堆垃圾：</strong>肚子被脂褐質塞爆後，把垃圾往地基亂倒，形成「隱形斑(Drusen)」，切斷氧氣與營養。</li>
+            <li><strong style="color:#fffdd0;">3. 眼睛結構大毀滅：</strong>防護牆破裂，眼底亂長脆弱的新生血管（濕性病變）；最終員工集體餓死（地圖狀萎縮），導致視野中央出現黑洞失明。</li>
+        </ul>
+        
+        <div style="background:#162b2b; padding:20px; border-radius:10px; text-align:center; border: 1px solid #00ffcc;">
+            <p style="color:#fffdd0; font-size:18px; font-weight:bold; margin:0;">💡 總結</p>
+            <p style="color:#00ffcc; font-size:18px; margin-top:10px; margin-bottom:0;">「健康的 RPE 能幫你消滅垃圾；<br>不健康的 RPE 會讓垃圾（脂褐質）堆成高山，最後把你的視力連根拔起。」</p>
+        </div>
+    </div>
+`;
+infoModal.appendChild(rpePage);
+
+// 模組切換邏輯
+document.getElementById('btn-to-rpe').onclick = () => {
+    nutrientPage.style.display = 'none';
+    rpePage.style.display = 'block';
+    infoModal.scrollTo(0,0);
+};
+document.getElementById('back-to-nutrient-btn').onclick = () => {
+    rpePage.style.display = 'none';
+    nutrientPage.style.display = 'block';
+    infoModal.scrollTo(0,0);
+};
+document.getElementById('close-info-btn').onclick = () => {
+    infoModal.style.display = 'none';
+    dashboardUI.style.display = 'flex';
+};
+
+// ==========================================
+// 【新增】大廳：護眼常見營養素 (放置於模組一正上方)
+// ==========================================
+const infoBanner = document.createElement('div');
+infoBanner.style.width = '100%';
+infoBanner.style.maxWidth = '800px';
+infoBanner.style.backgroundColor = '#162b2b';
+infoBanner.style.border = '1px solid #00ffcc';
+infoBanner.style.borderRadius = '12px';
+infoBanner.style.padding = '20px';
+infoBanner.style.marginBottom = '25px'; // 讓它與下方模組格網保持距離
+infoBanner.style.cursor = 'pointer';
+infoBanner.style.boxShadow = '0 0 15px rgba(0, 255, 204, 0.2)';
+infoBanner.style.textAlign = 'center';
+infoBanner.style.transition = 'all 0.2s ease';
+infoBanner.innerHTML = `
+    <h3 style="color:#00ffcc; font-size:22px; margin-bottom:10px;">📖 護眼常見營養素與 RPE 百科</h3>
+    <p style="color:#8b9bb4; font-size:16px; margin:0;">點擊了解護眼成分作用部位，以及視網膜垃圾處理廠 (RPE) 的重要性</p>
+`;
+infoBanner.onmouseover = () => {
+    infoBanner.style.transform = 'translateY(-3px)';
+    infoBanner.style.boxShadow = '0 0 25px rgba(0, 255, 204, 0.4)';
+};
+infoBanner.onmouseout = () => {
+    infoBanner.style.transform = 'translateY(0)';
+    infoBanner.style.boxShadow = '0 0 15px rgba(0, 255, 204, 0.2)';
+};
+infoBanner.onclick = () => {
+    dashboardUI.style.display = 'none';
+    infoModal.style.display = 'block';
+    nutrientPage.style.display = 'block';
+    rpePage.style.display = 'none';
+    infoModal.scrollTo(0,0);
+};
+dashboardUI.appendChild(infoBanner);
+
+// ==========================================
+// 大廳選單配置
+// ==========================================
 const menuGrid = document.createElement('div');
 menuGrid.style.display = 'grid';
 menuGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(280px, 1fr))'; 
@@ -294,7 +474,6 @@ function spawnStimulusBall() {
 // ==========================================
 function startTraining(type) {
     currentModule = type;
-    // 【修改】每次開始新模組時重置休息狀態
     isResting = false;
     restTimeLeft = 0;
     
@@ -351,7 +530,6 @@ function updateTrainingUI() {
             titleUI.innerText = "請用力閉上雙眼，徹底放鬆"; 
             timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; 
         }
-    // 【修改】加入 isResting 判斷，渲染閉眼休息 UI
     } else if (currentModule === 'stretch') {
         if (stretchTimeLeft > 0) { 
             trainingUI.style.top = '80%'; 
@@ -483,15 +661,14 @@ animate();
 setInterval(() => {
     if (currentModule === 'DASHBOARD') return;
 
-    // 【新增】處理模組二、三、四的通用閉眼休息倒數
     if ((currentModule === 'stretch' || currentModule === 'chaser' || currentModule === 'breathe') && isResting) {
         restTimeLeft--;
         if (restTimeLeft <= 0) {
-            isResting = false; // 休息結束
-            playDingSound();   // 播放結束提示音
+            isResting = false; 
+            playDingSound();   
         }
         updateTrainingUI();
-        return; // 在休息期間，暫停原本模組的時間流動
+        return; 
     }
 
     if (currentModule === 'sop') {
@@ -509,7 +686,7 @@ setInterval(() => {
         if (stretchTimeLeft <= 0) {
             isResting = true;
             restTimeLeft = 5;
-            playDingSound(); // 進入休息時先「叮」一聲
+            playDingSound(); 
         }
     }
     else if (currentModule === 'chaser') { 

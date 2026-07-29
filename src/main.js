@@ -56,7 +56,7 @@ dashboardUI.style.display = 'flex';
 dashboardUI.style.flexDirection = 'column';
 dashboardUI.style.alignItems = 'center';
 dashboardUI.style.justifyContent = 'flex-start';
-dashboardUI.style.padding = '50px 20px'; 
+dashboardUI.style.padding = '40px 20px'; 
 dashboardUI.style.fontFamily = 'sans-serif';
 dashboardUI.style.zIndex = '10';
 dashboardUI.style.overflowY = 'auto'; 
@@ -64,21 +64,21 @@ dashboardUI.style.boxSizing = 'border-box';
 document.body.appendChild(dashboardUI);
 
 const dashTitle = document.createElement('h1');
-dashTitle.innerHTML = "<div style='font-size: 55px; margin-bottom: 15px;'>👁️</div>數位眼科與視覺復健中心";
+dashTitle.innerHTML = "<div style='font-size: 55px; margin-bottom: 10px;'>👁️</div>數位眼科與視覺復健中心";
 dashTitle.style.color = '#fffdd0';
-dashTitle.style.fontSize = '34px'; 
+dashTitle.style.fontSize = '32px'; 
 dashTitle.style.textAlign = 'center';
-dashTitle.style.marginBottom = '20px';
+dashTitle.style.marginBottom = '15px';
 dashTitle.style.letterSpacing = '1px';
 dashboardUI.appendChild(dashTitle);
 
 const dashSubtitle = document.createElement('p');
 dashSubtitle.innerText = "系統載入中，請稍候..."; 
 dashSubtitle.style.color = '#8b9bb4';
-dashSubtitle.style.fontSize = '22px'; 
+dashSubtitle.style.fontSize = '20px'; 
 dashSubtitle.style.textAlign = 'center';
 dashSubtitle.style.lineHeight = '1.5';
-dashSubtitle.style.marginBottom = '35px';
+dashSubtitle.style.marginBottom = '30px';
 dashSubtitle.style.wordBreak = 'keep-all'; 
 dashboardUI.appendChild(dashSubtitle);
 
@@ -90,9 +90,8 @@ async function initializeLiff() {
             dashSubtitle.innerText = `歡迎回來，${profile.displayName}！請選擇您的專屬放鬆模組`;
             dashSubtitle.style.color = '#00ffcc'; 
         } else {
-            // 【修正】如果未登入（例如在一般瀏覽器打開），顯示一鍵登入按鈕
             dashSubtitle.innerHTML = `請選擇您的專屬眼部放鬆與訓練模組<br>
-            <button id="liff-login-btn" style="margin-top:15px; padding:10px 24px; background:#06C755; color:#fff; border:none; border-radius:30px; font-size:18px; font-weight:bold; cursor:pointer; box-shadow:0 4px 10px rgba(6,199,85,0.3);">🟢 使用 LINE 登入</button>`;
+            <button id="liff-login-btn" style="margin-top:15px; padding:10px 24px; background:#06C755; color:#fff; border:none; border-radius:30px; font-size:18px; font-weight:bold; cursor:pointer; box-shadow:0 4px 10px rgba(6,199,85,0.3);">🟢 使用 LINE 一鍵登入</button>`;
             document.getElementById('liff-login-btn').onclick = () => {
                 liff.login({ redirectUri: window.location.href });
             };
@@ -103,6 +102,16 @@ async function initializeLiff() {
     }
 }
 initializeLiff();
+
+// 【修改】建立統一的主內容容器，確保所有區塊的寬度與對齊完全一致
+const contentContainer = document.createElement('div');
+contentContainer.style.width = '100%';
+contentContainer.style.maxWidth = '800px';
+contentContainer.style.display = 'flex';
+contentContainer.style.flexDirection = 'column';
+contentContainer.style.gap = '20px'; // 區塊間距統一
+contentContainer.style.marginBottom = '40px';
+dashboardUI.appendChild(contentContainer);
 
 // ==========================================
 // 模組一：衛教資訊互動視窗 (Modal)
@@ -122,7 +131,7 @@ infoModal.style.boxSizing = 'border-box';
 infoModal.style.fontFamily = 'sans-serif';
 document.body.appendChild(infoModal);
 
-// 營養素頁面內容
+// 營養素頁面
 const nutrientPage = document.createElement('div');
 nutrientPage.style.maxWidth = '800px';
 nutrientPage.style.margin = '0 auto';
@@ -131,7 +140,7 @@ nutrientPage.innerHTML = `
     <button id="close-info-btn" style="padding:10px 20px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer;">返回大廳</button>
     <h2 style="color:#fffdd0; font-size:28px; border-bottom:2px solid #00ffcc; padding-bottom:10px; margin-bottom:15px;">護眼營養素與眼睛構造對照表</h2>
     <p style="color:#8b9bb4; font-size:15px; line-height:1.6; margin-bottom:20px; background:#162b2b; padding:15px; border-radius:8px;">
-        <strong style="color:#00ffcc;">閱讀重點｜</strong>營養素通常是維持組織正常功能或降低缺乏風險，不能取代眼科檢查與治療。Propolins 最適合定位在視網膜色素上皮（RPE），目前證據為人類細胞與動物模型。
+        <strong style="color:#00ffcc;">閱讀重點｜</strong>營養素通常是維持組織正常功能或降低缺乏風險，不能取代眼科檢查與治療。Propolins 最適合定位在視網膜色素上皮（RPE），目前證據為人類細胞與動物模型，尚非人體臨床療效。
     </p>
     <div style="overflow-x:auto; margin-bottom:30px;">
         <table style="width:100%; border-collapse:collapse; color:#fffdd0; font-size:15px; line-height:1.5;">
@@ -176,22 +185,13 @@ nutrientPage.innerHTML = `
             </tbody>
         </table>
     </div>
-    
-    <h3 style="color:#fffdd0; margin-bottom:10px;">⚠️ 補充品使用注意</h3>
-    <ul style="color:#8b9bb4; font-size:15px; line-height:1.8; margin-bottom:30px; padding-left:20px;">
-        <li><strong style="color:#fffdd0;">不可自行點眼：</strong>專利式(II)是研究用眼科製劑，市售口服蜂膠絕不可自行滴入眼睛。</li>
-        <li><strong style="color:#fffdd0;">證據界線：</strong>Propolins 支持的是「受損RPE的細胞保護」，目前為細胞與動物前臨床證據，不能據此宣稱預防或治療人體AMD。</li>
-        <li><strong style="color:#fffdd0;">AREDS2：</strong>只適用眼科醫師判定的特定AMD；健康人或單純疲勞者不應自行套用高劑量配方。</li>
-        <li><strong style="color:#fffdd0;">就醫警訊：</strong>出現視野扭曲、單眼黑影/閃光、視力下降等，應盡快就醫，不應只靠補充品觀察。</li>
-    </ul>
-
     <div style="text-align:center; margin-top:40px;">
         <button id="btn-to-rpe" style="padding:15px 30px; background:#00ffcc; color:#0f141e; border:none; border-radius:30px; font-size:20px; font-weight:bold; cursor:pointer; box-shadow:0 4px 15px rgba(0,255,204,0.4);">👉 RPE 為什麼重要？</button>
     </div>
 `;
 infoModal.appendChild(nutrientPage);
 
-// RPE 說明頁面內容
+// RPE 說明頁面
 const rpePage = document.createElement('div');
 rpePage.style.maxWidth = '800px';
 rpePage.style.margin = '0 auto';
@@ -200,31 +200,20 @@ rpePage.style.display = 'none';
 rpePage.innerHTML = `
     <button id="back-to-nutrient-btn" style="padding:10px 20px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer;">🔙 返回護眼營養素</button>
     <h2 style="color:#fffdd0; font-size:28px; border-bottom:2px solid #00ffcc; padding-bottom:10px; margin-bottom:20px;">🏭 垃圾處理廠與清潔工：認識 RPE</h2>
-    
     <div style="color:#8b9bb4; font-size:16px; line-height:1.8;">
         <p style="margin-bottom:15px;">我們可以把眼底的「視網膜色素上皮細胞 (RPE)」想像成眼底的<strong style="color:#fffdd0;">垃圾處理廠</strong>，而上方的感光細胞則是負責看東西的員工。</p>
-        
         <h3 style="color:#00ffcc; margin-top:25px; margin-bottom:10px;">一、什麼是脂褐質？它是怎麼形成的？</h3>
         <ul style="padding-left:20px; margin-bottom:20px;">
             <li><strong>員工天天產生垃圾：</strong>感光細胞每天工作會消耗能量，並脫落大量老舊廢棄物。</li>
             <li><strong>清潔工天天回收：</strong>健康的 RPE 每天會把垃圾吞進去，用溶小體酵素徹底分解化為養分。</li>
-            <li><strong>變成陳年鐵鏽：</strong>若受藍光傷害或老化，處理廠酵素變弱。那些卡在肚子裡無法消化的油垢，經光線照射後生鏽變質，就形成了永遠無法清除的<strong style="color:#ff6b6b;">「脂褐質」</strong>。</li>
+            <li><strong>變成陳年鐵鏽：</strong>若受藍光傷害或老化，處理廠酵素變弱。卡在肚子裡的油垢經光線照射後生鏽變質，形成了永遠無法清除的<strong style="color:#ff6b6b;">「脂褐質」</strong>。</li>
         </ul>
-
-        <h3 style="color:#00ffcc; margin-top:25px; margin-bottom:10px;">二、健康的 RPE（好工廠）如何保護眼睛？</h3>
-        <ul style="padding-left:20px; margin-bottom:20px;">
-            <li><strong>天天清空垃圾：</strong>不讓垃圾有機會生鏽變成脂褐質。</li>
-            <li><strong>自帶超強防護罩：</strong>利用天然防曬劑(黑色素與抗氧化酶)擋掉有害光線。</li>
-            <li><strong>精準控管原料：</strong>順暢處理維生素 A，不讓其亂結塊。</li>
-        </ul>
-
         <h3 style="color:#ff6b6b; margin-top:25px; margin-bottom:10px;">三、不健康的 RPE（爛工廠）帶來的災難</h3>
         <ul style="padding-left:20px; margin-bottom:25px;">
-            <li><strong style="color:#fffdd0;">1. 吃再多營養也吸收不了：</strong>運輸卡車停擺，就算吃再多高檔葉黃素，不健康的工廠也無法吸收利用。</li>
-            <li><strong style="color:#fffdd0;">2. 眼底長斑堆垃圾：</strong>肚子被脂褐質塞爆後，把垃圾往地基亂倒，形成「隱形斑(Drusen)」，切斷氧氣與營養。</li>
-            <li><strong style="color:#fffdd0;">3. 眼睛結構大毀滅：</strong>防護牆破裂，眼底亂長脆弱的新生血管（濕性病變）；最終員工集體餓死（地圖狀萎縮），導致視野中央出現黑洞失明。</li>
+            <li><strong style="color:#fffdd0;">1. 吃再多營養也吸收不了：</strong>就算吃再多高檔葉黃素，不健康的工廠也無法吸收利用。</li>
+            <li><strong style="color:#fffdd0;">2. 眼底長斑堆垃圾：</strong>肚子被脂褐質塞爆後，把垃圾往地基亂倒，形成「隱形斑(Drusen)」。</li>
+            <li><strong style="color:#fffdd0;">3. 眼睛結構大毀滅：</strong>防護牆破裂，引發濕性病變；最終員工集體餓死，導致視野中央出現黑洞失明。</li>
         </ul>
-        
         <div style="background:#162b2b; padding:20px; border-radius:10px; text-align:center; border: 1px solid #00ffcc;">
             <p style="color:#fffdd0; font-size:18px; font-weight:bold; margin:0;">💡 總結</p>
             <p style="color:#00ffcc; font-size:18px; margin-top:10px; margin-bottom:0;">「健康的 RPE 能幫你消滅垃圾；<br>不健康的 RPE 會讓垃圾（脂褐質）堆成高山，最後把你的視力連根拔起。」</p>
@@ -233,7 +222,6 @@ rpePage.innerHTML = `
 `;
 infoModal.appendChild(rpePage);
 
-// 模組切換邏輯
 document.getElementById('btn-to-rpe').onclick = () => {
     nutrientPage.style.display = 'none';
     rpePage.style.display = 'block';
@@ -250,7 +238,123 @@ document.getElementById('close-info-btn').onclick = () => {
 };
 
 // ==========================================
-// 【新增/優化】產品推廣互動視窗 (Ad Modal)
+// 【統一外框設計】大廳：護眼常見營養素 Banner
+// ==========================================
+const infoBanner = document.createElement('div');
+infoBanner.style.width = '100%';
+infoBanner.style.backgroundColor = '#162b2b';
+// 統一加上 #00ffcc 螢光彩色外框
+infoBanner.style.border = '1px solid #00ffcc'; 
+infoBanner.style.borderRadius = '12px';
+infoBanner.style.padding = '20px';
+infoBanner.style.cursor = 'pointer';
+infoBanner.style.boxShadow = '0 0 15px rgba(0, 255, 204, 0.2)';
+infoBanner.style.textAlign = 'center';
+infoBanner.style.transition = 'all 0.2s ease';
+infoBanner.style.boxSizing = 'border-box';
+infoBanner.innerHTML = `
+    <h3 style="color:#00ffcc; font-size:22px; margin-bottom:10px;">📖 護眼常見營養素與 RPE 百科</h3>
+    <p style="color:#8b9bb4; font-size:16px; margin:0;">點擊了解護眼成分作用部位，以及視網膜垃圾處理廠 (RPE) 的重要性</p>
+`;
+infoBanner.onmouseover = () => {
+    infoBanner.style.transform = 'translateY(-3px)';
+    infoBanner.style.boxShadow = '0 0 25px rgba(0, 255, 204, 0.4)';
+};
+infoBanner.onmouseout = () => {
+    infoBanner.style.transform = 'translateY(0)';
+    infoBanner.style.boxShadow = '0 0 15px rgba(0, 255, 204, 0.2)';
+};
+infoBanner.onclick = () => {
+    dashboardUI.style.display = 'none';
+    infoModal.style.display = 'block';
+    nutrientPage.style.display = 'block';
+    rpePage.style.display = 'none';
+    infoModal.scrollTo(0,0);
+};
+contentContainer.appendChild(infoBanner);
+
+// ==========================================
+// 【統一外框設計】大廳選單配置
+// ==========================================
+const menuGrid = document.createElement('div');
+menuGrid.style.display = 'grid';
+menuGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(280px, 1fr))'; 
+menuGrid.style.gap = '20px';
+menuGrid.style.width = '100%';
+contentContainer.appendChild(menuGrid);
+
+function createModuleCard(title, desc, onClick) {
+    const card = document.createElement('div');
+    card.style.backgroundColor = '#1a2233'; 
+    // 統一加上 #00ffcc 螢光彩色外框，保證大小與上方一致
+    card.style.border = `1px solid #00ffcc`;
+    card.style.borderRadius = '12px';
+    card.style.padding = '24px 20px'; 
+    card.style.cursor = 'pointer';
+    card.style.transition = 'all 0.2s ease';
+    card.style.boxSizing = 'border-box';
+
+    card.onmouseover = () => {
+        card.style.transform = 'translateY(-3px)';
+        card.style.boxShadow = '0 0 25px rgba(0, 255, 204, 0.4)';
+    };
+    card.onmouseout = () => {
+        card.style.transform = 'translateY(0)';
+        card.style.boxShadow = 'none';
+    };
+
+    const h3 = document.createElement('h3');
+    h3.innerText = title;
+    h3.style.color = '#fffdd0';
+    h3.style.fontSize = '22px'; 
+    h3.style.marginBottom = '12px';
+    card.appendChild(h3);
+
+    const p = document.createElement('p');
+    p.innerText = desc;
+    p.style.color = '#8b9bb4';
+    p.style.fontSize = '16px'; 
+    p.style.lineHeight = '1.6';
+    card.appendChild(p);
+    card.onclick = onClick;
+    return card;
+}
+
+menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => startTraining('sop')));
+menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，並結合 Z 軸遠近對焦。", () => startTraining('stretch')));
+menuGrid.appendChild(createModuleCard("🎮 睫狀肌深空追光", "【放鬆遊戲】死盯流星飛向深空，強迫睫狀肌徹底看遠放鬆。", () => startTraining('chaser')));
+menuGrid.appendChild(createModuleCard("🌌 星雲散焦與神經放鬆", "【深度冥想】釋放隧道視覺，同步 3D 粒子星雲進行共振呼吸。", () => startTraining('breathe'))); 
+menuGrid.appendChild(createModuleCard("🔍 黃斑部自我檢測", "經典阿姆斯勒方格表數位化，快篩視網膜病變風險。", () => startTraining('amsler')));
+menuGrid.appendChild(createModuleCard("👁️ 散光軸向自我檢測", "放射鐘測試。檢測是否因散光未矯正而導致嚴重疲勞。", () => startTraining('astigmatism')));
+
+// ==========================================
+// 大廳底部：隱藏式產品推廣按鈕
+// ==========================================
+const adBannerBtn = document.createElement('div');
+adBannerBtn.style.width = '100%';
+adBannerBtn.style.border = '2px dashed #ffff00'; 
+adBannerBtn.style.borderRadius = '12px';
+adBannerBtn.style.padding = '20px';
+adBannerBtn.style.cursor = 'pointer';
+adBannerBtn.style.display = 'flex';
+adBannerBtn.style.justifyContent = 'space-between';
+adBannerBtn.style.alignItems = 'center';
+adBannerBtn.style.boxSizing = 'border-box';
+adBannerBtn.innerHTML = `
+    <div style="color: #fffdd0; font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 10px;">
+        <span style="color:#ffff00; font-size: 22px;">💡</span> 補充眼睛完整營養
+    </div>
+    <div style="color: #666; font-size: 20px; font-weight: bold;">></div>
+`;
+adBannerBtn.onclick = () => {
+    dashboardUI.style.display = 'none';
+    adModal.style.display = 'block';
+    adModal.scrollTo(0,0);
+};
+contentContainer.appendChild(adBannerBtn);
+
+// ==========================================
+// 產品推廣互動視窗 (慧祐全排版設計)
 // ==========================================
 const adModal = document.createElement('div');
 adModal.style.position = 'absolute';
@@ -258,7 +362,7 @@ adModal.style.top = '0';
 adModal.style.left = '0';
 adModal.style.width = '100vw';
 adModal.style.height = '100vh';
-adModal.style.backgroundColor = '#0f141e'; // 維持深色背景
+adModal.style.backgroundColor = '#0f141e';
 adModal.style.zIndex = '50';
 adModal.style.overflowY = 'auto';
 adModal.style.display = 'none';
@@ -288,13 +392,13 @@ closeAdBtn.onclick = () => {
 adContainer.appendChild(closeAdBtn);
 
 const adWhiteBox = document.createElement('div');
-adWhiteBox.style.backgroundColor = '#ffffff'; // 白色廣告主體
+adWhiteBox.style.backgroundColor = '#ffffff'; 
 adWhiteBox.style.borderRadius = '20px';
 adWhiteBox.style.padding = '30px 20px';
 adWhiteBox.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.5)';
 adWhiteBox.innerHTML = `
     <!-- 品牌 Header -->
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
         <div style="font-weight:900; font-size:18px; color:#b8982a;">PP<span style="color:#333;">LS</span> <span style="font-size:12px; color:#999; font-weight:normal; letter-spacing:1px;">INSIDE</span></div>
         <div style="font-size:15px; color:#2d8a4e; font-weight:bold; display:flex; align-items:center; gap:5px;">
             <span style="font-size:18px;">🌿</span> NBM 彥臣生技
@@ -303,58 +407,47 @@ adWhiteBox.innerHTML = `
     
     <h2 style="text-align:center; color:#1A4B82; font-size:28px; font-weight:bold; margin-bottom:40px;">補充眼睛完整營養</h2>
     
-    <!-- 💎 產品 3D 外盒 (單一區塊整合兩項產品) -->
-    <div style="display:flex; justify-content:center; margin-bottom:40px;">
-        <div style="width: 240px; background: #fff; border-radius: 4px; box-shadow: 15px 15px 30px rgba(0,0,0,0.15), -2px -2px 5px rgba(0,0,0,0.05); border: 1px solid #e0e0e0; display: flex; flex-direction: column; overflow: hidden; position:relative;">
+    <!-- 💎 完美致敬「慧祐全」的斜角幾何單一包裝設計 -->
+    <div style="display:flex; justify-content:center; margin-bottom:45px;">
+        <div style="width: 260px; height: 380px; position: relative; background: #fff; border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; border: 1px solid #eaeaea;">
             
-            <!-- Logo 區 -->
-            <div style="padding: 15px 15px 10px; text-align:left;">
-                <div style="font-weight:900; font-size:16px; color:#333;">PP<span style="color:#b8982a;">LS</span></div>
-            </div>
-            
-            <!-- 藍色視覺色塊 (包含兩項產品文案) -->
-            <div style="background-color: #1A4B82; color: #fff; padding: 20px 15px; text-align: left; flex:none;">
+            <!-- 右側藍色斜角幾何色塊 -->
+            <div style="position: absolute; right: 0; top: 0; width: 45%; height: 100%; background-color: #1A4B82; clip-path: polygon(25% 0, 100% 0, 100% 100%, 0 100%);"></div>
+
+            <!-- 內部文字排版 -->
+            <div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; padding: 30px 20px; box-sizing: border-box; display: flex; flex-direction: column; text-align: left; z-index: 2;">
                 
+                <div style="font-size: 13px; color: #666; font-weight: bold; margin-bottom: 25px;">PPLs® VisionCare</div>
+
                 <!-- 產品 1 -->
-                <div style="margin-bottom: 12px;">
-                    <div style="font-size:13px; margin-bottom:4px; opacity:0.9; letter-spacing:1px;">第二代</div>
-                    <div style="font-size:32px; font-weight:bold; letter-spacing:4px; line-height:1.1;">視祐全</div>
-                    <div style="font-size:12px; margin-top:6px; color:#cce0ff;">專利配方效果好</div>
+                <div style="margin-bottom: 35px;">
+                    <div style="font-size: 14px; font-weight: bold; color: #666; margin-bottom: 2px;">第二代</div>
+                    <div style="font-size: 28px; font-weight: 900; color: #1A4B82; border-bottom: 3px solid #1A4B82; display: inline-block; padding-bottom: 4px;">視祐全</div>
+                    <div style="font-size: 13px; font-weight: bold; color: #333; margin-top: 8px;">專利配方效果好</div>
                 </div>
-                
-                <!-- 分隔線 -->
-                <div style="border-top: 1px dashed rgba(255,255,255,0.4); margin: 20px 0;"></div>
-                
+
                 <!-- 產品 2 -->
                 <div>
-                    <div style="font-size:32px; font-weight:bold; letter-spacing:4px; line-height:1.1;">新視祐全</div>
-                    <div style="font-size:12px; margin-top:6px; color:#cce0ff;">加了魚油更滋潤</div>
+                    <div style="font-size: 28px; font-weight: 900; color: #1A4B82; border-bottom: 3px solid #1A4B82; display: inline-block; padding-bottom: 4px;">新視祐全</div>
+                    <div style="font-size: 13px; font-weight: bold; color: #333; margin-top: 8px;">加了魚油更滋潤</div>
                 </div>
-                
+
+                <!-- 底部專利標章模擬 -->
+                <div style="margin-top: auto; font-size: 11px; color: #666; font-weight: bold;">◼ 連續榮獲多項專利肯定</div>
             </div>
-            
-            <!-- 底部資訊與蜂巢點綴 -->
-            <div style="padding: 15px; text-align:left; flex:1; position:relative; min-height:85px;">
-                <div style="font-size:14px; font-weight:bold; color:#444; margin-bottom: 5px;">PPLs® 晶亮配方</div>
-                <div style="font-size:11px; color:#888;">專利PPLs® 精選黃金比例</div>
-                <div style="position:absolute; bottom:15px; right:15px; background-color:#1A4B82; color:#fff; padding:3px 10px; font-size:14px; font-weight:bold; border-radius:2px;">50粒</div>
-            </div>
-            
-            <!-- 仿包裝漸層光影 -->
-            <div style="position:absolute; bottom:-20px; left:-20px; width:120px; height:120px; background:linear-gradient(135deg, transparent 50%, #f0f5fa 50%); z-index:0; pointer-events:none;"></div>
         </div>
     </div>
 
     <!-- 每日攝取量指示 -->
-    <div style="text-align:center; margin-bottom:30px; font-size:20px; font-weight:bold; color:#444; line-height:2;">
+    <div style="text-align:center; margin-bottom:35px; font-size:20px; font-weight:bold; color:#444; line-height:2;">
         <div>維持補充 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">4</span> 粒</div>
         <div>加強提升 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">6</span> 粒</div>
     </div>
 
     <!-- 底部行動呼籲 (CTA Box) -->
     <div style="background-color:#f4f9ff; border:2px solid #b3d4f0; border-radius:15px; padding:20px 15px; text-align:center; margin-bottom:25px;">
-        <div style="color:#1A4B82; font-size:24px; font-weight:bold; margin-bottom:8px;">補充專利PPLs®配方</div>
-        <div style="color:#555; font-size:16px; font-weight:bold;">營養進得去，廢物出得來</div>
+        <div style="color:#1A4B82; font-size:22px; font-weight:bold; margin-bottom:8px;">補充專利PPLs®配方</div>
+        <div style="color:#555; font-size:15px; font-weight:bold;">營養進得去，廢物出得來</div>
     </div>
 
     <!-- 專利字號宣告 -->
@@ -365,121 +458,6 @@ adWhiteBox.innerHTML = `
 `;
 adContainer.appendChild(adWhiteBox);
 adModal.appendChild(adContainer);
-
-// ==========================================
-// 大廳：護眼常見營養素 Banner
-// ==========================================
-// 【修正】將外框線條加粗，確保在手機上清晰可見
-const infoBanner = document.createElement('div');
-infoBanner.style.width = '100%';
-infoBanner.style.maxWidth = '800px';
-infoBanner.style.backgroundColor = '#162b2b';
-infoBanner.style.border = '2px solid #00ffcc'; // 外框加粗為 2px
-infoBanner.style.borderRadius = '12px';
-infoBanner.style.padding = '20px';
-infoBanner.style.marginBottom = '25px'; 
-infoBanner.style.cursor = 'pointer';
-infoBanner.style.boxShadow = '0 0 15px rgba(0, 255, 204, 0.2)';
-infoBanner.style.textAlign = 'center';
-infoBanner.style.transition = 'all 0.2s ease';
-infoBanner.innerHTML = `
-    <h3 style="color:#00ffcc; font-size:22px; margin-bottom:10px;">📖 護眼常見營養素與 RPE 百科</h3>
-    <p style="color:#8b9bb4; font-size:16px; margin:0;">點擊了解護眼成分作用部位，以及視網膜垃圾處理廠 (RPE) 的重要性</p>
-`;
-infoBanner.onclick = () => {
-    dashboardUI.style.display = 'none';
-    infoModal.style.display = 'block';
-    nutrientPage.style.display = 'block';
-    rpePage.style.display = 'none';
-    infoModal.scrollTo(0,0);
-};
-dashboardUI.appendChild(infoBanner);
-
-// ==========================================
-// 大廳選單配置
-// ==========================================
-const menuGrid = document.createElement('div');
-menuGrid.style.display = 'grid';
-menuGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(280px, 1fr))'; 
-menuGrid.style.gap = '20px';
-menuGrid.style.width = '100%';
-menuGrid.style.maxWidth = '800px';
-menuGrid.style.marginBottom = '25px'; 
-dashboardUI.appendChild(menuGrid);
-
-function createModuleCard(title, desc, onClick, highlight = false) {
-    const card = document.createElement('div');
-    card.style.backgroundColor = highlight ? '#162b2b' : '#1a2233'; 
-    // 【修正】將所有卡片的外框線條加粗為 2px，顏色增強
-    card.style.border = `2px solid ${highlight ? '#00ffcc' : '#3a4f70'}`;
-    card.style.borderRadius = '12px';
-    card.style.padding = '24px 20px'; 
-    card.style.cursor = 'pointer';
-    card.style.transition = 'all 0.2s ease';
-    card.style.boxShadow = highlight ? '0 0 15px rgba(0, 255, 204, 0.2)' : 'none';
-
-    card.onmouseover = () => {
-        card.style.borderColor = '#00ffcc';
-        card.style.transform = 'translateY(-3px)';
-        if(highlight) card.style.boxShadow = '0 0 25px rgba(0, 255, 204, 0.4)';
-    };
-    card.onmouseout = () => {
-        card.style.borderColor = highlight ? '#00ffcc' : '#3a4f70';
-        card.style.transform = 'translateY(0)';
-        if(highlight) card.style.boxShadow = '0 0 15px rgba(0, 255, 204, 0.2)';
-    };
-
-    const h3 = document.createElement('h3');
-    h3.innerText = title;
-    h3.style.color = '#fffdd0';
-    h3.style.fontSize = '22px'; 
-    h3.style.marginBottom = '12px';
-    card.appendChild(h3);
-
-    const p = document.createElement('p');
-    p.innerText = desc;
-    p.style.color = '#8b9bb4';
-    p.style.fontSize = '16px'; 
-    p.style.lineHeight = '1.6';
-    card.appendChild(p);
-    card.onclick = onClick;
-    return card;
-}
-
-menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => startTraining('sop')));
-menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，並結合 Z 軸遠近對焦。", () => startTraining('stretch')));
-menuGrid.appendChild(createModuleCard("🎮 睫狀肌深空追光", "【放鬆遊戲】死盯流星飛向深空，強迫睫狀肌徹底看遠放鬆。", () => startTraining('chaser')));
-menuGrid.appendChild(createModuleCard("🌌 星雲散焦與神經放鬆", "【深度冥想】釋放隧道視覺，同步 3D 粒子星雲進行共振呼吸。", () => startTraining('breathe'), true)); 
-menuGrid.appendChild(createModuleCard("🔍 黃斑部自我檢測", "經典阿姆斯勒方格表數位化，快篩視網膜病變風險。", () => startTraining('amsler')));
-menuGrid.appendChild(createModuleCard("👁️ 散光軸向自我檢測", "放射鐘測試。檢測是否因散光未矯正而導致嚴重疲勞。", () => startTraining('astigmatism')));
-
-// ==========================================
-// 【新增】大廳底部：隱藏式產品推廣按鈕 (圖二樣式)
-// ==========================================
-const adBannerBtn = document.createElement('div');
-adBannerBtn.style.width = '100%';
-adBannerBtn.style.maxWidth = '800px';
-adBannerBtn.style.border = '2px dashed #ffff00'; // 黃色虛線外框
-adBannerBtn.style.borderRadius = '12px';
-adBannerBtn.style.padding = '20px';
-adBannerBtn.style.marginBottom = '40px';
-adBannerBtn.style.cursor = 'pointer';
-adBannerBtn.style.display = 'flex';
-adBannerBtn.style.justifyContent = 'space-between';
-adBannerBtn.style.alignItems = 'center';
-adBannerBtn.style.backgroundColor = 'transparent'; // 維持底色透明
-adBannerBtn.innerHTML = `
-    <div style="color: #fffdd0; font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 10px;">
-        <span style="color:#ffff00; font-size: 22px;">💡</span> 補充眼睛完整營養
-    </div>
-    <div style="color: #666; font-size: 20px; font-weight: bold;">></div>
-`;
-adBannerBtn.onclick = () => {
-    dashboardUI.style.display = 'none';
-    adModal.style.display = 'block';
-    adModal.scrollTo(0,0);
-};
-dashboardUI.appendChild(adBannerBtn);
 
 // ==========================================
 // 遊戲介面 (Training UI)

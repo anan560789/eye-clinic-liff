@@ -62,7 +62,6 @@ dashboardUI.style.boxSizing = 'border-box';
 document.body.appendChild(dashboardUI);
 
 const dashTitle = document.createElement('h1');
-// 【優化】眼睛移到上一行，標題字體放大
 dashTitle.innerHTML = "<div style='font-size: 55px; margin-bottom: 15px;'>👁️</div>數位眼科與視覺復健中心";
 dashTitle.style.color = '#fffdd0';
 dashTitle.style.fontSize = '34px'; 
@@ -74,22 +73,18 @@ dashboardUI.appendChild(dashTitle);
 const dashSubtitle = document.createElement('p');
 dashSubtitle.innerText = "系統載入中，請稍候..."; 
 dashSubtitle.style.color = '#8b9bb4';
-// 【優化】副標題字體放大
 dashSubtitle.style.fontSize = '22px'; 
 dashSubtitle.style.textAlign = 'center';
 dashSubtitle.style.lineHeight = '1.5';
 dashSubtitle.style.marginBottom = '35px';
-// 【優化】避免不自然的斷詞
 dashSubtitle.style.wordBreak = 'keep-all'; 
 dashboardUI.appendChild(dashSubtitle);
 
-// 🌟 LIFF 初始化魔法陣
 async function initializeLiff() {
     try {
         await liff.init({ liffId: '2010891900-u4t0FhJ6' });
         if (liff.isLoggedIn()) {
             const profile = await liff.getProfile();
-            // 【優化】移除強制換行符號 \n，讓文字自動成為漂亮的一行
             dashSubtitle.innerText = `歡迎回來，${profile.displayName}！請選擇您的專屬放鬆模組`;
             dashSubtitle.style.color = '#00ffcc'; 
         } else {
@@ -163,7 +158,8 @@ trainingUI.style.transform = 'translate(-50%, -50%)';
 trainingUI.style.width = '90%'; 
 trainingUI.style.textAlign = 'center';
 trainingUI.style.pointerEvents = 'none';
-trainingUI.style.transition = 'top 0.8s ease-in-out';
+// 加入過渡動畫，讓文字往上漂浮時更平滑
+trainingUI.style.transition = 'top 1.2s cubic-bezier(0.25, 1, 0.5, 1)';
 trainingUI.style.textShadow = '0px 4px 15px rgba(0, 0, 0, 0.9), 0px 0px 5px rgba(0, 0, 0, 1)';
 trainingUI.style.display = 'none'; 
 document.body.appendChild(trainingUI);
@@ -215,7 +211,9 @@ document.body.appendChild(renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0xfffdd0, 0.6);
 scene.add(ambientLight);
 
+// 【修改】將整個 SOP 球體群組往上移 (Y=18)，這樣球體就會在螢幕上半部的空白處
 const sopGroup = new THREE.Group();
+sopGroup.position.y = 18; 
 const sopGeo = new THREE.SphereGeometry(8, 32, 32);
 const sopMat = new THREE.MeshStandardMaterial({ color: 0x6b8e23, emissive: 0x2e4b1c, wireframe: true, transparent: true });
 const focusTarget = new THREE.Mesh(sopGeo, sopMat);
@@ -280,6 +278,16 @@ const allModules = [sopGroup, stretchGroup, amslerGroup, astigGroup, breatheGrou
 allModules.forEach(m => m.visible = false);
 const stimulusBalls = [];
 
+// 【修改】小球生成時，直接加到 sopGroup 裡，這樣它們就會跟著球體一起在上方出現
+function spawnStimulusBall() {
+    const ballGeo = new THREE.SphereGeometry(0.8, 32, 32);
+    const ballMat = new THREE.MeshBasicMaterial({ color: 0xf5f5dc, transparent: true, opacity: 0.8, depthWrite: false });
+    const ball = new THREE.Mesh(ballGeo, ballMat);
+    ball.position.set((Math.random() - 0.5) * 15, (Math.random() - 0.5) * 15, -70);
+    sopGroup.add(ball); 
+    stimulusBalls.push(ball);
+}
+
 // ==========================================
 // 5. 控制邏輯與切換函數
 // ==========================================
@@ -314,23 +322,27 @@ function returnToDashboard() {
     trainingUI.style.display = 'none';
     backBtn.style.display = 'none';
     allModules.forEach(m => m.visible = false);
-    stimulusBalls.forEach(ball => scene.remove(ball));
+    stimulusBalls.forEach(ball => {
+        if(ball.parent) ball.parent.remove(ball);
+    });
     stimulusBalls.length = 0;
 }
 
 function updateTrainingUI() {
-    // 【優化】SOP 模組的文字統一上移到 22% 的位置（球體上方的乾淨空間）
+    // 【修改】SOP 的文字一開始在下 (70%)，完成時往上漂浮到球體中間 (35%)
     if (currentModule === 'sop') {
-        trainingUI.style.top = '22%'; // 文字移到畫面偏上方
         if (phase === 'COMPLETED') { 
+            trainingUI.style.top = '35%'; // 往上漂浮到正中間
             titleUI.innerText = "🎉 3 回合深層放鬆完成！"; 
             timerUI.innerText = ""; 
         } 
         else if (phase === 'LOOKING') { 
+            trainingUI.style.top = '70%'; // 乖乖待在下方
             titleUI.innerText = `(第 ${cycle}/${maxCycles} 回合)\n請柔和注視中心橘點`; 
             timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; 
         } 
         else if (phase === 'CLOSING') { 
+            trainingUI.style.top = '70%'; // 乖乖待在下方
             titleUI.innerText = "請用力閉上雙眼，徹底放鬆"; 
             timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; 
         }
@@ -371,7 +383,8 @@ function animate() {
     const time = Date.now(); const timeDelta = time * 0.0015;
 
     if (currentModule === 'sop' && phase !== 'COMPLETED') {
-        focusTarget.rotation.x += 0.002; focusTarget.rotation.y += 0.003; focusTarget.position.z = -75 + Math.sin(timeDelta) * 25;
+        focusTarget.rotation.x += 0.002; focusTarget.rotation.y += 0.003; 
+        focusTarget.position.z = -75 + Math.sin(timeDelta) * 25;
         const scale = 1 + Math.cos(timeDelta) * 0.15; focusTarget.scale.set(scale, scale, scale);
         const targetOpacity = (phase === 'CLOSING') ? 0.05 : 1.0;
         sopMat.opacity += (targetOpacity - sopMat.opacity) * 0.05; coreMat.opacity += (targetOpacity - coreMat.opacity) * 0.05;
@@ -379,7 +392,10 @@ function animate() {
             const ball = stimulusBalls[i]; ball.position.z += 1.5;
             if (ball.position.z > -10) { ball.position.z += 3.0; ball.scale.addScalar(0.8); ball.material.opacity = 1.0; ball.material.color.setHex(0xffffff); } 
             else { ball.scale.addScalar(0.015); }
-            if (ball.position.z > camera.position.z) { scene.remove(ball); ball.geometry.dispose(); ball.material.dispose(); stimulusBalls.splice(i, 1); }
+            if (ball.position.z > camera.position.z) { 
+                if(ball.parent) ball.parent.remove(ball); 
+                ball.geometry.dispose(); ball.material.dispose(); stimulusBalls.splice(i, 1); 
+            }
         }
     }
 
@@ -388,11 +404,11 @@ function animate() {
         stretchOrb.scale.setScalar(1 + Math.cos(speed * 3) * 0.1);
         
         const isMobile = window.innerWidth < 600;
-        // 【優化】大幅縮小手機版 X 軸擺幅，並推遠 Z 軸，確保光球絕對不被切斷
-        const xAmplitude = isMobile ? 5.5 : 18; 
+        // 【修改】X 軸振幅放大到 12，讓它完美貼著邊緣切齊但不被切斷
+        const xAmplitude = isMobile ? 12 : 18; 
         const yAmplitude = isMobile ? 12 : 8; 
-        const zCenter = isMobile ? -35 : -30;
-        const zAmplitude = isMobile ? 10 : 20;
+        const zCenter = -30;
+        const zAmplitude = 20;
         
         stretchOrb.position.set(Math.sin(speed) * xAmplitude, Math.sin(speed * 2) * yAmplitude, zCenter + Math.sin(speed * 0.5) * zAmplitude);
     }

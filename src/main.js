@@ -113,7 +113,7 @@ contentContainer.style.marginBottom = '40px';
 dashboardUI.appendChild(contentContainer);
 
 // ==========================================
-// 模組一：衛教資訊互動視窗 (Modal)
+// 模組一：衛教資訊與【新增】遊戲原理互動視窗 (Modal)
 // ==========================================
 const infoModal = document.createElement('div');
 infoModal.style.position = 'absolute';
@@ -130,7 +130,7 @@ infoModal.style.boxSizing = 'border-box';
 infoModal.style.fontFamily = 'sans-serif';
 document.body.appendChild(infoModal);
 
-// 【修改】將返回按鈕字體、內距調整為與遊戲模組一致 (18px bold)
+// 【營養素頁面】
 const nutrientPage = document.createElement('div');
 nutrientPage.style.maxWidth = '800px';
 nutrientPage.style.margin = '0 auto';
@@ -138,14 +138,10 @@ nutrientPage.style.paddingBottom = '50px';
 nutrientPage.innerHTML = `
     <button id="close-info-btn" style="padding:12px 24px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer; font-size:18px; font-weight:bold;">返回大廳</button>
     <h2 style="color:#fffdd0; font-size:28px; border-bottom:2px solid #00ffcc; padding-bottom:10px; margin-bottom:15px;">護眼營養素與眼睛構造對照表</h2>
-    
-    <!-- 【修改】文字全面放大為 18px，增加易讀性 -->
     <p style="color:#8b9bb4; font-size:18px; line-height:1.6; margin-bottom:20px; background:#162b2b; padding:15px; border-radius:8px;">
-        <strong style="color:#00ffcc;">閱讀重點｜</strong>營養素通常是維持組織正常功能或降低缺乏風險，不能取代眼科檢查與治療。Propolins 最適合定位在視網膜色素上皮（RPE），目前證據為人類細胞與動物模型。
+        <strong style="color:#00ffcc;">閱讀重點｜</strong>營養素通常是維持組織正常功能或降低缺乏風險，不能取代眼科檢查與治療。Propolins 最適合定位在視網膜色素上皮（RPE），目前證據為人類細胞與動物模型，尚非人體臨床療效。
     </p>
-    
     <div style="overflow-x:auto; margin-bottom:30px;">
-        <!-- 【修改】表格文字放大為 17px -->
         <table style="width:100%; border-collapse:collapse; color:#fffdd0; font-size:17px; line-height:1.6;">
             <thead>
                 <tr style="background:#1a2233; text-align:left;">
@@ -189,7 +185,6 @@ nutrientPage.innerHTML = `
         </table>
     </div>
     <h3 style="color:#fffdd0; margin-bottom:12px; font-size:20px;">⚠️ 補充品使用注意</h3>
-    <!-- 【修改】注意事項文字放大為 17px -->
     <ul style="color:#8b9bb4; font-size:17px; line-height:1.8; margin-bottom:30px; padding-left:20px;">
         <li><strong style="color:#fffdd0;">不可自行點眼：</strong>專利式(II)是研究用眼科製劑，市售口服蜂膠絕不可自行滴入眼睛。</li>
         <li><strong style="color:#fffdd0;">證據界線：</strong>Propolins 支持的是「受損RPE的細胞保護」，目前為細胞與動物前臨床證據，不能據此宣稱預防或治療人體AMD。</li>
@@ -202,12 +197,12 @@ nutrientPage.innerHTML = `
 `;
 infoModal.appendChild(nutrientPage);
 
+// 【RPE 說明頁面】
 const rpePage = document.createElement('div');
 rpePage.style.maxWidth = '800px';
 rpePage.style.margin = '0 auto';
 rpePage.style.paddingBottom = '50px';
 rpePage.style.display = 'none'; 
-// 【修改】返回護眼營養素按鈕字體、內距調整為與遊戲模組一致 (18px bold)
 rpePage.innerHTML = `
     <button id="back-to-nutrient-btn" style="padding:12px 24px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer; font-size:18px; font-weight:bold;">🔙 返回護眼營養素</button>
     <h2 style="color:#fffdd0; font-size:28px; border-bottom:2px solid #00ffcc; padding-bottom:10px; margin-bottom:20px;">🏭 垃圾處理廠與清潔工：認識 RPE</h2>
@@ -233,6 +228,78 @@ rpePage.innerHTML = `
 `;
 infoModal.appendChild(rpePage);
 
+// 【新增：遊戲模組醫學原理介紹頁面】
+const moduleIntroPage = document.createElement('div');
+moduleIntroPage.style.maxWidth = '800px';
+moduleIntroPage.style.margin = '0 auto';
+moduleIntroPage.style.paddingBottom = '50px';
+moduleIntroPage.style.display = 'none'; 
+infoModal.appendChild(moduleIntroPage);
+
+// 原理資料庫
+const medicalPrinciples = {
+    sop: { 
+        icon: "🚀", title: "45秒快速舒緩", color: "#FF6B6B",
+        principle: "此模組結合了「睫狀肌放鬆」、「動態視覺刺激」與「淚膜重建」。<br><br>透過注視遠近變化的球體，能迅速解除水晶體對焦痙攣；隨機出現的視覺刺激球能活化大腦視覺皮層；最後的強制用力閉眼，則能擠壓眼瞼板腺，使其均勻分泌油脂與淚液，有效改善乾眼症狀與假性近視疲勞。" 
+    },
+    stretch: { 
+        icon: "🔄", title: "動態 3D 眼肌伸展", color: "#4D96FF",
+        principle: "現代人長時間死盯著手機，眼球活動範圍極小，導致控制眼球的「眼外肌」僵硬缺血。<br><br>本模組利用最大範圍的 ∞ 字型（無限大）極限軌跡，強迫拉伸控制眼球的六條眼外肌，促進眼周血液循環；並配合 Z 軸的遠近空間感，全面恢復眼球靈活度與對焦彈性。" 
+    },
+    chaser: { 
+        icon: "🎮", title: "睫狀肌深空追光", color: "#6BCB77",
+        principle: "當我們近距離看螢幕時，眼內的「睫狀肌」會處於極度緊繃收縮的狀態。<br><br>這個遊戲利用 3D 透視原理創造出「無限遠（Optical Infinity）」的視覺錯覺。藉由死盯著流星飛向最深處，能強迫睫狀肌徹底放鬆、拉長，是解除深層視覺疲勞與預防度數加深的最佳物理復健法。" 
+    },
+    breathe: { 
+        icon: "🌌", title: "星雲散焦與神經放鬆", color: "#FFD93D",
+        principle: "高度專注盯著螢幕會造成「隧道視覺（Tunnel Vision）」，使大腦與自律神經長時間偏向緊繃的交感神經。<br><br>本模組引導您「放寬視野、不要對焦任何單顆星星」，啟動周邊視覺（Peripheral Vision），並配合深度共振呼吸法，能有效喚醒副交感神經，降低眼壓、放鬆眼底微血管，達到神經級的深度重置。" 
+    }
+};
+
+// 顯示特定模組原理的函數
+function showModuleIntro(type) {
+    nutrientPage.style.display = 'none';
+    rpePage.style.display = 'none';
+    moduleIntroPage.style.display = 'block';
+
+    const data = medicalPrinciples[type];
+    moduleIntroPage.innerHTML = `
+        <button id="back-from-intro-btn" style="padding:12px 24px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer; font-size:18px; font-weight:bold;">返回大廳</button>
+        
+        <h2 style="color:#fffdd0; font-size:32px; border-bottom:2px solid ${data.color}; padding-bottom:10px; margin-bottom:25px; display:flex; align-items:center; gap:10px;">
+            <span>${data.icon}</span> ${data.title}
+        </h2>
+        
+        <div style="background:#162b2b; border:1px solid ${data.color}; padding:25px 20px; border-radius:12px; margin-bottom:40px; box-shadow: 0 0 15px rgba(0,0,0,0.5);">
+            <h3 style="color:${data.color}; font-size:22px; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                <span>🩺</span> 數位復健醫學原理
+            </h3>
+            <p style="color:#8b9bb4; font-size:18px; line-height:1.8; margin:0;">
+                ${data.principle}
+            </p>
+        </div>
+        
+        <div style="text-align:center;">
+            <button id="start-mod-btn" style="padding:18px 45px; background:${data.color}; color:#0f141e; border:none; border-radius:30px; font-size:22px; font-weight:bold; cursor:pointer; box-shadow:0 4px 15px ${data.color}60;">🚀 開始訓練</button>
+        </div>
+    `;
+
+    document.getElementById('back-from-intro-btn').onclick = () => {
+        infoModal.style.display = 'none';
+        dashboardUI.style.display = 'flex';
+    };
+
+    document.getElementById('start-mod-btn').onclick = () => {
+        infoModal.style.display = 'none';
+        startTraining(type);
+    };
+
+    dashboardUI.style.display = 'none';
+    infoModal.style.display = 'block';
+    infoModal.scrollTo(0,0);
+}
+
+// 衛教頁面切換邏輯
 document.getElementById('btn-to-rpe').onclick = () => {
     nutrientPage.style.display = 'none';
     rpePage.style.display = 'block';
@@ -279,6 +346,7 @@ infoBanner.onclick = () => {
     infoModal.style.display = 'block';
     nutrientPage.style.display = 'block';
     rpePage.style.display = 'none';
+    moduleIntroPage.style.display = 'none';
     infoModal.scrollTo(0,0);
 };
 contentContainer.appendChild(infoBanner);
@@ -287,7 +355,6 @@ contentContainer.appendChild(infoBanner);
 // 大廳選單配置 (滿版對齊與彩色外框)
 // ==========================================
 const menuGrid = document.createElement('div');
-// 【修改】將排列方式改為 flex column，強制 100% 滿版，大小完全跟模組一 Banner 相同
 menuGrid.style.display = 'flex';
 menuGrid.style.flexDirection = 'column';
 menuGrid.style.gap = '20px';
@@ -332,10 +399,13 @@ function createModuleCard(title, desc, onClick, borderColor) {
     return card;
 }
 
-menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => startTraining('sop'), '#FF6B6B')); 
-menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，並結合 Z 軸遠近對焦。", () => startTraining('stretch'), '#4D96FF')); 
-menuGrid.appendChild(createModuleCard("🎮 睫狀肌深空追光", "【放鬆遊戲】死盯流星飛向深空，強迫睫狀肌徹底看遠放鬆。", () => startTraining('chaser'), '#6BCB77')); 
-menuGrid.appendChild(createModuleCard("🌌 星雲散焦與神經放鬆", "【深度冥想】釋放隧道視覺，同步 3D 粒子星雲進行共振呼吸。", () => startTraining('breathe'), '#FFD93D')); 
+// 【修改】模組 1~4 點擊後改為呼叫 showModuleIntro 顯示醫學原理
+menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => showModuleIntro('sop'), '#FF6B6B')); 
+menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，並結合 Z 軸遠近對焦。", () => showModuleIntro('stretch'), '#4D96FF')); 
+menuGrid.appendChild(createModuleCard("🎮 睫狀肌深空追光", "【放鬆遊戲】死盯流星飛向深空，強迫睫狀肌徹底看遠放鬆。", () => showModuleIntro('chaser'), '#6BCB77')); 
+menuGrid.appendChild(createModuleCard("🌌 星雲散焦與神經放鬆", "【深度冥想】釋放隧道視覺，同步 3D 粒子星雲進行共振呼吸。", () => showModuleIntro('breathe'), '#FFD93D')); 
+
+// 模組 5~6 為檢測，直接開始
 menuGrid.appendChild(createModuleCard("🔍 黃斑部自我檢測", "經典阿姆斯勒方格表數位化，快篩視網膜病變風險。", () => startTraining('amsler'), '#9D4EDD')); 
 menuGrid.appendChild(createModuleCard("👁️ 散光軸向自我檢測", "放射鐘測試。檢測是否因散光未矯正而導致嚴重疲勞。", () => startTraining('astigmatism'), '#FF9F1C')); 
 
@@ -388,7 +458,6 @@ adContainer.style.maxWidth = '800px';
 adContainer.style.margin = '0 auto';
 adContainer.style.paddingBottom = '50px';
 
-// 【修改】將返回按鈕字體、內距調整為與遊戲模組一致 (18px bold)
 const closeAdBtn = document.createElement('button');
 closeAdBtn.innerText = "返回大廳";
 closeAdBtn.style.padding = '12px 24px';

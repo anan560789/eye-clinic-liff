@@ -760,10 +760,14 @@ function startTraining(type) {
         stretchGroup.visible = true; stretchTimeLeft = 45; stretchOrb.position.set(0, 0, -30);
         bgmPlayer.src = '/game2.mp3'; // 指定遊戲 2 音樂
         playBGM();
-    } else if (type === 'chaser') {
+     } else if (type === 'chaser') {
         chaserGroup.visible = true; breatheGroup.visible = true; chaserTimeLeft = 60; chaserScore = 0; resetChaserOrb();
+        bgmPlayer.src = '/game3.mp3'; // 指定遊戲 3 音樂
+        playBGM();
     } else if (type === 'breathe') {
         breatheGroup.visible = true; breatheTimeLeft = 60; breathPhase = 'INHALE';
+        bgmPlayer.src = '/game4.mp3'; // 指定遊戲 4 音樂
+        playBGM();
     } else if (type === 'amsler' || type === 'astigmatism') {
         if (type === 'amsler') amslerGroup.visible = true;
         if (type === 'astigmatism') astigGroup.visible = true;
@@ -773,9 +777,10 @@ function startTraining(type) {
 }
 
 function returnToDashboard() {
-    if (currentModule === 'sop' || currentModule === 'stretch') {
-        stopBGM(); // 確保遊戲 1 或 2 中斷時都會停音樂
+    if (currentModule === 'sop' || currentModule === 'stretch' || currentModule === 'chaser' || currentModule === 'breathe') {
+        stopBGM(); // 確保遊戲 1、2、3、4 中斷時都會停音樂
     }
+
 
     currentModule = 'DASHBOARD';
     isResting = false;
@@ -988,6 +993,7 @@ setInterval(() => {
         if (chaserTimeLeft <= 0) {
             isResting = true;
             restTimeLeft = 5;
+            stopBGM(); // 【新增】：追光結束時停止音樂
             playDingSound(); 
             logTraining('睫狀肌深空追光', 60);
         }

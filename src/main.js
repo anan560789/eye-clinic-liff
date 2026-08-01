@@ -1007,6 +1007,7 @@ setInterval(() => {
         } else {
             isResting = true;
             restTimeLeft = 5;
+            stopBGM(); // 【新增】：呼吸結束時停止音樂
             playDingSound(); 
             logTraining('星雲散焦與神經放鬆', 60);
         }

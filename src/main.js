@@ -2,12 +2,11 @@
 import './style.css';
 import * as THREE from 'three';
 import liff from '@line/liff'; 
-import { createClient } from '@supabase/supabase-js'; // 【新增】載入 Supabase 官方連線套件
+import { createClient } from '@supabase/supabase-js';
 
 // ==========================================
 // 1. 應用程式全域狀態與雲端資料庫設定
 // ==========================================
-// 【新增】Supabase 連線設定與金鑰
 const supabaseUrl = 'https://bowzkrdxjfxwuxkvvlnh.supabase.co';
 const supabaseKey = 'sb_publishable_JyPNp0UKUlSeNKMM-okN4Q_TAHuCSMT';
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -27,16 +26,14 @@ let testTimeLeft = 15;
 let isResting = false;
 let restTimeLeft = 0;
 
-// 【新增】記錄用戶登入身分
 let lineUid = '未登入';
 let lineName = '訪客';
 
 // ==========================================
 // 2. 雲端大腦 (Supabase) 紀錄模組
 // ==========================================
-// 【新增】非同步寫入訓練紀錄至 Supabase
 async function logTraining(moduleName, durationSec) {
-    if (lineUid === '未登入') return; // 如果未登入則不寫入（或可依需求改為記錄為訪客）
+    if (lineUid === '未登入') return; 
     try {
         const { error } = await supabase
             .from('training_logs')
@@ -57,9 +54,10 @@ async function logTraining(moduleName, durationSec) {
 }
 
 // ==========================================
-// 3. 音效系統 (Web Audio API)
+// 3. 音效系統 (Web Audio API) & 背景音樂
 // ==========================================
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
 function playDingSound() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const oscillator = audioCtx.createOscillator();
@@ -73,9 +71,48 @@ function playDingSound() {
     oscillator.start();
     oscillator.stop(audioCtx.currentTime + 1.5);
 }
+
 window.addEventListener('click', () => {
     if (audioCtx.state === 'suspended') audioCtx.resume();
 }, { once: true });
+
+// 【新增】背景音樂播放器 (game1.mp3)
+const bgmPlayer = new Audio('./game1.mp3');
+bgmPlayer.loop = true; 
+
+function playBGM() {
+    bgmPlayer.volume = 0;
+    const playPromise = bgmPlayer.play();
+    if (playPromise !== undefined) {
+        playPromise.then(_ => {
+            let vol = 0;
+            const fade = setInterval(() => {
+                if (vol < 0.6) { 
+                    vol += 0.05;
+                    bgmPlayer.volume = Math.min(vol, 0.6);
+                } else {
+                    clearInterval(fade);
+                }
+            }, 100);
+        }).catch(error => {
+            console.log("BGM play prevented by browser:", error);
+        });
+    }
+}
+
+function stopBGM() {
+    let vol = bgmPlayer.volume;
+    const fade = setInterval(() => {
+        if (vol > 0.05) {
+            vol -= 0.1;
+            bgmPlayer.volume = Math.max(vol, 0);
+        } else {
+            clearInterval(fade);
+            bgmPlayer.pause();
+            bgmPlayer.currentTime = 0;
+        }
+    }, 100);
+}
 
 // ==========================================
 // 4. UI 介面架構與 LIFF 初始化
@@ -122,10 +159,8 @@ async function initializeLiff() {
         await liff.init({ liffId: '2010891900-u4t0FhJ6' });
         if (liff.isLoggedIn()) {
             const profile = await liff.getProfile();
-            // 【新增】將使用者的 LINE UID 與暱稱記錄到全域變數中
             lineUid = profile.userId;
             lineName = profile.displayName;
-            
             dashSubtitle.innerText = `歡迎回來，${profile.displayName}！請選擇您的專屬放鬆模組`;
             dashSubtitle.style.color = '#00ffcc'; 
         } else {
@@ -169,7 +204,7 @@ infoModal.style.boxSizing = 'border-box';
 infoModal.style.fontFamily = 'sans-serif';
 document.body.appendChild(infoModal);
 
-// 【營養素頁面】
+// 【營養素頁面】 (完整回復原本的 HTML 內容)
 const nutrientPage = document.createElement('div');
 nutrientPage.style.maxWidth = '800px';
 nutrientPage.style.margin = '0 auto';
@@ -236,7 +271,7 @@ nutrientPage.innerHTML = `
 `;
 infoModal.appendChild(nutrientPage);
 
-// 【RPE 說明頁面】
+// 【RPE 說明頁面】 (完整回復原本的 HTML 內容)
 const rpePage = document.createElement('div');
 rpePage.style.maxWidth = '800px';
 rpePage.style.margin = '0 auto';
@@ -346,13 +381,15 @@ document.getElementById('back-to-nutrient-btn').onclick = () => {
     nutrientPage.style.display = 'block';
     infoModal.scrollTo(0,0);
 };
-document.getElementById('close-info-btn').onclick = () => {
-    infoModal.style.display = 'none';
-    dashboardUI.style.display = 'flex';
-};
+document.addEventListener('click', function(e){
+    if(e.target && e.target.id == 'close-info-btn'){
+          infoModal.style.display = 'none';
+          dashboardUI.style.display = 'flex';
+     }
+ });
 
 // ==========================================
-// 大廳：護眼常見營養素 Banner
+// 大廳：護眼常見營養素 Banner & 選單
 // ==========================================
 const infoBanner = document.createElement('div');
 infoBanner.style.width = '100%';
@@ -387,9 +424,6 @@ infoBanner.onclick = () => {
 };
 contentContainer.appendChild(infoBanner);
 
-// ==========================================
-// 大廳選單配置
-// ==========================================
 const menuGrid = document.createElement('div');
 menuGrid.style.display = 'flex';
 menuGrid.style.flexDirection = 'column';
@@ -442,9 +476,7 @@ menuGrid.appendChild(createModuleCard("🌌 星雲散焦與神經放鬆", "【�
 menuGrid.appendChild(createModuleCard("🔍 黃斑部自我檢測", "經典阿姆斯勒方格表數位化，快篩視網膜病變風險。", () => startTraining('amsler'), '#9D4EDD')); 
 menuGrid.appendChild(createModuleCard("👁️ 散光軸向自我檢測", "放射鐘測試。檢測是否因散光未矯正而導致嚴重疲勞。", () => startTraining('astigmatism'), '#FF9F1C')); 
 
-// ==========================================
 // 大廳底部：隱藏式產品推廣按鈕
-// ==========================================
 const adBannerBtn = document.createElement('div');
 adBannerBtn.style.width = '100%';
 adBannerBtn.style.border = '2px dashed #ffff00'; 
@@ -508,6 +540,7 @@ closeAdBtn.onclick = () => {
 };
 adContainer.appendChild(closeAdBtn);
 
+// 【產品推廣頁面】 (完整回復原本的 HTML 內容)
 const adWhiteBox = document.createElement('div');
 adWhiteBox.style.backgroundColor = '#ffffff'; 
 adWhiteBox.style.borderRadius = '20px';
@@ -543,8 +576,8 @@ adWhiteBox.innerHTML = `
     </div>
 
     <div style="text-align:center; margin-bottom:35px; font-size:20px; font-weight:bold; color:#444; line-height:2;">
-        <div>維持補充 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">2</span> 粒</div>
-        <div>加強提升 <span style="color:#d9534f; font-size:28px; margin:0 5px;">請洽專業藥師</span></div>
+        <div>維持補充 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">4</span> 粒</div>
+        <div>加強提升 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">6</span> 粒</div>
     </div>
 
     <div style="background-color:#f4f9ff; border:2px solid #b3d4f0; border-radius:15px; padding:20px 15px; text-align:center; margin-bottom:25px;">
@@ -623,6 +656,7 @@ document.body.appendChild(renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0xfffdd0, 0.6);
 scene.add(ambientLight);
 
+// 模組 1: SOP (45秒快速舒緩)
 const sopGroup = new THREE.Group();
 sopGroup.position.y = 12; 
 const sopGeo = new THREE.SphereGeometry(8, 32, 32);
@@ -634,12 +668,14 @@ focusTarget.add(new THREE.Mesh(coreGeo, coreMat));
 sopGroup.add(focusTarget);
 scene.add(sopGroup);
 
+// 模組 2: Stretch (動態 3D 眼肌伸展)
 const stretchGroup = new THREE.Group();
 const stretchOrb = new THREE.Mesh(new THREE.SphereGeometry(1.5, 32, 32), new THREE.MeshBasicMaterial({ color: 0xff9900 }));
 stretchOrb.add(new THREE.PointLight(0xffaa00, 2.5, 60));
 stretchGroup.add(stretchOrb);
 scene.add(stretchGroup);
 
+// 模組 3: Amsler (黃斑部自我檢測)
 const amslerGroup = new THREE.Group();
 const gridHelper = new THREE.GridHelper(30, 30, 0x557799, 0x445566);
 gridHelper.rotation.x = Math.PI / 2; gridHelper.position.z = -15; 
@@ -649,6 +685,7 @@ centerDot.position.z = -14.9;
 amslerGroup.add(centerDot);
 scene.add(amslerGroup);
 
+// 模組 4: Astigmatism (散光軸向自我檢測)
 const astigGroup = new THREE.Group();
 for (let i = 0; i < 12; i++) {
     const line = new THREE.Mesh(new THREE.PlaneGeometry(25, 0.3), new THREE.MeshBasicMaterial({ color: 0xffffff }));
@@ -661,6 +698,7 @@ astigGroup.add(astigCenterDot);
 astigGroup.position.z = -25; 
 scene.add(astigGroup);
 
+// 模組 5: Breathe (星雲散焦與神經放鬆)
 const breatheGroup = new THREE.Group();
 const particleCount = 2000;
 const particlesGeo = new THREE.BufferGeometry();
@@ -673,6 +711,7 @@ breatheGroup.add(particleSystem);
 breatheGroup.position.z = -20;
 scene.add(breatheGroup);
 
+// 模組 6: Chaser (睫狀肌深空追光)
 const chaserGroup = new THREE.Group();
 const chaserOrb = new THREE.Mesh(new THREE.SphereGeometry(3, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true }));
 chaserOrb.add(new THREE.PointLight(0xffd700, 2.5, 80)); 
@@ -715,6 +754,7 @@ function startTraining(type) {
     if (type === 'sop') {
         sopGroup.visible = true; cycle = 1; phase = 'LOOKING'; sopTimeLeft = 10;
         sopMat.opacity = 1; coreMat.opacity = 1;
+        playBGM(); // 【修改點】：開始 45 秒舒緩時播放音樂
     } else if (type === 'stretch') {
         stretchGroup.visible = true; stretchTimeLeft = 45; stretchOrb.position.set(0, 0, -30);
     } else if (type === 'chaser') {
@@ -730,6 +770,10 @@ function startTraining(type) {
 }
 
 function returnToDashboard() {
+    if (currentModule === 'sop') {
+        stopBGM(); // 【修改點】：中斷返回時停止音樂
+    }
+
     currentModule = 'DASHBOARD';
     isResting = false;
     dashboardUI.style.display = 'flex';
@@ -826,11 +870,15 @@ function updateTrainingUI() {
 function animate() {
     requestAnimationFrame(animate);
     if (currentModule === 'DASHBOARD') { renderer.render(new THREE.Scene(), camera); return; }
-    const time = Date.now(); const timeDelta = time * 0.0015;
+    
+    const time = Date.now(); 
+    // 【修改點】：將這裡原本的 0.0015 調成 0.0012，以搭配 game1.mp3 的緩慢節奏
+    const timeDelta = time * 0.0012; 
 
     if (currentModule === 'sop' && phase !== 'COMPLETED') {
         focusTarget.rotation.x += 0.002; focusTarget.rotation.y += 0.003; 
         focusTarget.position.z = -50; 
+        
         const scale = 1 + Math.cos(timeDelta) * 0.25; 
         focusTarget.scale.set(scale, scale, scale);
 
@@ -911,8 +959,8 @@ setInterval(() => {
                 cycle++; 
                 if (cycle > maxCycles) { 
                     phase = 'COMPLETED'; 
+                    stopBGM(); // 【修改點】：訓練順利完成時，停止音樂
                     playDingSound(); 
-                    // 【寫入紀錄】45秒快速舒緩完成
                     logTraining('45秒快速舒緩', 45);
                 } else { 
                     phase = 'LOOKING'; sopTimeLeft = 10; playDingSound(); 
@@ -927,7 +975,6 @@ setInterval(() => {
             isResting = true;
             restTimeLeft = 5;
             playDingSound(); 
-            // 【寫入紀錄】動態 3D 眼肌伸展完成
             logTraining('動態 3D 眼肌伸展', 45);
         }
     }
@@ -938,7 +985,6 @@ setInterval(() => {
             isResting = true;
             restTimeLeft = 5;
             playDingSound(); 
-            // 【寫入紀錄】睫狀肌深空追光完成
             logTraining('睫狀肌深空追光', 60);
         }
     }
@@ -952,7 +998,6 @@ setInterval(() => {
             isResting = true;
             restTimeLeft = 5;
             playDingSound(); 
-            // 【寫入紀錄】星雲散焦與神經放鬆完成
             logTraining('星雲散焦與神經放鬆', 60);
         }
     }
@@ -964,7 +1009,6 @@ setInterval(() => {
                 testPhase = 'RIGHT_EYE'; testTimeLeft = 15; playDingSound(); 
             } else if (testPhase === 'RIGHT_EYE') { 
                 testPhase = 'COMPLETED'; playDingSound(); 
-                // 【寫入紀錄】檢測完成
                 logTraining(currentModule === 'amsler' ? '黃斑部自我檢測' : '散光軸向自我檢測', 30);
             }
         }

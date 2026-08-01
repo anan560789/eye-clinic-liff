@@ -2,10 +2,16 @@
 import './style.css';
 import * as THREE from 'three';
 import liff from '@line/liff'; 
+import { createClient } from '@supabase/supabase-js'; // 【新增】載入 Supabase 官方連線套件
 
 // ==========================================
-// 1. 應用程式全域狀態
+// 1. 應用程式全域狀態與雲端資料庫設定
 // ==========================================
+// 【新增】Supabase 連線設定與金鑰
+const supabaseUrl = 'https://bowzkrdxjfxwuxkvvlnh.supabase.co';
+const supabaseKey = 'sb_publishable_JyPNp0UKUlSeNKMM-okN4Q_TAHuCSMT';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
 let currentModule = 'DASHBOARD'; 
 let cycle = 1;
 const maxCycles = 3;
@@ -21,8 +27,37 @@ let testTimeLeft = 15;
 let isResting = false;
 let restTimeLeft = 0;
 
+// 【新增】記錄用戶登入身分
+let lineUid = '未登入';
+let lineName = '訪客';
+
 // ==========================================
-// 2. 音效系統 (Web Audio API)
+// 2. 雲端大腦 (Supabase) 紀錄模組
+// ==========================================
+// 【新增】非同步寫入訓練紀錄至 Supabase
+async function logTraining(moduleName, durationSec) {
+    if (lineUid === '未登入') return; // 如果未登入則不寫入（或可依需求改為記錄為訪客）
+    try {
+        const { error } = await supabase
+            .from('training_logs')
+            .insert([{
+                line_uid: lineUid,
+                line_name: lineName,
+                module_name: moduleName,
+                duration: durationSec
+            }]);
+        if (error) {
+            console.error('❌ Supabase 雲端寫入失敗:', error);
+        } else {
+            console.log(`✅ [${moduleName}] 訓練紀錄已成功寫入雲端大腦！`);
+        }
+    } catch (err) {
+        console.error('❌ 寫入過程發生系統錯誤:', err);
+    }
+}
+
+// ==========================================
+// 3. 音效系統 (Web Audio API)
 // ==========================================
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playDingSound() {
@@ -43,7 +78,7 @@ window.addEventListener('click', () => {
 }, { once: true });
 
 // ==========================================
-// 3. UI 介面架構與 LIFF 初始化
+// 4. UI 介面架構與 LIFF 初始化
 // ==========================================
 const dashboardUI = document.createElement('div');
 dashboardUI.style.position = 'absolute';
@@ -87,6 +122,10 @@ async function initializeLiff() {
         await liff.init({ liffId: '2010891900-u4t0FhJ6' });
         if (liff.isLoggedIn()) {
             const profile = await liff.getProfile();
+            // 【新增】將使用者的 LINE UID 與暱稱記錄到全域變數中
+            lineUid = profile.userId;
+            lineName = profile.displayName;
+            
             dashSubtitle.innerText = `歡迎回來，${profile.displayName}！請選擇您的專屬放鬆模組`;
             dashSubtitle.style.color = '#00ffcc'; 
         } else {
@@ -113,7 +152,7 @@ contentContainer.style.marginBottom = '40px';
 dashboardUI.appendChild(contentContainer);
 
 // ==========================================
-// 模組一：衛教資訊與【新增】遊戲原理互動視窗 (Modal)
+// 模組一：衛教資訊與遊戲原理互動視窗 (Modal)
 // ==========================================
 const infoModal = document.createElement('div');
 infoModal.style.position = 'absolute';
@@ -222,13 +261,13 @@ rpePage.innerHTML = `
         </ul>
         <div style="background:#162b2b; padding:20px; border-radius:10px; text-align:center; border: 1px solid #00ffcc;">
             <p style="color:#fffdd0; font-size:19px; font-weight:bold; margin:0;">💡 總結</p>
-            <p style="color:#00ffcc; font-size:18px; margin-top:10px; margin-bottom:0;">「健康的 RPE 能幫你消滅垃圾；<br>不健康的 RPE 會讓垃圾（脂褐質）堆成高山，最後把你的視力連根拔起。」</p>
+            <p style="color:#00ffcc; font-size:18px; margin-top:10px; margin-bottom:0;">「健康的 RPE 能幫解消滅垃圾；<br>不健康的 RPE 會讓垃圾（脂褐質）堆成高山，最後把你的視力連根拔起。」</p>
         </div>
     </div>
 `;
 infoModal.appendChild(rpePage);
 
-// 【新增：遊戲模組醫學原理介紹頁面】
+// 【遊戲模組醫學原理介紹頁面】
 const moduleIntroPage = document.createElement('div');
 moduleIntroPage.style.maxWidth = '800px';
 moduleIntroPage.style.margin = '0 auto';
@@ -236,7 +275,6 @@ moduleIntroPage.style.paddingBottom = '50px';
 moduleIntroPage.style.display = 'none'; 
 infoModal.appendChild(moduleIntroPage);
 
-// 原理資料庫
 const medicalPrinciples = {
     sop: { 
         icon: "🚀", title: "45秒快速舒緩", color: "#FF6B6B",
@@ -256,7 +294,6 @@ const medicalPrinciples = {
     }
 };
 
-// 顯示特定模組原理的函數
 function showModuleIntro(type) {
     nutrientPage.style.display = 'none';
     rpePage.style.display = 'none';
@@ -299,7 +336,6 @@ function showModuleIntro(type) {
     infoModal.scrollTo(0,0);
 }
 
-// 衛教頁面切換邏輯
 document.getElementById('btn-to-rpe').onclick = () => {
     nutrientPage.style.display = 'none';
     rpePage.style.display = 'block';
@@ -352,7 +388,7 @@ infoBanner.onclick = () => {
 contentContainer.appendChild(infoBanner);
 
 // ==========================================
-// 大廳選單配置 (滿版對齊與彩色外框)
+// 大廳選單配置
 // ==========================================
 const menuGrid = document.createElement('div');
 menuGrid.style.display = 'flex';
@@ -399,13 +435,10 @@ function createModuleCard(title, desc, onClick, borderColor) {
     return card;
 }
 
-// 【修改】模組 1~4 點擊後改為呼叫 showModuleIntro 顯示醫學原理
 menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => showModuleIntro('sop'), '#FF6B6B')); 
 menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，並結合 Z 軸遠近對焦。", () => showModuleIntro('stretch'), '#4D96FF')); 
 menuGrid.appendChild(createModuleCard("🎮 睫狀肌深空追光", "【放鬆遊戲】死盯流星飛向深空，強迫睫狀肌徹底看遠放鬆。", () => showModuleIntro('chaser'), '#6BCB77')); 
 menuGrid.appendChild(createModuleCard("🌌 星雲散焦與神經放鬆", "【深度冥想】釋放隧道視覺，同步 3D 粒子星雲進行共振呼吸。", () => showModuleIntro('breathe'), '#FFD93D')); 
-
-// 模組 5~6 為檢測，直接開始
 menuGrid.appendChild(createModuleCard("🔍 黃斑部自我檢測", "經典阿姆斯勒方格表數位化，快篩視網膜病變風險。", () => startTraining('amsler'), '#9D4EDD')); 
 menuGrid.appendChild(createModuleCard("👁️ 散光軸向自我檢測", "放射鐘測試。檢測是否因散光未矯正而導致嚴重疲勞。", () => startTraining('astigmatism'), '#FF9F1C')); 
 
@@ -510,8 +543,8 @@ adWhiteBox.innerHTML = `
     </div>
 
     <div style="text-align:center; margin-bottom:35px; font-size:20px; font-weight:bold; color:#444; line-height:2;">
-        <div>維持補充 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">4</span> 粒</div>
-        <div>加強提升 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">6</span> 粒</div>
+        <div>維持補充 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">2</span> 粒</div>
+        <div>加強提升 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">請洽專業藥師</span></div>
     </div>
 
     <div style="background-color:#f4f9ff; border:2px solid #b3d4f0; border-radius:15px; padding:20px 15px; text-align:center; margin-bottom:25px;">
@@ -852,7 +885,7 @@ function animate() {
 animate();
 
 // ==========================================
-// 7. 狀態機與倒數計時器
+// 7. 狀態機與倒數計時器 (整合寫入雲端邏輯)
 // ==========================================
 setInterval(() => {
     if (currentModule === 'DASHBOARD') return;
@@ -872,8 +905,19 @@ setInterval(() => {
         sopTimeLeft--;
         if (phase === 'LOOKING' && sopTimeLeft === 3) spawnStimulusBall();
         if (sopTimeLeft <= 0) {
-            if (phase === 'LOOKING') { phase = 'CLOSING'; sopTimeLeft = 5; } 
-            else if (phase === 'CLOSING') { cycle++; if (cycle > maxCycles) { phase = 'COMPLETED'; playDingSound(); } else { phase = 'LOOKING'; sopTimeLeft = 10; playDingSound(); } }
+            if (phase === 'LOOKING') { 
+                phase = 'CLOSING'; sopTimeLeft = 5; 
+            } else if (phase === 'CLOSING') { 
+                cycle++; 
+                if (cycle > maxCycles) { 
+                    phase = 'COMPLETED'; 
+                    playDingSound(); 
+                    // 【寫入紀錄】45秒快速舒緩完成
+                    logTraining('45秒快速舒緩', 45);
+                } else { 
+                    phase = 'LOOKING'; sopTimeLeft = 10; playDingSound(); 
+                } 
+            }
         }
     } 
     else if (currentModule === 'stretch') { 
@@ -883,6 +927,8 @@ setInterval(() => {
             isResting = true;
             restTimeLeft = 5;
             playDingSound(); 
+            // 【寫入紀錄】動態 3D 眼肌伸展完成
+            logTraining('動態 3D 眼肌伸展', 45);
         }
     }
     else if (currentModule === 'chaser') { 
@@ -892,6 +938,8 @@ setInterval(() => {
             isResting = true;
             restTimeLeft = 5;
             playDingSound(); 
+            // 【寫入紀錄】睫狀肌深空追光完成
+            logTraining('睫狀肌深空追光', 60);
         }
     }
     else if (currentModule === 'breathe') {
@@ -904,13 +952,21 @@ setInterval(() => {
             isResting = true;
             restTimeLeft = 5;
             playDingSound(); 
+            // 【寫入紀錄】星雲散焦與神經放鬆完成
+            logTraining('星雲散焦與神經放鬆', 60);
         }
     }
     else if (currentModule === 'amsler' || currentModule === 'astigmatism') {
-        if (testPhase === 'COMPLETED') return; testTimeLeft--;
+        if (testPhase === 'COMPLETED') return; 
+        testTimeLeft--;
         if (testTimeLeft <= 0) {
-            if (testPhase === 'LEFT_EYE') { testPhase = 'RIGHT_EYE'; testTimeLeft = 15; playDingSound(); } 
-            else if (testPhase === 'RIGHT_EYE') { testPhase = 'COMPLETED'; playDingSound(); }
+            if (testPhase === 'LEFT_EYE') { 
+                testPhase = 'RIGHT_EYE'; testTimeLeft = 15; playDingSound(); 
+            } else if (testPhase === 'RIGHT_EYE') { 
+                testPhase = 'COMPLETED'; playDingSound(); 
+                // 【寫入紀錄】檢測完成
+                logTraining(currentModule === 'amsler' ? '黃斑部自我檢測' : '散光軸向自我檢測', 30);
+            }
         }
     }
     updateTrainingUI();

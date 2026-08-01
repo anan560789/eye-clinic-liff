@@ -751,12 +751,15 @@ function startTraining(type) {
 
     allModules.forEach(m => m.visible = false);
 
-    if (type === 'sop') {
+     if (type === 'sop') {
         sopGroup.visible = true; cycle = 1; phase = 'LOOKING'; sopTimeLeft = 10;
         sopMat.opacity = 1; coreMat.opacity = 1;
-        playBGM(); // 【修改點】：開始 45 秒舒緩時播放音樂
+        bgmPlayer.src = '/game1.mp3'; // 指定遊戲 1 音樂
+        playBGM(); 
     } else if (type === 'stretch') {
         stretchGroup.visible = true; stretchTimeLeft = 45; stretchOrb.position.set(0, 0, -30);
+        bgmPlayer.src = '/game2.mp3'; // 指定遊戲 2 音樂
+        playBGM();
     } else if (type === 'chaser') {
         chaserGroup.visible = true; breatheGroup.visible = true; chaserTimeLeft = 60; chaserScore = 0; resetChaserOrb();
     } else if (type === 'breathe') {
@@ -770,8 +773,8 @@ function startTraining(type) {
 }
 
 function returnToDashboard() {
-    if (currentModule === 'sop') {
-        stopBGM(); // 【修改點】：中斷返回時停止音樂
+    if (currentModule === 'sop' || currentModule === 'stretch') {
+        stopBGM(); // 確保遊戲 1 或 2 中斷時都會停音樂
     }
 
     currentModule = 'DASHBOARD';
@@ -974,6 +977,7 @@ setInterval(() => {
         if (stretchTimeLeft <= 0) {
             isResting = true;
             restTimeLeft = 5;
+            stopBGM(); // 【新增】：伸展結束時停止音樂
             playDingSound(); 
             logTraining('動態 3D 眼肌伸展', 45);
         }

@@ -27,27 +27,18 @@ let isResting = false;
 let restTimeLeft = 0;
 
 let lineUid = '未登入';
-let lineName = '訪客';
+let lineName = '';
 
 // ==========================================
-// 2. 雲端大腦 (Supabase) 紀錄模組
+// 2. 雲端紀錄功能
 // ==========================================
 async function logTraining(moduleName, durationSec) {
-    if (lineUid === '未登入') return; 
+    if (!lineUid || lineUid === '未登入') return;
     try {
         const { error } = await supabase
             .from('training_logs')
-            .insert([{
-                line_uid: lineUid,
-                line_name: lineName,
-                module_name: moduleName,
-                duration: durationSec
-            }]);
-        if (error) {
-            console.error('❌ Supabase 雲端寫入失敗:', error);
-        } else {
-            console.log(`✅ [${moduleName}] 訓練紀錄已成功寫入雲端大腦！`);
-        }
+            .insert([{ line_uid: lineUid, module_name: moduleName, duration: durationSec }]);
+        if (error) console.error('❌ Supabase 寫入錯誤:', error);
     } catch (err) {
         console.error('❌ 寫入過程發生系統錯誤:', err);
     }
@@ -76,8 +67,8 @@ window.addEventListener('click', () => {
     if (audioCtx.state === 'suspended') audioCtx.resume();
 }, { once: true });
 
-// 【新增】背景音樂播放器 (game1.mp3)
-const bgmPlayer = new Audio('./game1.mp3');
+// 背景音樂播放器
+const bgmPlayer = new Audio();
 bgmPlayer.loop = true; 
 
 function playBGM() {
@@ -187,6 +178,195 @@ contentContainer.style.marginBottom = '40px';
 dashboardUI.appendChild(contentContainer);
 
 // ==========================================
+// ★ 新增功能：打卡月曆與進度分享邏輯
+// ==========================================
+function getTodayString() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// 這個函數負責把完成的模組寫入 localStorage，集滿四個就算完成一次循環
+function recordModuleCompletion(type) {
+    if (!['sop', 'stretch', 'chaser', 'breathe'].includes(type)) return;
+    
+    const today = getTodayString();
+    const modulesKey = `rehab_modules_${today}`;
+    const cyclesKey = `rehab_cycles_${today}`;
+    
+    let modulesDone = JSON.parse(localStorage.getItem(modulesKey) || '[]');
+    let cycles = parseInt(localStorage.getItem(cyclesKey) || '0', 10);
+
+    if (!modulesDone.includes(type)) {
+        modulesDone.push(type);
+    }
+
+    // 集滿 4 個模組，視為完成一次大循環
+    if (modulesDone.length === 4) {
+        cycles++;
+        localStorage.setItem(cyclesKey, cycles);
+        localStorage.setItem(modulesKey, JSON.stringify([])); // 重置今日模組陣列，準備下一次循環
+    } else {
+        localStorage.setItem(modulesKey, JSON.stringify(modulesDone));
+    }
+    
+    // 即時更新日曆畫面
+    renderCalendar();
+}
+
+// 建立日曆 UI 容器
+const calendarSection = document.createElement('div');
+calendarSection.style.width = '100%';
+calendarSection.style.backgroundColor = '#161b22'; // 深色背景
+calendarSection.style.borderRadius = '16px';
+calendarSection.style.padding = '25px 20px';
+calendarSection.style.boxSizing = 'border-box';
+calendarSection.style.boxShadow = '0 10px 25px rgba(0,0,0,0.5)';
+contentContainer.appendChild(calendarSection); // 加入大廳內容區
+
+function renderCalendar() {
+    calendarSection.innerHTML = '';
+    
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = d.getMonth();
+    const todayDate = d.getDate();
+    
+    // 標題 (年份與月份)
+    const header = document.createElement('h2');
+    header.innerText = `${year} 年 ${month + 1} 月`;
+    header.style.color = '#E5B55E'; 
+    header.style.textAlign = 'center';
+    header.style.fontSize = '24px';
+    header.style.margin = '0 0 15px 0';
+    calendarSection.appendChild(header);
+
+    // 副標題說明
+    const subtitle1 = document.createElement('p');
+    subtitle1.innerText = '建議搭配PPLs®晶亮配方，每天復健三次';
+    subtitle1.style.color = '#8b9bb4';
+    subtitle1.style.textAlign = 'center';
+    subtitle1.style.fontSize = '15px';
+    subtitle1.style.margin = '0 0 5px 0';
+    calendarSection.appendChild(subtitle1);
+
+    const subtitle2 = document.createElement('p');
+    subtitle2.innerText = '還有最重要的眼睛要適度的休息';
+    subtitle2.style.color = '#8b9bb4';
+    subtitle2.style.textAlign = 'center';
+    subtitle2.style.fontSize = '15px';
+    subtitle2.style.margin = '0 0 25px 0';
+    calendarSection.appendChild(subtitle2);
+
+    // 星期表頭
+    const daysOfWeek = ['日', '一', '二', '三', '四', '五', '六'];
+    const dowContainer = document.createElement('div');
+    dowContainer.style.display = 'grid';
+    dowContainer.style.gridTemplateColumns = 'repeat(7, 1fr)';
+    dowContainer.style.gap = '5px';
+    dowContainer.style.marginBottom = '15px';
+    
+    daysOfWeek.forEach(day => {
+        const el = document.createElement('div');
+        el.innerText = day;
+        el.style.color = '#888';
+        el.style.textAlign = 'center';
+        el.style.fontSize = '14px';
+        dowContainer.appendChild(el);
+    });
+    calendarSection.appendChild(dowContainer);
+
+    // 日期網格
+    const grid = document.createElement('div');
+    grid.style.display = 'grid';
+    grid.style.gridTemplateColumns = 'repeat(7, 1fr)';
+    grid.style.gap = '10px 5px';
+    calendarSection.appendChild(grid);
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // 填充空白天數
+    for (let i = 0; i < firstDay; i++) {
+        grid.appendChild(document.createElement('div'));
+    }
+
+    let currentMonthCycles = 0;
+
+    // 產生每天的圓圈
+    for (let i = 1; i <= daysInMonth; i++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        const cycles = parseInt(localStorage.getItem(`rehab_cycles_${dateStr}`) || '0', 10);
+        currentMonthCycles += cycles;
+
+        const dayEl = document.createElement('div');
+        dayEl.innerText = i;
+        dayEl.style.display = 'flex';
+        dayEl.style.alignItems = 'center';
+        dayEl.style.justifyContent = 'center';
+        dayEl.style.width = '38px';
+        dayEl.style.height = '38px';
+        dayEl.style.margin = '0 auto';
+        dayEl.style.borderRadius = '50%';
+        dayEl.style.color = '#fff';
+        dayEl.style.fontSize = '16px';
+        dayEl.style.fontWeight = 'bold';
+        
+        // 依照循環次數給予顏色
+        if (cycles === 0) {
+            dayEl.style.backgroundColor = '#2a3241';
+            dayEl.style.color = '#6b7280'; // 暗灰色
+        } else if (cycles === 1) {
+            dayEl.style.backgroundColor = '#4D96FF'; // 1次: 藍色
+        } else if (cycles === 2) {
+            dayEl.style.backgroundColor = '#6BCB77'; // 2次: 綠色
+        } else {
+            dayEl.style.backgroundColor = '#FF9F1C'; // 3次以上: 橘黃色
+            dayEl.style.color = '#fff';
+        }
+
+        // 標記今天
+        if (i === todayDate) {
+            dayEl.style.border = '2px solid #E5B55E';
+        }
+
+        grid.appendChild(dayEl);
+    }
+
+    // 分享按鈕
+    const shareBtn = document.createElement('button');
+    shareBtn.innerHTML = '▷ 傳送每月復健次數';
+    shareBtn.style.width = '100%';
+    shareBtn.style.padding = '16px';
+    shareBtn.style.marginTop = '25px';
+    shareBtn.style.backgroundColor = '#2B579A'; // 深藍色
+    shareBtn.style.color = '#fff';
+    shareBtn.style.border = 'none';
+    shareBtn.style.borderRadius = '12px';
+    shareBtn.style.fontSize = '18px';
+    shareBtn.style.fontWeight = 'bold';
+    shareBtn.style.cursor = 'pointer';
+    
+    shareBtn.onclick = () => {
+        if (liff.isLoggedIn() && liff.isApiAvailable('shareTargetPicker')) {
+            liff.shareTargetPicker([{
+                type: "text",
+                text: `👁️ 彥臣數位眼科復健中心打卡！\n我這個月已經堅持完成了 ${currentMonthCycles} 次完整的眼部復健大循環。跟我一起保護眼睛吧！\n👉 https://liff.line.me/2010891900-u4t0FhJ6?v=1`
+            }]).then(function (res) {
+                if (res) console.log("Shared successfully");
+            }).catch(function (error) {
+                console.error("Share failed", error);
+            });
+        } else {
+            alert("請在 LINE 中開啟此網頁以使用分享功能");
+        }
+    };
+    calendarSection.appendChild(shareBtn);
+}
+// 初始渲染日曆
+renderCalendar();
+
+
+// ==========================================
 // 模組一：衛教資訊與遊戲原理互動視窗 (Modal)
 // ==========================================
 const infoModal = document.createElement('div');
@@ -204,7 +384,7 @@ infoModal.style.boxSizing = 'border-box';
 infoModal.style.fontFamily = 'sans-serif';
 document.body.appendChild(infoModal);
 
-// 【營養素頁面】 (完整回復原本的 HTML 內容)
+// 【營養素頁面】
 const nutrientPage = document.createElement('div');
 nutrientPage.style.maxWidth = '800px';
 nutrientPage.style.margin = '0 auto';
@@ -271,7 +451,7 @@ nutrientPage.innerHTML = `
 `;
 infoModal.appendChild(nutrientPage);
 
-// 【RPE 說明頁面】 (完整回復原本的 HTML 內容)
+// 【RPE 說明頁面】
 const rpePage = document.createElement('div');
 rpePage.style.maxWidth = '800px';
 rpePage.style.margin = '0 auto';
@@ -321,7 +501,7 @@ const medicalPrinciples = {
     },
     chaser: { 
         icon: "🎮", title: "睫狀肌深空追光", color: "#6BCB77",
-        principle: "當我們近距離看螢幕時，眼內的「睫狀肌」會處於極度緊繃收縮的狀態。<br><br>這個遊戲利用 3D 透視原理創造出「無限遠（Optical Infinity）」的視覺錯覺。藉由死盯著流星飛向最深處，能強迫睫狀肌徹底放鬆、拉長，是解除深層視覺疲勞與預防度數加深的最佳物理復健法。" 
+        principle: "當我們近距離看螢幕時，眼內的「睫狀肌」會處於極度緊繃收縮的狀態。<br><br>這個遊戲利用 3D 透視原理創造出「無限遠（Optical Infinity）」的視覺錯覺。藉由死盯流星飛向最深處，能強迫睫狀肌徹底放鬆、拉長，是解除深層視覺疲勞與預防度數加深的最佳物理復健法。" 
     },
     breathe: { 
         icon: "🌌", title: "星雲散焦與神經放鬆", color: "#FFD93D",
@@ -540,7 +720,7 @@ closeAdBtn.onclick = () => {
 };
 adContainer.appendChild(closeAdBtn);
 
-// 【產品推廣頁面】 (完整回復原本的 HTML 內容)
+// 【產品推廣頁面】
 const adWhiteBox = document.createElement('div');
 adWhiteBox.style.backgroundColor = '#ffffff'; 
 adWhiteBox.style.borderRadius = '20px';
@@ -576,8 +756,8 @@ adWhiteBox.innerHTML = `
     </div>
 
     <div style="text-align:center; margin-bottom:35px; font-size:20px; font-weight:bold; color:#444; line-height:2;">
-        <div>維持補充 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">2</span> 粒</div>
-        <div>加強提升 <span style="color:#d9534f; font-size:28px; margin:0 5px;">請洽專業藥師</span> 粒</div>
+        <div>維持補充 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">4</span> 粒</div>
+        <div>加強提升 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">6</span> 粒</div>
     </div>
 
     <div style="background-color:#f4f9ff; border:2px solid #b3d4f0; border-radius:15px; padding:20px 15px; text-align:center; margin-bottom:25px;">
@@ -751,7 +931,7 @@ function startTraining(type) {
 
     allModules.forEach(m => m.visible = false);
 
-     if (type === 'sop') {
+    if (type === 'sop') {
         sopGroup.visible = true; cycle = 1; phase = 'LOOKING'; sopTimeLeft = 10;
         sopMat.opacity = 1; coreMat.opacity = 1;
         bgmPlayer.src = '/game1.mp3'; // 指定遊戲 1 音樂
@@ -760,7 +940,7 @@ function startTraining(type) {
         stretchGroup.visible = true; stretchTimeLeft = 45; stretchOrb.position.set(0, 0, -30);
         bgmPlayer.src = '/game2.mp3'; // 指定遊戲 2 音樂
         playBGM();
-     } else if (type === 'chaser') {
+    } else if (type === 'chaser') {
         chaserGroup.visible = true; breatheGroup.visible = true; chaserTimeLeft = 60; chaserScore = 0; resetChaserOrb();
         bgmPlayer.src = '/game3.mp3'; // 指定遊戲 3 音樂
         playBGM();
@@ -778,9 +958,8 @@ function startTraining(type) {
 
 function returnToDashboard() {
     if (currentModule === 'sop' || currentModule === 'stretch' || currentModule === 'chaser' || currentModule === 'breathe') {
-        stopBGM(); // 確保遊戲 1、2、3、4 中斷時都會停音樂
+        stopBGM(); // 確保四個遊戲中斷時都會停音樂
     }
-
 
     currentModule = 'DASHBOARD';
     isResting = false;
@@ -880,7 +1059,6 @@ function animate() {
     if (currentModule === 'DASHBOARD') { renderer.render(new THREE.Scene(), camera); return; }
     
     const time = Date.now(); 
-    // 【修改點】：將這裡原本的 0.0015 調成 0.0012，以搭配 game1.mp3 的緩慢節奏
     const timeDelta = time * 0.0012; 
 
     if (currentModule === 'sop' && phase !== 'COMPLETED') {
@@ -941,7 +1119,7 @@ function animate() {
 animate();
 
 // ==========================================
-// 7. 狀態機與倒數計時器 (整合寫入雲端邏輯)
+// 7. 狀態機與倒數計時器 (整合寫入雲端與本地月曆邏輯)
 // ==========================================
 setInterval(() => {
     if (currentModule === 'DASHBOARD') return;
@@ -967,8 +1145,9 @@ setInterval(() => {
                 cycle++; 
                 if (cycle > maxCycles) { 
                     phase = 'COMPLETED'; 
-                    stopBGM(); // 【修改點】：訓練順利完成時，停止音樂
+                    stopBGM(); 
                     playDingSound(); 
+                    recordModuleCompletion('sop'); // 觸發打卡
                     logTraining('45秒快速舒緩', 45);
                 } else { 
                     phase = 'LOOKING'; sopTimeLeft = 10; playDingSound(); 
@@ -982,8 +1161,9 @@ setInterval(() => {
         if (stretchTimeLeft <= 0) {
             isResting = true;
             restTimeLeft = 5;
-            stopBGM(); // 【新增】：伸展結束時停止音樂
+            stopBGM(); 
             playDingSound(); 
+            recordModuleCompletion('stretch'); // 觸發打卡
             logTraining('動態 3D 眼肌伸展', 45);
         }
     }
@@ -993,8 +1173,9 @@ setInterval(() => {
         if (chaserTimeLeft <= 0) {
             isResting = true;
             restTimeLeft = 5;
-            stopBGM(); // 【新增】：追光結束時停止音樂
+            stopBGM(); 
             playDingSound(); 
+            recordModuleCompletion('chaser'); // 觸發打卡
             logTraining('睫狀肌深空追光', 60);
         }
     }
@@ -1007,8 +1188,9 @@ setInterval(() => {
         } else {
             isResting = true;
             restTimeLeft = 5;
-            stopBGM(); // 【新增】：呼吸結束時停止音樂
+            stopBGM(); 
             playDingSound(); 
+            recordModuleCompletion('breathe'); // 觸發打卡
             logTraining('星雲散焦與神經放鬆', 60);
         }
     }

@@ -276,7 +276,7 @@ function renderCalendar() {
     header.innerText = `${year} 年 ${month + 1} 月`;
     header.style.color = '#E5B55E'; 
     header.style.textAlign = 'center';
-    header.style.fontSize = '24px';
+    header.style.fontSize = '32px'; 
     header.style.margin = '0 0 15px 0';
     calendarSection.appendChild(header);
 
@@ -285,7 +285,7 @@ function renderCalendar() {
     subtitle1.innerText = '建議搭配PPLs®晶亮配方，每天復健三次';
     subtitle1.style.color = '#8b9bb4';
     subtitle1.style.textAlign = 'center';
-    subtitle1.style.fontSize = '15px';
+    subtitle1.style.fontSize = '18px'; 
     subtitle1.style.margin = '0 0 5px 0';
     calendarSection.appendChild(subtitle1);
 
@@ -293,7 +293,7 @@ function renderCalendar() {
     subtitle2.innerText = '還有最重要的眼睛要適度的休息';
     subtitle2.style.color = '#8b9bb4';
     subtitle2.style.textAlign = 'center';
-    subtitle2.style.fontSize = '15px';
+    subtitle2.style.fontSize = '18px'; 
     subtitle2.style.margin = '0 0 25px 0';
     calendarSection.appendChild(subtitle2);
 
@@ -310,7 +310,7 @@ function renderCalendar() {
         el.innerText = day;
         el.style.color = '#888';
         el.style.textAlign = 'center';
-        el.style.fontSize = '14px';
+        el.style.fontSize = '18px'; 
         dowContainer.appendChild(el);
     });
     calendarSection.appendChild(dowContainer);
@@ -343,12 +343,12 @@ function renderCalendar() {
         dayEl.style.display = 'flex';
         dayEl.style.alignItems = 'center';
         dayEl.style.justifyContent = 'center';
-        dayEl.style.width = '38px';
-        dayEl.style.height = '38px';
+        dayEl.style.width = '44px'; 
+        dayEl.style.height = '44px'; 
         dayEl.style.margin = '0 auto';
         dayEl.style.borderRadius = '50%';
         dayEl.style.color = '#fff';
-        dayEl.style.fontSize = '16px';
+        dayEl.style.fontSize = '20px'; 
         dayEl.style.fontWeight = 'bold';
         
         // 依照循環次數給予顏色
@@ -376,28 +376,35 @@ function renderCalendar() {
     const shareBtn = document.createElement('button');
     shareBtn.innerHTML = '▷ 傳送每月復健次數';
     shareBtn.style.width = '100%';
-    shareBtn.style.padding = '16px';
+    shareBtn.style.padding = '18px'; 
     shareBtn.style.marginTop = '25px';
-    shareBtn.style.backgroundColor = '#2B579A'; // 深藍色
+    shareBtn.style.backgroundColor = '#2B579A'; 
     shareBtn.style.color = '#fff';
     shareBtn.style.border = 'none';
     shareBtn.style.borderRadius = '12px';
-    shareBtn.style.fontSize = '18px';
+    shareBtn.style.fontSize = '20px'; 
     shareBtn.style.fontWeight = 'bold';
     shareBtn.style.cursor = 'pointer';
     
     shareBtn.onclick = () => {
-        if (liff.isLoggedIn() && liff.isApiAvailable('shareTargetPicker')) {
+        if (!liff.isLoggedIn()) {
+            liff.login({ redirectUri: window.location.href });
+            return;
+        }
+        
+        if (liff.isApiAvailable('shareTargetPicker')) {
             liff.shareTargetPicker([{
                 type: "text",
-                text: `👁️ 彥臣數位眼科復健中心打卡！\n我這個月已經堅持完成了 ${currentMonthCycles} 次完整的眼部復健大循環。跟我一起保護眼睛吧！\n👉 https://liff.line.me/2010891900-u4t0FhJ6?v=1`
+                text: `👁️ 彥臣數位眼科復健中心打卡！\n我這個月已經堅持完成了 ${currentMonthCycles} 次完整的眼部復健大循環。跟我一起保護眼睛吧！\n👉 https://liff.line.me/2010891900-u4t0FhJ6`
             }]).then(function (res) {
                 if (res) console.log("Shared successfully");
             }).catch(function (error) {
                 console.error("Share failed", error);
+                alert("分享取消或發生錯誤。");
             });
         } else {
-            alert("請在 LINE 中開啟此網頁以使用分享功能");
+            // 如果功能沒開，改為顯示這個更溫和的提示
+            alert("⚠️ 分享功能尚未開啟或不支援此裝置。");
         }
     };
     calendarSection.appendChild(shareBtn);

@@ -845,8 +845,8 @@ adWhiteBox.innerHTML = `
     </div>
 
     <div style="text-align:center; margin-bottom:35px; font-size:20px; font-weight:bold; color:#444; line-height:2;">
-        <div>維持補充 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">4</span> 粒</div>
-        <div>加強提升 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">6</span> 粒</div>
+        <div>維持補充 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">2</span> 粒</div>
+        <div>加強提升 <span style="color:#d9534f; font-size:28px; margin:0 5px;">請洽專業藥師</span></div>
     </div>
 
     <div style="background-color:#f4f9ff; border:2px solid #b3d4f0; border-radius:15px; padding:20px 15px; text-align:center; margin-bottom:25px;">

@@ -386,16 +386,23 @@ function renderCalendar() {
     shareBtn.style.fontWeight = 'bold';
     shareBtn.style.cursor = 'pointer';
     
+    // 取得今天的復健次數
+    const todayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(todayDate).padStart(2, '0')}`;
+    const todayCycles = parseInt(localStorage.getItem(`rehab_cycles_${todayStr}`) || '0', 10);
+    
     shareBtn.onclick = () => {
         if (!liff.isLoggedIn()) {
             liff.login({ redirectUri: window.location.href });
             return;
         }
         
+        // 抓取全域變數 lineName，如果沒有抓到就顯示 "我"
+        const userName = (typeof lineName !== 'undefined' && lineName && lineName !== '未登入') ? lineName : '我';
+        
         if (liff.isApiAvailable('shareTargetPicker')) {
             liff.shareTargetPicker([{
                 type: "text",
-                text: `👁️ 彥臣數位眼科復健中心打卡！\n我這個月已經堅持完成了 ${currentMonthCycles} 次完整的眼部復健大循環。跟我一起保護眼睛吧！\n👉 https://liff.line.me/2010891900-u4t0FhJ6`
+                text: `👁️ 彥臣數位眼科復健中心打卡！\n${userName}今天已經完成 ${todayCycles} 次完整的眼部復健運動，這個月已經完成 ${currentMonthCycles} 次眼部復健大循環。跟我一起保護眼睛吧！\n✨ 請搭配視祐全、新視祐全，補充眼睛關鍵營養！\n👉 https://liff.line.me/2010891900-u4t0FhJ6`
             }]).then(function (res) {
                 if (res) console.log("Shared successfully");
             }).catch(function (error) {
@@ -403,11 +410,11 @@ function renderCalendar() {
                 alert("分享取消或發生錯誤。");
             });
         } else {
-            // 如果功能沒開，改為顯示這個更溫和的提示
             alert("⚠️ 分享功能尚未開啟或不支援此裝置。");
         }
     };
     calendarSection.appendChild(shareBtn);
+
 }
 // 初始渲染日曆
 renderCalendar();

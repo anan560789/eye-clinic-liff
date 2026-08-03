@@ -213,15 +213,55 @@ function recordModuleCompletion(type) {
     renderCalendar();
 }
 
-// 建立日曆 UI 容器
+// 建立日曆互動視窗 (Modal)
+const calendarModal = document.createElement('div');
+calendarModal.style.position = 'absolute';
+calendarModal.style.top = '0';
+calendarModal.style.left = '0';
+calendarModal.style.width = '100vw';
+calendarModal.style.height = '100vh';
+calendarModal.style.backgroundColor = '#0f141e';
+calendarModal.style.zIndex = '50';
+calendarModal.style.overflowY = 'auto';
+calendarModal.style.display = 'none';
+calendarModal.style.padding = '20px';
+calendarModal.style.boxSizing = 'border-box';
+calendarModal.style.fontFamily = 'sans-serif';
+document.body.appendChild(calendarModal);
+
+const calendarModalContent = document.createElement('div');
+calendarModalContent.style.maxWidth = '800px';
+calendarModalContent.style.margin = '0 auto';
+calendarModalContent.style.paddingBottom = '50px';
+calendarModal.appendChild(calendarModalContent);
+
+// 月曆返回按鈕
+const closeCalendarBtn = document.createElement('button');
+closeCalendarBtn.innerText = "🔙 返回大廳";
+closeCalendarBtn.style.padding = '12px 24px';
+closeCalendarBtn.style.background = '#1a2233';
+closeCalendarBtn.style.color = '#fffdd0';
+closeCalendarBtn.style.border = '1px solid #2a3a5a';
+closeCalendarBtn.style.borderRadius = '8px';
+closeCalendarBtn.style.marginBottom = '20px';
+closeCalendarBtn.style.cursor = 'pointer';
+closeCalendarBtn.style.fontSize = '18px';
+closeCalendarBtn.style.fontWeight = 'bold';
+closeCalendarBtn.onclick = () => {
+    calendarModal.style.display = 'none';
+    dashboardUI.style.display = 'flex';
+};
+calendarModalContent.appendChild(closeCalendarBtn);
+
+// 月曆容器
 const calendarSection = document.createElement('div');
 calendarSection.style.width = '100%';
-calendarSection.style.backgroundColor = '#161b22'; // 深色背景
+calendarSection.style.backgroundColor = '#161b22'; 
 calendarSection.style.borderRadius = '16px';
 calendarSection.style.padding = '25px 20px';
 calendarSection.style.boxSizing = 'border-box';
 calendarSection.style.boxShadow = '0 10px 25px rgba(0,0,0,0.5)';
-contentContainer.appendChild(calendarSection); // 加入大廳內容區
+calendarModalContent.appendChild(calendarSection); 
 
 function renderCalendar() {
     calendarSection.innerHTML = '';
@@ -390,7 +430,7 @@ nutrientPage.style.maxWidth = '800px';
 nutrientPage.style.margin = '0 auto';
 nutrientPage.style.paddingBottom = '50px';
 nutrientPage.innerHTML = `
-    <button id="close-info-btn" style="padding:12px 24px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer; font-size:18px; font-weight:bold;">返回大廳</button>
+    <button id="close-info-btn" style="padding:12px 24px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer; font-size:18px; font-weight:bold;">🔙 返回大廳</button>
     <h2 style="color:#fffdd0; font-size:28px; border-bottom:2px solid #00ffcc; padding-bottom:10px; margin-bottom:15px;">護眼營養素與眼睛構造對照表</h2>
     <p style="color:#8b9bb4; font-size:18px; line-height:1.6; margin-bottom:20px; background:#162b2b; padding:15px; border-radius:8px;">
         <strong style="color:#00ffcc;">閱讀重點｜</strong>營養素通常是維持組織正常功能或降低缺乏風險，不能取代眼科檢查與治療。Propolins 最適合定位在視網膜色素上皮（RPE），目前證據為人類細胞與動物模型，尚非人體臨床療效。
@@ -516,7 +556,7 @@ function showModuleIntro(type) {
 
     const data = medicalPrinciples[type];
     moduleIntroPage.innerHTML = `
-        <button id="back-from-intro-btn" style="padding:12px 24px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer; font-size:18px; font-weight:bold;">返回大廳</button>
+        <button id="back-from-intro-btn" style="padding:12px 24px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer; font-size:18px; font-weight:bold;">🔙 返回大廳</button>
         
         <h2 style="color:#fffdd0; font-size:32px; border-bottom:2px solid ${data.color}; padding-bottom:10px; margin-bottom:25px; display:flex; align-items:center; gap:10px;">
             <span>${data.icon}</span> ${data.title}
@@ -569,8 +609,10 @@ document.addEventListener('click', function(e){
  });
 
 // ==========================================
-// 大廳：護眼常見營養素 Banner & 選單
+// 大廳：護眼百科、打卡月曆按鈕與訓練選單
 // ==========================================
+
+// 1. 護眼百科入口按鈕
 const infoBanner = document.createElement('div');
 infoBanner.style.width = '100%';
 infoBanner.style.backgroundColor = '#162b2b';
@@ -604,6 +646,39 @@ infoBanner.onclick = () => {
 };
 contentContainer.appendChild(infoBanner);
 
+// 2. 打卡月曆入口按鈕 (新增)
+const calendarEntryBtn = document.createElement('div');
+calendarEntryBtn.style.width = '100%';
+calendarEntryBtn.style.backgroundColor = '#161b22';
+calendarEntryBtn.style.border = '2px solid #4D96FF'; 
+calendarEntryBtn.style.borderRadius = '12px';
+calendarEntryBtn.style.padding = '20px';
+calendarEntryBtn.style.cursor = 'pointer';
+calendarEntryBtn.style.boxShadow = '0 0 15px rgba(77, 150, 255, 0.2)';
+calendarEntryBtn.style.textAlign = 'center';
+calendarEntryBtn.style.transition = 'all 0.2s ease';
+calendarEntryBtn.style.boxSizing = 'border-box';
+calendarEntryBtn.innerHTML = `
+    <h3 style="color:#4D96FF; font-size:22px; margin-bottom:10px;">📅 每月復健進度</h3>
+    <p style="color:#8b9bb4; font-size:16px; margin:0;">點擊查看您的打卡紀錄，分享給家人與醫師</p>
+`;
+calendarEntryBtn.onmouseover = () => {
+    calendarEntryBtn.style.transform = 'translateY(-3px)';
+    calendarEntryBtn.style.boxShadow = '0 0 25px rgba(77, 150, 255, 0.4)';
+};
+calendarEntryBtn.onmouseout = () => {
+    calendarEntryBtn.style.transform = 'translateY(0)';
+    calendarEntryBtn.style.boxShadow = '0 0 15px rgba(77, 150, 255, 0.2)';
+};
+calendarEntryBtn.onclick = () => {
+    dashboardUI.style.display = 'none';
+    calendarModal.style.display = 'block';
+    calendarModal.scrollTo(0,0);
+    renderCalendar(); // 進入前重新渲染確保最新進度
+};
+contentContainer.appendChild(calendarEntryBtn);
+
+// 3. 遊戲選單區塊
 const menuGrid = document.createElement('div');
 menuGrid.style.display = 'flex';
 menuGrid.style.flexDirection = 'column';
@@ -656,7 +731,7 @@ menuGrid.appendChild(createModuleCard("🌌 星雲散焦與神經放鬆", "【�
 menuGrid.appendChild(createModuleCard("🔍 黃斑部自我檢測", "經典阿姆斯勒方格表數位化，快篩視網膜病變風險。", () => startTraining('amsler'), '#9D4EDD')); 
 menuGrid.appendChild(createModuleCard("👁️ 散光軸向自我檢測", "放射鐘測試。檢測是否因散光未矯正而導致嚴重疲勞。", () => startTraining('astigmatism'), '#FF9F1C')); 
 
-// 大廳底部：隱藏式產品推廣按鈕
+// 4. 大廳底部：隱藏式產品推廣按鈕
 const adBannerBtn = document.createElement('div');
 adBannerBtn.style.width = '100%';
 adBannerBtn.style.border = '2px dashed #ffff00'; 
@@ -704,7 +779,7 @@ adContainer.style.margin = '0 auto';
 adContainer.style.paddingBottom = '50px';
 
 const closeAdBtn = document.createElement('button');
-closeAdBtn.innerText = "返回大廳";
+closeAdBtn.innerText = "🔙 返回大廳";
 closeAdBtn.style.padding = '12px 24px';
 closeAdBtn.style.background = '#1a2233';
 closeAdBtn.style.color = '#fffdd0';
@@ -806,7 +881,7 @@ timerUI.style.fontSize = '24px';
 trainingUI.appendChild(timerUI);
 
 const backBtn = document.createElement('button');
-backBtn.innerText = "返回大廳";
+backBtn.innerText = "🔙 返回大廳";
 backBtn.style.position = 'absolute';
 backBtn.style.top = '20px';
 backBtn.style.left = '20px';
@@ -934,19 +1009,19 @@ function startTraining(type) {
     if (type === 'sop') {
         sopGroup.visible = true; cycle = 1; phase = 'LOOKING'; sopTimeLeft = 10;
         sopMat.opacity = 1; coreMat.opacity = 1;
-        bgmPlayer.src = '/game1.mp3'; // 指定遊戲 1 音樂
+        bgmPlayer.src = '/game1.mp3'; 
         playBGM(); 
     } else if (type === 'stretch') {
         stretchGroup.visible = true; stretchTimeLeft = 45; stretchOrb.position.set(0, 0, -30);
-        bgmPlayer.src = '/game2.mp3'; // 指定遊戲 2 音樂
+        bgmPlayer.src = '/game2.mp3'; 
         playBGM();
     } else if (type === 'chaser') {
         chaserGroup.visible = true; breatheGroup.visible = true; chaserTimeLeft = 60; chaserScore = 0; resetChaserOrb();
-        bgmPlayer.src = '/game3.mp3'; // 指定遊戲 3 音樂
+        bgmPlayer.src = '/game3.mp3'; 
         playBGM();
     } else if (type === 'breathe') {
         breatheGroup.visible = true; breatheTimeLeft = 60; breathPhase = 'INHALE';
-        bgmPlayer.src = '/game4.mp3'; // 指定遊戲 4 音樂
+        bgmPlayer.src = '/game4.mp3'; 
         playBGM();
     } else if (type === 'amsler' || type === 'astigmatism') {
         if (type === 'amsler') amslerGroup.visible = true;
@@ -958,7 +1033,7 @@ function startTraining(type) {
 
 function returnToDashboard() {
     if (currentModule === 'sop' || currentModule === 'stretch' || currentModule === 'chaser' || currentModule === 'breathe') {
-        stopBGM(); // 確保四個遊戲中斷時都會停音樂
+        stopBGM(); 
     }
 
     currentModule = 'DASHBOARD';
@@ -1147,7 +1222,7 @@ setInterval(() => {
                     phase = 'COMPLETED'; 
                     stopBGM(); 
                     playDingSound(); 
-                    recordModuleCompletion('sop'); // 觸發打卡
+                    recordModuleCompletion('sop');
                     logTraining('45秒快速舒緩', 45);
                 } else { 
                     phase = 'LOOKING'; sopTimeLeft = 10; playDingSound(); 
@@ -1163,7 +1238,7 @@ setInterval(() => {
             restTimeLeft = 5;
             stopBGM(); 
             playDingSound(); 
-            recordModuleCompletion('stretch'); // 觸發打卡
+            recordModuleCompletion('stretch');
             logTraining('動態 3D 眼肌伸展', 45);
         }
     }
@@ -1175,7 +1250,7 @@ setInterval(() => {
             restTimeLeft = 5;
             stopBGM(); 
             playDingSound(); 
-            recordModuleCompletion('chaser'); // 觸發打卡
+            recordModuleCompletion('chaser');
             logTraining('睫狀肌深空追光', 60);
         }
     }
@@ -1190,7 +1265,7 @@ setInterval(() => {
             restTimeLeft = 5;
             stopBGM(); 
             playDingSound(); 
-            recordModuleCompletion('breathe'); // 觸發打卡
+            recordModuleCompletion('breathe');
             logTraining('星雲散焦與神經放鬆', 60);
         }
     }

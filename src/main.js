@@ -70,19 +70,23 @@ window.addEventListener('click', () => {
 // 背景音樂播放器
 const bgmPlayer = new Audio();
 bgmPlayer.loop = true; 
+let bgmFadeInterval;
+let bgmDipTimeout;
 
 function playBGM() {
+    clearInterval(bgmFadeInterval);
+    clearTimeout(bgmDipTimeout);
     bgmPlayer.volume = 0;
     const playPromise = bgmPlayer.play();
     if (playPromise !== undefined) {
         playPromise.then(_ => {
             let vol = 0;
-            const fade = setInterval(() => {
+            bgmFadeInterval = setInterval(() => {
                 if (vol < 0.6) { 
                     vol += 0.05;
                     bgmPlayer.volume = Math.min(vol, 0.6);
                 } else {
-                    clearInterval(fade);
+                    clearInterval(bgmFadeInterval);
                 }
             }, 100);
         }).catch(error => {
@@ -92,18 +96,49 @@ function playBGM() {
 }
 
 function stopBGM() {
+    clearInterval(bgmFadeInterval);
+    clearTimeout(bgmDipTimeout);
     let vol = bgmPlayer.volume;
-    const fade = setInterval(() => {
+    bgmFadeInterval = setInterval(() => {
         if (vol > 0.05) {
             vol -= 0.1;
             bgmPlayer.volume = Math.max(vol, 0);
         } else {
-            clearInterval(fade);
+            clearInterval(bgmFadeInterval);
             bgmPlayer.pause();
             bgmPlayer.currentTime = 0;
         }
     }, 100);
 }
+
+// 新增功能：提示音出現時，降低音量後再恢復
+function dipBGM() {
+    clearInterval(bgmFadeInterval);
+    clearTimeout(bgmDipTimeout);
+    let vol = bgmPlayer.volume;
+    // 1. 先快速將音量降低
+    bgmFadeInterval = setInterval(() => {
+        if (vol > 0.15) {
+            vol -= 0.05;
+            bgmPlayer.volume = Math.max(vol, 0.15);
+        } else {
+            clearInterval(bgmFadeInterval);
+            // 2. 保持低音量 3.5 秒 (讓叮咚聲與文字可以被清楚認知)
+            bgmDipTimeout = setTimeout(() => {
+                // 3. 緩慢把音量恢復到 0.6
+                bgmFadeInterval = setInterval(() => {
+                    if (vol < 0.6) {
+                        vol += 0.05;
+                        bgmPlayer.volume = Math.min(vol, 0.6);
+                    } else {
+                        clearInterval(bgmFadeInterval);
+                    }
+                }, 100);
+            }, 3500); 
+        }
+    }, 100);
+}
+
 
 // ==========================================
 // 4. UI 介面架構與 LIFF 初始化
@@ -1234,7 +1269,7 @@ setInterval(() => {
                 cycle++; 
                 if (cycle > maxCycles) { 
                     phase = 'COMPLETED'; 
-                    stopBGM(); 
+                    dipBGM(); // 【修改】：改為降低音量而非停止
                     playDingSound(); 
                     recordModuleCompletion('sop');
                     logTraining('45秒快速舒緩', 45);
@@ -1250,7 +1285,7 @@ setInterval(() => {
         if (stretchTimeLeft <= 0) {
             isResting = true;
             restTimeLeft = 5;
-            stopBGM(); 
+            dipBGM(); // 【修改】：改為降低音量而非停止
             playDingSound(); 
             recordModuleCompletion('stretch');
             logTraining('動態 3D 眼肌伸展', 45);
@@ -1262,7 +1297,7 @@ setInterval(() => {
         if (chaserTimeLeft <= 0) {
             isResting = true;
             restTimeLeft = 5;
-            stopBGM(); 
+            dipBGM(); // 【修改】：改為降低音量而非停止
             playDingSound(); 
             recordModuleCompletion('chaser');
             logTraining('睫狀肌深空追光', 60);
@@ -1277,7 +1312,7 @@ setInterval(() => {
         } else {
             isResting = true;
             restTimeLeft = 5;
-            stopBGM(); 
+            dipBGM(); // 【修改】：改為降低音量而非停止
             playDingSound(); 
             recordModuleCompletion('breathe');
             logTraining('星雲散焦與神經放鬆', 60);

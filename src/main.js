@@ -26,10 +26,20 @@ let testTimeLeft = 15;
 let isResting = false;
 let restTimeLeft = 0;
 
+// Focus 模組新變數 (4段變速)
 let focusTimeLeft = 60;
-let focusPhase = 'NEAR';
+let focusStep = 0;      
+let focusDirection = 1; 
 let focusHoldTime = 3;
 let focusCycleSpeed = 3;
+const focusDepths = [-1, -15, -35, -60];
+const focusColors = [0xff3366, 0xff4d79, 0xff668c, 0xff809f];
+const focusTexts = [
+    "<span style='color:#FF3366;'>【極近對焦】</span>用力看清缺口方向",
+    "<span style='color:#ff4d79;'>【中近距離】</span>尋找缺口位置",
+    "<span style='color:#ff668c;'>【中遠距離】</span>嘗試辨識缺口",
+    "<span style='color:#ff809f;'>【深空極限】</span>盡力即可，請放鬆不勉強"
+];
 
 let lineUid = '未登入';
 let lineName = '';
@@ -212,7 +222,7 @@ contentContainer.style.marginBottom = '40px';
 dashboardUI.appendChild(contentContainer);
 
 // ==========================================
-// 打卡月曆與進度分享邏輯
+// 5. 打卡月曆與進度分享邏輯
 // ==========================================
 function getTodayString() {
     const d = new Date();
@@ -233,6 +243,7 @@ function recordModuleCompletion(type) {
         modulesDone.push(type);
     }
 
+    // 只要滿4個模組就算一次大循環
     if (modulesDone.length >= 4) {
         cycles++;
         localStorage.setItem(cyclesKey, cycles);
@@ -426,7 +437,7 @@ function renderCalendar() {
                 alert("分享取消或發生錯誤。");
             });
         } else {
-            alert("⚠️ 分享功能尚未開啟或不支援此裝置。");
+            liff.login({ redirectUri: window.location.href });
         }
     };
     calendarSection.appendChild(shareBtn);
@@ -434,7 +445,7 @@ function renderCalendar() {
 renderCalendar();
 
 // ==========================================
-// 模組一：衛教資訊與遊戲原理互動視窗
+// 6. 模組資訊視窗 (衛教與遊戲原理)
 // ==========================================
 const infoModal = document.createElement('div');
 infoModal.style.position = 'absolute';
@@ -529,10 +540,6 @@ const medicalPrinciples = {
         icon: "🔄", title: "動態 3D 眼肌伸展", color: "#4D96FF",
         principle: "現代人長時間死盯著手機，導致控制眼球的「眼外肌」僵硬缺血。<br><br>本模組利用最大範圍的 ∞ 字型（無限大）極限軌跡，強迫拉伸控制眼球的六條眼外肌，促進眼周血液循環。" 
     },
-    focus: { 
-        icon: "🎯", title: "Z 軸遠近對焦飛梭", color: "#FF3366",
-        principle: "這是一款「睫狀肌的幫浦重訓」。利用 Three.js 的 Z 軸深度與強烈透視，強迫睫狀肌進行極端收縮（看近）與極端放鬆（看遠）的快速切換，藉此恢復水晶體的對焦彈性。<br><br><strong style='color:#FF3366;'>⚠️ 這是重新訓練眼睛聚焦能力模組，屬於較高強度的眼肌運動，如有不適請立即停止並讓眼睛休息。</strong>" 
-    },
     chaser: { 
         icon: "🎮", title: "睫狀肌深空追光", color: "#6BCB77",
         principle: "利用 3D 透視原理創造出「無限遠（Optical Infinity）」的視覺錯覺。藉由死盯流星飛向最深處，能強迫睫狀肌徹底放鬆、拉長，解除深層視覺疲勞。" 
@@ -540,6 +547,10 @@ const medicalPrinciples = {
     breathe: { 
         icon: "🌌", title: "星雲散焦與神經放鬆", color: "#FFD93D",
         principle: "引導您「放寬視野、不要對焦任何單顆星星」，啟動周邊視覺（Peripheral Vision），配合深度共振呼吸法，喚醒副交感神經，達到神經級的深度重置。" 
+    },
+    focus: { 
+        icon: "🎯", title: "Z 軸遠近對焦飛梭", color: "#FF3366",
+        principle: "這是一款「睫狀肌的幫浦重訓」。利用 Three.js 的 Z 軸深度與強烈透視，強迫睫狀肌進行極端收縮（看近）與極端放鬆（看遠）的快速切換，藉此恢復水晶體的對焦彈性。<br><br><strong style='color:#FF3366;'>⚠️ 這是重新訓練眼睛聚焦能力模組，屬於較高強度的眼肌運動，如有不適請立即停止並讓眼睛休息。</strong>" 
     }
 };
 
@@ -600,7 +611,7 @@ document.addEventListener('click', function(e){
 });
 
 // ==========================================
-// 大廳選單
+// 7. 大廳選單
 // ==========================================
 const infoBanner = document.createElement('div');
 infoBanner.style.width = '100%';
@@ -685,6 +696,7 @@ function createModuleCard(title, desc, onClick, borderColor) {
     return card;
 }
 
+// 重新排序模組，讓 Focus 放最後面
 menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => showModuleIntro('sop'), '#FF6B6B')); 
 menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，強迫拉伸控制眼球的六條眼外肌。", () => showModuleIntro('stretch'), '#4D96FF')); 
 menuGrid.appendChild(createModuleCard("🎮 睫狀肌深空追光", "【放鬆遊戲】死盯流星飛向深空，強迫睫狀肌徹底看遠放鬆。", () => showModuleIntro('chaser'), '#6BCB77')); 
@@ -796,7 +808,7 @@ adContainer.appendChild(adWhiteBox);
 adModal.appendChild(adContainer);
 
 // ==========================================
-// 遊戲介面 (Training UI)
+// 8. 遊戲介面 (Training UI)
 // ==========================================
 const trainingUI = document.createElement('div');
 trainingUI.style.position = 'absolute';
@@ -846,7 +858,7 @@ backBtn.onclick = returnToDashboard;
 document.body.appendChild(backBtn);
 
 // ==========================================
-// 建立 Three.js 場景與模組物件
+// 9. 建立 Three.js 場景與模組物件
 // ==========================================
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0f141e);
@@ -877,34 +889,14 @@ stretchOrb.add(new THREE.PointLight(0xffaa00, 2.5, 60));
 stretchGroup.add(stretchOrb);
 scene.add(stretchGroup);
 
-// 模組 3: Focus (Z 軸遠近對焦飛梭 - 4 層 C 字環隧道)
-const focusGroup = new THREE.Group();
-const focusRings = []; // 儲存 4 個環以便同步旋轉
-const ringGeo = new THREE.RingGeometry(1.2, 1.8, 32, 1, 0, Math.PI * 1.7);
-const ringColors = [0xff3366, 0xff4d79, 0xff668c, 0xff809f];
-
-for(let i = 0; i < 4; i++) {
-    const ringMat = new THREE.MeshBasicMaterial({ 
-        color: ringColors[i], 
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 1 - (i * 0.2) 
-    });
-    const ring = new THREE.Mesh(ringGeo, ringMat);
-    ring.position.z = -i * 25; // 每顆 C 間隔 25 單位深度
-    focusRings.push(ring);
-    focusGroup.add(ring);
-}
-scene.add(focusGroup);
-
-// 模組 4: Chaser
+// 模組 3: Chaser
 const chaserGroup = new THREE.Group();
 const chaserOrb = new THREE.Mesh(new THREE.SphereGeometry(3, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true }));
 chaserOrb.add(new THREE.PointLight(0xffd700, 2.5, 80)); 
 chaserGroup.add(chaserOrb);
 scene.add(chaserGroup);
 
-// 模組 5: Breathe
+// 模組 4: Breathe
 const breatheGroup = new THREE.Group();
 const particleCount = 2000;
 const particlesGeo = new THREE.BufferGeometry();
@@ -916,6 +908,18 @@ const particleSystem = new THREE.Points(particlesGeo, particlesMat);
 breatheGroup.add(particleSystem);
 breatheGroup.position.z = -20;
 scene.add(breatheGroup);
+
+// 模組 5: Focus (單一 C 字環)
+const focusGroup = new THREE.Group();
+const ringGeo = new THREE.RingGeometry(1.2, 1.8, 32, 1, 0, Math.PI * 1.7);
+const ringMat = new THREE.MeshBasicMaterial({ 
+    color: 0xff3366, 
+    side: THREE.DoubleSide,
+    transparent: true
+});
+const focusRing = new THREE.Mesh(ringGeo, ringMat);
+focusGroup.add(focusRing);
+scene.add(focusGroup);
 
 // 模組 6 & 7: 檢測模組
 const amslerGroup = new THREE.Group();
@@ -945,7 +949,7 @@ function resetChaserOrb() {
     chaserOrb.material.opacity = 1;
 }
 
-const allModules = [sopGroup, stretchGroup, focusGroup, amslerGroup, astigGroup, breatheGroup, chaserGroup];
+const allModules = [sopGroup, stretchGroup, chaserGroup, breatheGroup, focusGroup, amslerGroup, astigGroup];
 allModules.forEach(m => m.visible = false);
 const stimulusBalls = [];
 
@@ -959,7 +963,7 @@ function spawnStimulusBall() {
 }
 
 // ==========================================
-// 控制邏輯與切換函數
+// 10. 控制邏輯與切換函數
 // ==========================================
 function startTraining(type) {
     currentModule = type;
@@ -979,16 +983,18 @@ function startTraining(type) {
     } else if (type === 'stretch') {
         stretchGroup.visible = true; stretchTimeLeft = 45; stretchOrb.position.set(0, 0, -30);
         bgmPlayer.src = '/game2.mp3'; playBGM();
-    } else if (type === 'focus') {
-        focusGroup.visible = true; focusTimeLeft = 60; focusPhase = 'NEAR'; focusHoldTime = 3; focusCycleSpeed = 3;
-        focusGroup.position.z = -1; // 初始化隧道位置，讓最前方的 C 不會超出螢幕
-        bgmPlayer.src = '/game5.mp3'; playBGM();
     } else if (type === 'chaser') {
         chaserGroup.visible = true; breatheGroup.visible = true; chaserTimeLeft = 60; chaserScore = 0; resetChaserOrb();
         bgmPlayer.src = '/game3.mp3'; playBGM();
     } else if (type === 'breathe') {
         breatheGroup.visible = true; breatheTimeLeft = 60; breathPhase = 'INHALE';
         bgmPlayer.src = '/game4.mp3'; playBGM();
+    } else if (type === 'focus') {
+        focusGroup.visible = true; focusTimeLeft = 60; 
+        focusStep = 0; focusDirection = 1; focusHoldTime = 3; focusCycleSpeed = 3;
+        focusGroup.position.z = focusDepths[focusStep]; 
+        focusRing.material.color.setHex(focusColors[focusStep]);
+        bgmPlayer.src = '/game5.mp3'; playBGM();
     } else if (type === 'amsler' || type === 'astigmatism') {
         if (type === 'amsler') amslerGroup.visible = true;
         if (type === 'astigmatism') astigGroup.visible = true;
@@ -998,7 +1004,7 @@ function startTraining(type) {
 }
 
 function returnToDashboard() {
-    if (['sop', 'stretch', 'focus', 'chaser', 'breathe'].includes(currentModule)) {
+    if (['sop', 'stretch', 'chaser', 'breathe', 'focus'].includes(currentModule)) {
         stopBGM(); 
     }
     currentModule = 'DASHBOARD';
@@ -1030,20 +1036,6 @@ function updateTrainingUI() {
         } else { 
             trainingUI.style.top = '50%'; titleUI.innerText = "🎉 眼肌與焦距重訓完成！"; timerUI.innerText = ""; 
         }
-    } else if (currentModule === 'focus') {
-        if (focusTimeLeft > 0) {
-            trainingUI.style.top = '85%';
-            if (focusPhase === 'NEAR') {
-                titleUI.innerHTML = `<span style="font-size: 28px; color:#FF3366;">【極近對焦】用力看清缺口方向！</span>`;
-            } else {
-                titleUI.innerHTML = `<span style="font-size: 28px; color:#00ffcc;">【瞬間深空】看清您能辨識的最遠 C 環</span>`;
-            }
-            timerUI.innerText = `重訓剩餘：${focusTimeLeft} 秒`;
-        } else if (isResting) {
-            trainingUI.style.top = '50%'; titleUI.innerText = "請閉眼休息5秒鐘"; timerUI.innerText = `休息 ${restTimeLeft} 秒`;
-        } else {
-            trainingUI.style.top = '50%'; titleUI.innerText = "🎯 睫狀肌幫浦重訓完成！"; timerUI.innerText = "您的對焦彈性已獲得極大刺激";
-        }
     } else if (currentModule === 'chaser') {
         if (chaserTimeLeft > 0) {
             trainingUI.style.top = '80%'; titleUI.innerHTML = `【睫狀肌深空追光】<br><span style='font-size:16px; color:#8b9bb4;'>死盯流星飛向最深處直到消失<br>(已追蹤: ${chaserScore} 顆)</span>`; timerUI.innerText = `遊戲剩餘：${chaserTimeLeft} 秒`;
@@ -1061,6 +1053,16 @@ function updateTrainingUI() {
         } else {
             trainingUI.style.top = '50%'; titleUI.innerText = "🌌 視覺神經與自律神經已深度重置"; timerUI.innerText = "現在您的眼睛處於最佳狀態";
         }
+    } else if (currentModule === 'focus') {
+        if (focusTimeLeft > 0) {
+            trainingUI.style.top = '85%';
+            titleUI.innerHTML = `<span style="font-size: 26px;">${focusTexts[focusStep]}</span>`;
+            timerUI.innerText = `重訓剩餘：${focusTimeLeft} 秒`;
+        } else if (isResting) {
+            trainingUI.style.top = '50%'; titleUI.innerText = "請閉眼休息5秒鐘"; timerUI.innerText = `休息 ${restTimeLeft} 秒`;
+        } else {
+            trainingUI.style.top = '50%'; titleUI.innerText = "🎯 睫狀肌幫浦重訓完成！"; timerUI.innerText = "您的對焦彈性已獲得極大刺激";
+        }
     } else if (currentModule === 'amsler' || currentModule === 'astigmatism') {
         if (testPhase === 'COMPLETED') {
             trainingUI.style.top = '50%'; titleUI.innerText = "檢測完成！若有異常請檢查視力與散光度數"; timerUI.innerText = "點擊左上角返回大廳";
@@ -1074,7 +1076,7 @@ function updateTrainingUI() {
 }
 
 // ==========================================
-// 核心渲染動畫
+// 11. 核心渲染動畫
 // ==========================================
 function animate() {
     requestAnimationFrame(animate);
@@ -1113,12 +1115,6 @@ function animate() {
         stretchOrb.position.set(Math.sin(speed) * xAmplitude, Math.sin(speed * 2) * yAmplitude, -30 + Math.sin(speed * 0.5) * 20);
     }
 
-    if (currentModule === 'focus' && focusTimeLeft > 0) {
-        // C字隧道退後的極限為 -60，讓最深處的 C 仍保持一定的可見度
-        const targetZ = (focusPhase === 'NEAR') ? -1 : -60;
-        focusGroup.position.z += (targetZ - focusGroup.position.z) * 0.15;
-    }
-    
     if (currentModule === 'breathe' || currentModule === 'chaser') {
         particleSystem.rotation.y += 0.0005; particleSystem.rotation.z += 0.0002;
     }
@@ -1138,17 +1134,23 @@ function animate() {
         const currentScale = 1.05 + breathCycle * 0.25; particleSystem.scale.set(currentScale, currentScale, currentScale);
         const hue = 0.5 + breathCycle * 0.1; const lightness = 0.4 + breathCycle * 0.2; particlesMat.color.setHSL(hue, 0.8, lightness);
     }
+
+    if (currentModule === 'focus' && focusTimeLeft > 0) {
+        const targetZ = focusDepths[focusStep];
+        focusGroup.position.z += (targetZ - focusGroup.position.z) * 0.15;
+    }
+    
     renderer.render(scene, camera);
 }
 animate();
 
 // ==========================================
-// 狀態機與倒數計時器
+// 12. 狀態機與倒數計時器
 // ==========================================
 setInterval(() => {
     if (currentModule === 'DASHBOARD') return;
 
-    if (['stretch', 'focus', 'chaser', 'breathe'].includes(currentModule) && isResting) {
+    if (['stretch', 'chaser', 'breathe', 'focus'].includes(currentModule) && isResting) {
         restTimeLeft--;
         if (restTimeLeft <= 0) {
             isResting = false; 
@@ -1184,28 +1186,6 @@ setInterval(() => {
             recordModuleCompletion('stretch'); logTraining('動態 3D 眼肌伸展', 45);
         }
     }
-    else if (currentModule === 'focus') { 
-        if (focusTimeLeft <= 0) return;
-        focusTimeLeft--;
-        focusHoldTime--;
-        
-        if (focusTimeLeft === 40) focusCycleSpeed = 2;
-        if (focusTimeLeft === 20) focusCycleSpeed = 1.5;
-
-        if (focusHoldTime <= 0 && focusTimeLeft > 0) {
-            focusPhase = (focusPhase === 'NEAR') ? 'FAR' : 'NEAR';
-            focusHoldTime = focusCycleSpeed;
-            // 隨機旋轉隧道內所有的 C 字環方向
-            focusRings.forEach(ring => {
-                ring.rotation.z = Math.random() * Math.PI * 2;
-            });
-        }
-
-        if (focusTimeLeft <= 0) {
-            isResting = true; restTimeLeft = 5; dipBGM(); playDingSound(); 
-            recordModuleCompletion('focus'); logTraining('Z 軸遠近對焦飛梭', 60);
-        }
-    }
     else if (currentModule === 'chaser') { 
         if (chaserTimeLeft <= 0) return; 
         chaserTimeLeft--; 
@@ -1223,6 +1203,39 @@ setInterval(() => {
         } else {
             isResting = true; restTimeLeft = 5; dipBGM(); playDingSound(); 
             recordModuleCompletion('breathe'); logTraining('星雲散焦與神經放鬆', 60);
+        }
+    }
+    else if (currentModule === 'focus') { 
+        if (focusTimeLeft <= 0) return;
+        focusTimeLeft--;
+        focusHoldTime--;
+        
+        if (focusTimeLeft === 40) focusCycleSpeed = 2;
+        if (focusTimeLeft === 20) focusCycleSpeed = 1.5;
+
+        // 當停留時間結束，前進到下一個距離階段
+        if (focusHoldTime <= 0 && focusTimeLeft > 0) {
+            focusStep += focusDirection;
+            
+            // 如果到了最遠(3)或最近(0)，就改變來回方向
+            if (focusStep >= 3) {
+                focusStep = 3;
+                focusDirection = -1;
+            } else if (focusStep <= 0) {
+                focusStep = 0;
+                focusDirection = 1;
+            }
+
+            focusHoldTime = focusCycleSpeed;
+            
+            // 更換顏色，並將 C 的缺口隨機轉向 4 個方向 (上、下、左、右)
+            focusRing.material.color.setHex(focusColors[focusStep]);
+            focusRing.rotation.z = Math.floor(Math.random() * 4) * (Math.PI / 2);
+        }
+
+        if (focusTimeLeft <= 0) {
+            isResting = true; restTimeLeft = 5; dipBGM(); playDingSound(); 
+            recordModuleCompletion('focus'); logTraining('Z 軸遠近對焦飛梭', 60);
         }
     }
     else if (currentModule === 'amsler' || currentModule === 'astigmatism') {

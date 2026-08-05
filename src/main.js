@@ -851,6 +851,7 @@ continueBtn.style.border = 'none';
 continueBtn.style.borderRadius = '30px';
 continueBtn.style.cursor = 'pointer';
 continueBtn.style.display = 'none';
+continueBtn.style.pointerEvents = 'auto'; // 新增這行：解除滑鼠穿透封印
 continueBtn.style.boxShadow = '0 4px 15px rgba(0,255,204,0.4)';
 continueBtn.onclick = () => {
     isWaitingForRightEye = false;

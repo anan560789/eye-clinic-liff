@@ -27,7 +27,7 @@ let isResting = false;
 let restTimeLeft = 0;
 
 // Focus 模組新變數 (4段變速)
-let focusTimeLeft = 60;
+let focusTimeLeft = 120; // 總時間改為 120 秒 (每眼 60 秒)
 let focusStep = 0;      
 let focusDirection = 1; 
 let focusHoldTime = 3;
@@ -550,7 +550,7 @@ const medicalPrinciples = {
     },
     focus: { 
         icon: "🎯", title: "Z 軸遠近對焦飛梭", color: "#FF3366",
-        principle: "這是一款「睫狀肌的幫浦重訓」。利用 Three.js 的 Z 軸深度與強烈透視，強迫睫狀肌進行極端收縮（看近）與極端放鬆（看遠）的快速切換，藉此恢復水晶體的對焦彈性。<br><br><strong style='color:#FF3366;'>⚠️ 這是重新訓練眼睛聚焦能力模組，屬於較高強度的眼肌運動，如有不適請立即停止並讓眼睛休息。</strong>" 
+        principle: "這是一款「睫狀肌的幫浦重訓」。利用 Three.js 的 Z 軸深度與強烈透視，強迫睫狀肌進行極端收縮（看近）與極端放鬆（看遠）的快速切換，藉此恢復水晶體的對焦彈性。<br><br><strong style='color:#00ffcc;'>⏱️ 訓練時間：單眼各 60 秒，共需 2 分鐘。</strong><br><br><strong style='color:#FF3366;'>⚠️ 這是重新訓練眼睛聚焦能力模組，屬於較高強度的眼肌運動，如有不適請立即停止並讓眼睛休息。</strong>" 
     }
 };
 
@@ -696,7 +696,6 @@ function createModuleCard(title, desc, onClick, borderColor) {
     return card;
 }
 
-// 重新排序模組，讓 Focus 放最後面
 menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => showModuleIntro('sop'), '#FF6B6B')); 
 menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，強迫拉伸控制眼球的六條眼外肌。", () => showModuleIntro('stretch'), '#4D96FF')); 
 menuGrid.appendChild(createModuleCard("🎮 睫狀肌深空追光", "【放鬆遊戲】死盯流星飛向深空，強迫睫狀肌徹底看遠放鬆。", () => showModuleIntro('chaser'), '#6BCB77')); 
@@ -990,7 +989,7 @@ function startTraining(type) {
         breatheGroup.visible = true; breatheTimeLeft = 60; breathPhase = 'INHALE';
         bgmPlayer.src = '/game4.mp3'; playBGM();
     } else if (type === 'focus') {
-        focusGroup.visible = true; focusTimeLeft = 60; 
+        focusGroup.visible = true; focusTimeLeft = 120; // 調整為單眼各 60 秒
         focusStep = 0; focusDirection = 1; focusHoldTime = 3; focusCycleSpeed = 3;
         focusGroup.position.z = focusDepths[focusStep]; 
         focusRing.material.color.setHex(focusColors[focusStep]);
@@ -1056,7 +1055,10 @@ function updateTrainingUI() {
     } else if (currentModule === 'focus') {
         if (focusTimeLeft > 0) {
             trainingUI.style.top = '85%';
-            titleUI.innerHTML = `<span style="font-size: 26px;">${focusTexts[focusStep]}</span>`;
+            const eyeInstruction = focusTimeLeft > 60 
+                ? "<div style='color:#00ffcc; font-size:20px; margin-bottom:8px;'>👁️ 請遮住右眼，訓練【左眼】</div>" 
+                : "<div style='color:#00ffcc; font-size:20px; margin-bottom:8px;'>👁️ 換遮左眼，訓練【右眼】</div>";
+            titleUI.innerHTML = `${eyeInstruction}<span style="font-size: 26px;">${focusTexts[focusStep]}</span>`;
             timerUI.innerText = `重訓剩餘：${focusTimeLeft} 秒`;
         } else if (isResting) {
             trainingUI.style.top = '50%'; titleUI.innerText = "請閉眼休息5秒鐘"; timerUI.innerText = `休息 ${restTimeLeft} 秒`;
@@ -1210,8 +1212,19 @@ setInterval(() => {
         focusTimeLeft--;
         focusHoldTime--;
         
-        if (focusTimeLeft === 40) focusCycleSpeed = 2;
-        if (focusTimeLeft === 20) focusCycleSpeed = 1.5;
+        // 左眼 (120s~60s) 難度漸進
+        if (focusTimeLeft === 90) focusCycleSpeed = 2;
+        if (focusTimeLeft === 75) focusCycleSpeed = 1.5;
+
+        // 60秒換眼提示，並將速度重置
+        if (focusTimeLeft === 60) {
+            playDingSound(); 
+            focusCycleSpeed = 3; 
+        }
+
+        // 右眼 (60s~0s) 難度漸進
+        if (focusTimeLeft === 30) focusCycleSpeed = 2;
+        if (focusTimeLeft === 15) focusCycleSpeed = 1.5;
 
         // 當停留時間結束，前進到下一個距離階段
         if (focusHoldTime <= 0 && focusTimeLeft > 0) {
@@ -1235,7 +1248,7 @@ setInterval(() => {
 
         if (focusTimeLeft <= 0) {
             isResting = true; restTimeLeft = 5; dipBGM(); playDingSound(); 
-            recordModuleCompletion('focus'); logTraining('Z 軸遠近對焦飛梭', 60);
+            recordModuleCompletion('focus'); logTraining('Z 軸遠近對焦飛梭', 120);
         }
     }
     else if (currentModule === 'amsler' || currentModule === 'astigmatism') {

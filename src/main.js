@@ -26,7 +26,6 @@ let testTimeLeft = 15;
 let isResting = false;
 let restTimeLeft = 0;
 
-// 新增 focus 模組變數
 let focusTimeLeft = 60;
 let focusPhase = 'NEAR';
 let focusHoldTime = 3;
@@ -73,7 +72,6 @@ window.addEventListener('click', () => {
     if (audioCtx.state === 'suspended') audioCtx.resume();
 }, { once: true });
 
-// 背景音樂播放器
 const bgmPlayer = new Audio();
 bgmPlayer.loop = true; 
 let bgmFadeInterval;
@@ -121,16 +119,13 @@ function dipBGM() {
     clearInterval(bgmFadeInterval);
     clearTimeout(bgmDipTimeout);
     let vol = bgmPlayer.volume;
-    // 1. 先快速將音量降低
     bgmFadeInterval = setInterval(() => {
         if (vol > 0.15) {
             vol -= 0.05;
             bgmPlayer.volume = Math.max(vol, 0.15);
         } else {
             clearInterval(bgmFadeInterval);
-            // 2. 保持低音量 3.5 秒 (讓叮咚聲與文字可以被清楚認知)
             bgmDipTimeout = setTimeout(() => {
-                // 3. 緩慢把音量恢復到 0.6
                 bgmFadeInterval = setInterval(() => {
                     if (vol < 0.6) {
                         vol += 0.05;
@@ -224,7 +219,6 @@ function getTodayString() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// 把 focus 模組也加入打卡名單 (5 選 4 即可)
 function recordModuleCompletion(type) {
     if (!['sop', 'stretch', 'chaser', 'breathe', 'focus'].includes(type)) return;
     
@@ -239,11 +233,10 @@ function recordModuleCompletion(type) {
         modulesDone.push(type);
     }
 
-    // 只要集滿 4 個不重複的模組，視為完成一次大循環
     if (modulesDone.length >= 4) {
         cycles++;
         localStorage.setItem(cyclesKey, cycles);
-        localStorage.setItem(modulesKey, JSON.stringify([])); // 重置今日模組陣列，準備下一次循環
+        localStorage.setItem(modulesKey, JSON.stringify([])); 
     } else {
         localStorage.setItem(modulesKey, JSON.stringify(modulesDone));
     }
@@ -251,7 +244,6 @@ function recordModuleCompletion(type) {
     renderCalendar();
 }
 
-// 建立日曆互動視窗 (Modal)
 const calendarModal = document.createElement('div');
 calendarModal.style.position = 'absolute';
 calendarModal.style.top = '0';
@@ -273,7 +265,6 @@ calendarModalContent.style.margin = '0 auto';
 calendarModalContent.style.paddingBottom = '50px';
 calendarModal.appendChild(calendarModalContent);
 
-// 月曆返回按鈕
 const closeCalendarBtn = document.createElement('button');
 closeCalendarBtn.innerText = "🔙 返回大廳";
 closeCalendarBtn.style.padding = '12px 24px';
@@ -291,7 +282,6 @@ closeCalendarBtn.onclick = () => {
 };
 calendarModalContent.appendChild(closeCalendarBtn);
 
-// 月曆容器
 const calendarSection = document.createElement('div');
 calendarSection.style.width = '100%';
 calendarSection.style.backgroundColor = '#161b22'; 
@@ -398,7 +388,6 @@ function renderCalendar() {
         if (i === todayDate) {
             dayEl.style.border = '2px solid #E5B55E';
         }
-
         grid.appendChild(dayEl);
     }
 
@@ -434,9 +423,10 @@ function renderCalendar() {
                 if (res) console.log("Shared successfully");
             }).catch(function (error) {
                 console.error("Share failed", error);
+                alert("分享取消或發生錯誤。");
             });
         } else {
-            alert("⚠️ 請透過 LINE App 開啟此網頁即可使用分享功能！");
+            alert("⚠️ 分享功能尚未開啟或不支援此裝置。");
         }
     };
     calendarSection.appendChild(shareBtn);
@@ -444,7 +434,7 @@ function renderCalendar() {
 renderCalendar();
 
 // ==========================================
-// 模組一：衛教資訊與遊戲原理互動視窗 (Modal)
+// 模組一：衛教資訊與遊戲原理互動視窗
 // ==========================================
 const infoModal = document.createElement('div');
 infoModal.style.position = 'absolute';
@@ -561,11 +551,9 @@ function showModuleIntro(type) {
     const data = medicalPrinciples[type];
     moduleIntroPage.innerHTML = `
         <button id="back-from-intro-btn" style="padding:12px 24px; background:#1a2233; color:#fffdd0; border:1px solid #2a3a5a; border-radius:8px; margin-bottom:20px; cursor:pointer; font-size:18px; font-weight:bold;">🔙 返回大廳</button>
-        
         <h2 style="color:#fffdd0; font-size:32px; border-bottom:2px solid ${data.color}; padding-bottom:10px; margin-bottom:25px; display:flex; align-items:center; gap:10px;">
             <span>${data.icon}</span> ${data.title}
         </h2>
-        
         <div style="background:#162b2b; border:1px solid ${data.color}; padding:25px 20px; border-radius:12px; margin-bottom:40px; box-shadow: 0 0 15px rgba(0,0,0,0.5);">
             <h3 style="color:${data.color}; font-size:22px; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
                 <span>🩺</span> 數位復健醫學原理
@@ -574,7 +562,6 @@ function showModuleIntro(type) {
                 ${data.principle}
             </p>
         </div>
-        
         <div style="text-align:center;">
             <button id="start-mod-btn" style="padding:18px 45px; background:${data.color}; color:#0f141e; border:none; border-radius:30px; font-size:22px; font-weight:bold; cursor:pointer; box-shadow:0 4px 15px ${data.color}60;">🚀 開始訓練</button>
         </div>
@@ -610,7 +597,7 @@ document.addEventListener('click', function(e){
           infoModal.style.display = 'none';
           dashboardUI.style.display = 'flex';
      }
- });
+});
 
 // ==========================================
 // 大廳選單
@@ -796,12 +783,10 @@ adWhiteBox.innerHTML = `
             </div>
         </div>
     </div>
-
     <div style="text-align:center; margin-bottom:35px; font-size:20px; font-weight:bold; color:#444; line-height:2;">
         <div>維持補充 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">2</span> 粒</div>
         <div>加強提升 請洽專業藥師</div>
     </div>
-
     <div style="background-color:#f4f9ff; border:2px solid #b3d4f0; border-radius:15px; padding:20px 15px; text-align:center; margin-bottom:25px;">
         <div style="color:#1A4B82; font-size:22px; font-weight:bold; margin-bottom:8px;">補充專利PPLs®配方</div>
         <div style="color:#555; font-size:15px; font-weight:bold;">營養進得去，廢物出得來</div>
@@ -873,7 +858,7 @@ document.body.appendChild(renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0xfffdd0, 0.6);
 scene.add(ambientLight);
 
-// 模組 1: SOP (45秒快速舒緩)
+// 模組 1: SOP
 const sopGroup = new THREE.Group();
 sopGroup.position.y = 12; 
 const sopGeo = new THREE.SphereGeometry(8, 32, 32);
@@ -885,30 +870,41 @@ focusTarget.add(new THREE.Mesh(coreGeo, coreMat));
 sopGroup.add(focusTarget);
 scene.add(sopGroup);
 
-// 模組 2: Stretch (動態 3D 眼肌伸展)
+// 模組 2: Stretch
 const stretchGroup = new THREE.Group();
 const stretchOrb = new THREE.Mesh(new THREE.SphereGeometry(1.5, 32, 32), new THREE.MeshBasicMaterial({ color: 0xff9900 }));
 stretchOrb.add(new THREE.PointLight(0xffaa00, 2.5, 60));
 stretchGroup.add(stretchOrb);
 scene.add(stretchGroup);
 
-// 模組 3: Focus (Z 軸遠近對焦飛梭) - 【新增】
+// 模組 3: Focus (Z 軸遠近對焦飛梭 - 4 層 C 字環隧道)
 const focusGroup = new THREE.Group();
-// 建立一個帶有缺口的環形 (Landolt C)，用來強迫使用者看細節
+const focusRings = []; // 儲存 4 個環以便同步旋轉
 const ringGeo = new THREE.RingGeometry(1.2, 1.8, 32, 1, 0, Math.PI * 1.7);
-const ringMat = new THREE.MeshBasicMaterial({ color: 0xff3366, side: THREE.DoubleSide });
-const focusRing = new THREE.Mesh(ringGeo, ringMat);
-focusGroup.add(focusRing);
+const ringColors = [0xff3366, 0xff4d79, 0xff668c, 0xff809f];
+
+for(let i = 0; i < 4; i++) {
+    const ringMat = new THREE.MeshBasicMaterial({ 
+        color: ringColors[i], 
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 1 - (i * 0.2) 
+    });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.position.z = -i * 25; // 每顆 C 間隔 25 單位深度
+    focusRings.push(ring);
+    focusGroup.add(ring);
+}
 scene.add(focusGroup);
 
-// 模組 4: Chaser (睫狀肌深空追光)
+// 模組 4: Chaser
 const chaserGroup = new THREE.Group();
 const chaserOrb = new THREE.Mesh(new THREE.SphereGeometry(3, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true }));
 chaserOrb.add(new THREE.PointLight(0xffd700, 2.5, 80)); 
 chaserGroup.add(chaserOrb);
 scene.add(chaserGroup);
 
-// 模組 5: Breathe (星雲散焦與神經放鬆)
+// 模組 5: Breathe
 const breatheGroup = new THREE.Group();
 const particleCount = 2000;
 const particlesGeo = new THREE.BufferGeometry();
@@ -984,9 +980,8 @@ function startTraining(type) {
         stretchGroup.visible = true; stretchTimeLeft = 45; stretchOrb.position.set(0, 0, -30);
         bgmPlayer.src = '/game2.mp3'; playBGM();
     } else if (type === 'focus') {
-        // 【新增】focus 模組初始化
         focusGroup.visible = true; focusTimeLeft = 60; focusPhase = 'NEAR'; focusHoldTime = 3; focusCycleSpeed = 3;
-        focusRing.position.z = -1;
+        focusGroup.position.z = -1; // 初始化隧道位置，讓最前方的 C 不會超出螢幕
         bgmPlayer.src = '/game5.mp3'; playBGM();
     } else if (type === 'chaser') {
         chaserGroup.visible = true; breatheGroup.visible = true; chaserTimeLeft = 60; chaserScore = 0; resetChaserOrb();
@@ -1006,7 +1001,6 @@ function returnToDashboard() {
     if (['sop', 'stretch', 'focus', 'chaser', 'breathe'].includes(currentModule)) {
         stopBGM(); 
     }
-
     currentModule = 'DASHBOARD';
     isResting = false;
     dashboardUI.style.display = 'flex';
@@ -1037,13 +1031,12 @@ function updateTrainingUI() {
             trainingUI.style.top = '50%'; titleUI.innerText = "🎉 眼肌與焦距重訓完成！"; timerUI.innerText = ""; 
         }
     } else if (currentModule === 'focus') {
-        // 【新增】focus 模組 UI 顯示
         if (focusTimeLeft > 0) {
             trainingUI.style.top = '85%';
             if (focusPhase === 'NEAR') {
                 titleUI.innerHTML = `<span style="font-size: 28px; color:#FF3366;">【極近對焦】用力看清缺口方向！</span>`;
             } else {
-                titleUI.innerHTML = `<span style="font-size: 28px; color:#00ffcc;">【瞬間深空】放鬆尋找遠方細節</span>`;
+                titleUI.innerHTML = `<span style="font-size: 28px; color:#00ffcc;">【瞬間深空】看清您能辨識的最遠 C 環</span>`;
             }
             timerUI.innerText = `重訓剩餘：${focusTimeLeft} 秒`;
         } else if (isResting) {
@@ -1121,9 +1114,9 @@ function animate() {
     }
 
     if (currentModule === 'focus' && focusTimeLeft > 0) {
-        // 【新增】focus 動畫：依照狀態極速改變 Z 軸位置，欺騙自律神經與睫狀肌
-        const targetZ = (focusPhase === 'NEAR') ? -1 : -100;
-        focusRing.position.z += (targetZ - focusRing.position.z) * 0.15;
+        // C字隧道退後的極限為 -60，讓最深處的 C 仍保持一定的可見度
+        const targetZ = (focusPhase === 'NEAR') ? -1 : -60;
+        focusGroup.position.z += (targetZ - focusGroup.position.z) * 0.15;
     }
     
     if (currentModule === 'breathe' || currentModule === 'chaser') {
@@ -1192,20 +1185,20 @@ setInterval(() => {
         }
     }
     else if (currentModule === 'focus') { 
-        // 【新增】focus 模組倒數邏輯
         if (focusTimeLeft <= 0) return;
         focusTimeLeft--;
         focusHoldTime--;
         
-        // 隨著倒數，加快切換節奏
         if (focusTimeLeft === 40) focusCycleSpeed = 2;
         if (focusTimeLeft === 20) focusCycleSpeed = 1.5;
 
         if (focusHoldTime <= 0 && focusTimeLeft > 0) {
             focusPhase = (focusPhase === 'NEAR') ? 'FAR' : 'NEAR';
             focusHoldTime = focusCycleSpeed;
-            focusRing.rotation.z = Math.random() * Math.PI * 2; // 改變環的缺口方向
-            // 可選：在這裡加個輕微的音效 playDingSound()
+            // 隨機旋轉隧道內所有的 C 字環方向
+            focusRings.forEach(ring => {
+                ring.rotation.z = Math.random() * Math.PI * 2;
+            });
         }
 
         if (focusTimeLeft <= 0) {

@@ -33,6 +33,7 @@ let focusDirection = 1;
 let focusHoldTime = 3;
 let focusCycleSpeed = 3;
 const focusDepths = [-1, -15, -35, -60];
+let isWaitingForRightEye = false;
 const focusColors = [0xff3366, 0xff4d79, 0xff668c, 0xff809f];
 const focusTexts = [
     "<span style='color:#FF3366;'>【極近對焦】</span>用力看清缺口方向",
@@ -838,6 +839,27 @@ timerUI.style.fontFamily = 'monospace';
 timerUI.style.fontSize = '24px';
 trainingUI.appendChild(timerUI);
 
+const continueBtn = document.createElement('button');
+continueBtn.innerText = "▶ 準備好了，繼續訓練右眼";
+continueBtn.style.marginTop = '20px';
+continueBtn.style.padding = '12px 24px';
+continueBtn.style.backgroundColor = '#00ffcc';
+continueBtn.style.color = '#0f141e';
+continueBtn.style.fontSize = '18px';
+continueBtn.style.fontWeight = 'bold';
+continueBtn.style.border = 'none';
+continueBtn.style.borderRadius = '30px';
+continueBtn.style.cursor = 'pointer';
+continueBtn.style.display = 'none';
+continueBtn.style.boxShadow = '0 4px 15px rgba(0,255,204,0.4)';
+continueBtn.onclick = () => {
+    isWaitingForRightEye = false;
+    continueBtn.style.display = 'none';
+    playDingSound();
+    updateTrainingUI();
+};
+trainingUI.appendChild(continueBtn);
+
 const backBtn = document.createElement('button');
 backBtn.innerText = "🔙 返回大廳";
 backBtn.style.position = 'absolute';
@@ -991,6 +1013,8 @@ function startTraining(type) {
     } else if (type === 'focus') {
         focusGroup.visible = true; focusTimeLeft = 120; // 調整為單眼各 60 秒
         focusStep = 0; focusDirection = 1; focusHoldTime = 3; focusCycleSpeed = 3;
+        isWaitingForRightEye = false;
+        continueBtn.style.display = 'none';
         focusGroup.position.z = focusDepths[focusStep]; 
         focusRing.material.color.setHex(focusColors[focusStep]);
         bgmPlayer.src = '/game5.mp3'; playBGM();
@@ -1011,6 +1035,7 @@ function returnToDashboard() {
     dashboardUI.style.display = 'flex';
     trainingUI.style.display = 'none';
     backBtn.style.display = 'none';
+    continueBtn.style.display = 'none';
     allModules.forEach(m => m.visible = false);
     stimulusBalls.forEach(ball => {
         if(ball.parent) ball.parent.remove(ball);
@@ -1053,7 +1078,13 @@ function updateTrainingUI() {
             trainingUI.style.top = '50%'; titleUI.innerText = "🌌 視覺神經與自律神經已深度重置"; timerUI.innerText = "現在您的眼睛處於最佳狀態";
         }
     } else if (currentModule === 'focus') {
-        if (focusTimeLeft > 0) {
+        if (isWaitingForRightEye) {
+            trainingUI.style.top = '70%'; 
+            titleUI.innerHTML = "<div style='color:#00ffcc; font-size:24px; margin-bottom:15px;'>👁️ 左眼訓練完成！</div><span style='font-size:20px;'>請換遮左眼，準備進行【右眼】重訓</span>";
+            timerUI.innerText = "";
+            continueBtn.style.display = 'inline-block';
+        } else if (focusTimeLeft > 0) {
+            continueBtn.style.display = 'none';
             trainingUI.style.top = '85%';
             const eyeInstruction = focusTimeLeft > 60 
                 ? "<div style='color:#00ffcc; font-size:20px; margin-bottom:8px;'>👁️ 請遮住右眼，訓練【左眼】</div>" 
@@ -1063,7 +1094,9 @@ function updateTrainingUI() {
         } else if (isResting) {
             trainingUI.style.top = '50%'; titleUI.innerText = "請閉眼休息5秒鐘"; timerUI.innerText = `休息 ${restTimeLeft} 秒`;
         } else {
-            trainingUI.style.top = '50%'; titleUI.innerText = "🎯 睫狀肌幫浦重訓完成！"; timerUI.innerText = "您的對焦彈性已獲得極大刺激";
+            trainingUI.style.top = '50%'; 
+            titleUI.innerHTML = "🎯 睫狀肌幫浦重訓完成！<br><span style='font-size:18px; color:#FFD93D; line-height:1.6; display:inline-block; margin-top:15px;'>⚠️ 提醒您：如果覺得眼睛累了請適當休息，<br>建議接著進行前四個眼睛放鬆模組。</span>"; 
+            timerUI.innerText = "";
         }
     } else if (currentModule === 'amsler' || currentModule === 'astigmatism') {
         if (testPhase === 'COMPLETED') {
@@ -1208,6 +1241,8 @@ setInterval(() => {
         }
     }
     else if (currentModule === 'focus') { 
+        if (isWaitingForRightEye) return;
+        
         if (focusTimeLeft <= 0) return;
         focusTimeLeft--;
         focusHoldTime--;
@@ -1220,6 +1255,7 @@ setInterval(() => {
         if (focusTimeLeft === 60) {
             playDingSound(); 
             focusCycleSpeed = 3; 
+            isWaitingForRightEye = true;
         }
 
         // 右眼 (60s~0s) 難度漸進

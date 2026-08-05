@@ -986,7 +986,7 @@ function startTraining(type) {
     } else if (type === 'focus') {
         // 【新增】focus 模組初始化
         focusGroup.visible = true; focusTimeLeft = 60; focusPhase = 'NEAR'; focusHoldTime = 3; focusCycleSpeed = 3;
-        focusRing.position.z = 3.5; 
+        focusRing.position.z = -1;
         bgmPlayer.src = '/game5.mp3'; playBGM();
     } else if (type === 'chaser') {
         chaserGroup.visible = true; breatheGroup.visible = true; chaserTimeLeft = 60; chaserScore = 0; resetChaserOrb();
@@ -1122,7 +1122,7 @@ function animate() {
 
     if (currentModule === 'focus' && focusTimeLeft > 0) {
         // 【新增】focus 動畫：依照狀態極速改變 Z 軸位置，欺騙自律神經與睫狀肌
-        const targetZ = (focusPhase === 'NEAR') ? 3.5 : -100;
+        const targetZ = (focusPhase === 'NEAR') ? -1 : -100;
         focusRing.position.z += (targetZ - focusRing.position.z) * 0.15;
     }
     

@@ -26,6 +26,12 @@ let testTimeLeft = 15;
 let isResting = false;
 let restTimeLeft = 0;
 
+// 新增 focus 模組變數
+let focusTimeLeft = 60;
+let focusPhase = 'NEAR';
+let focusHoldTime = 3;
+let focusCycleSpeed = 3;
+
 let lineUid = '未登入';
 let lineName = '';
 
@@ -111,7 +117,6 @@ function stopBGM() {
     }, 100);
 }
 
-// 新增功能：提示音出現時，降低音量後再恢復
 function dipBGM() {
     clearInterval(bgmFadeInterval);
     clearTimeout(bgmDipTimeout);
@@ -138,7 +143,6 @@ function dipBGM() {
         }
     }, 100);
 }
-
 
 // ==========================================
 // 4. UI 介面架構與 LIFF 初始化
@@ -213,16 +217,16 @@ contentContainer.style.marginBottom = '40px';
 dashboardUI.appendChild(contentContainer);
 
 // ==========================================
-// ★ 新增功能：打卡月曆與進度分享邏輯
+// 打卡月曆與進度分享邏輯
 // ==========================================
 function getTodayString() {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// 這個函數負責把完成的模組寫入 localStorage，集滿四個就算完成一次循環
+// 把 focus 模組也加入打卡名單 (5 選 4 即可)
 function recordModuleCompletion(type) {
-    if (!['sop', 'stretch', 'chaser', 'breathe'].includes(type)) return;
+    if (!['sop', 'stretch', 'chaser', 'breathe', 'focus'].includes(type)) return;
     
     const today = getTodayString();
     const modulesKey = `rehab_modules_${today}`;
@@ -235,8 +239,8 @@ function recordModuleCompletion(type) {
         modulesDone.push(type);
     }
 
-    // 集滿 4 個模組，視為完成一次大循環
-    if (modulesDone.length === 4) {
+    // 只要集滿 4 個不重複的模組，視為完成一次大循環
+    if (modulesDone.length >= 4) {
         cycles++;
         localStorage.setItem(cyclesKey, cycles);
         localStorage.setItem(modulesKey, JSON.stringify([])); // 重置今日模組陣列，準備下一次循環
@@ -244,7 +248,6 @@ function recordModuleCompletion(type) {
         localStorage.setItem(modulesKey, JSON.stringify(modulesDone));
     }
     
-    // 即時更新日曆畫面
     renderCalendar();
 }
 
@@ -306,7 +309,6 @@ function renderCalendar() {
     const month = d.getMonth();
     const todayDate = d.getDate();
     
-    // 標題 (年份與月份)
     const header = document.createElement('h2');
     header.innerText = `${year} 年 ${month + 1} 月`;
     header.style.color = '#E5B55E'; 
@@ -315,7 +317,6 @@ function renderCalendar() {
     header.style.margin = '0 0 15px 0';
     calendarSection.appendChild(header);
 
-    // 副標題說明
     const subtitle1 = document.createElement('p');
     subtitle1.innerText = '建議搭配PPLs®晶亮配方，每天復健三次';
     subtitle1.style.color = '#8b9bb4';
@@ -332,7 +333,6 @@ function renderCalendar() {
     subtitle2.style.margin = '0 0 25px 0';
     calendarSection.appendChild(subtitle2);
 
-    // 星期表頭
     const daysOfWeek = ['日', '一', '二', '三', '四', '五', '六'];
     const dowContainer = document.createElement('div');
     dowContainer.style.display = 'grid';
@@ -350,7 +350,6 @@ function renderCalendar() {
     });
     calendarSection.appendChild(dowContainer);
 
-    // 日期網格
     const grid = document.createElement('div');
     grid.style.display = 'grid';
     grid.style.gridTemplateColumns = 'repeat(7, 1fr)';
@@ -360,14 +359,12 @@ function renderCalendar() {
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // 填充空白天數
     for (let i = 0; i < firstDay; i++) {
         grid.appendChild(document.createElement('div'));
     }
 
     let currentMonthCycles = 0;
 
-    // 產生每天的圓圈
     for (let i = 1; i <= daysInMonth; i++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
         const cycles = parseInt(localStorage.getItem(`rehab_cycles_${dateStr}`) || '0', 10);
@@ -386,20 +383,18 @@ function renderCalendar() {
         dayEl.style.fontSize = '20px'; 
         dayEl.style.fontWeight = 'bold';
         
-        // 依照循環次數給予顏色
         if (cycles === 0) {
             dayEl.style.backgroundColor = '#2a3241';
-            dayEl.style.color = '#6b7280'; // 暗灰色
+            dayEl.style.color = '#6b7280';
         } else if (cycles === 1) {
-            dayEl.style.backgroundColor = '#4D96FF'; // 1次: 藍色
+            dayEl.style.backgroundColor = '#4D96FF'; 
         } else if (cycles === 2) {
-            dayEl.style.backgroundColor = '#6BCB77'; // 2次: 綠色
+            dayEl.style.backgroundColor = '#6BCB77'; 
         } else {
-            dayEl.style.backgroundColor = '#FF9F1C'; // 3次以上: 橘黃色
+            dayEl.style.backgroundColor = '#FF9F1C'; 
             dayEl.style.color = '#fff';
         }
 
-        // 標記今天
         if (i === todayDate) {
             dayEl.style.border = '2px solid #E5B55E';
         }
@@ -407,7 +402,6 @@ function renderCalendar() {
         grid.appendChild(dayEl);
     }
 
-    // 分享按鈕
     const shareBtn = document.createElement('button');
     shareBtn.innerHTML = '▷ 傳送每月復健次數';
     shareBtn.style.width = '100%';
@@ -421,7 +415,6 @@ function renderCalendar() {
     shareBtn.style.fontWeight = 'bold';
     shareBtn.style.cursor = 'pointer';
     
-    // 取得今天的復健次數
     const todayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(todayDate).padStart(2, '0')}`;
     const todayCycles = parseInt(localStorage.getItem(`rehab_cycles_${todayStr}`) || '0', 10);
     
@@ -431,7 +424,6 @@ function renderCalendar() {
             return;
         }
         
-        // 抓取全域變數 lineName，如果沒有抓到就顯示 "我"
         const userName = (typeof lineName !== 'undefined' && lineName && lineName !== '未登入') ? lineName : '我';
         
         if (liff.isApiAvailable('shareTargetPicker')) {
@@ -442,18 +434,14 @@ function renderCalendar() {
                 if (res) console.log("Shared successfully");
             }).catch(function (error) {
                 console.error("Share failed", error);
-                alert("分享取消或發生錯誤。");
             });
         } else {
-            alert("⚠️ 分享功能尚未開啟或不支援此裝置。");
+            alert("⚠️ 請透過 LINE App 開啟此網頁即可使用分享功能！");
         }
     };
     calendarSection.appendChild(shareBtn);
-
 }
-// 初始渲染日曆
 renderCalendar();
-
 
 // ==========================================
 // 模組一：衛教資訊與遊戲原理互動視窗 (Modal)
@@ -473,7 +461,6 @@ infoModal.style.boxSizing = 'border-box';
 infoModal.style.fontFamily = 'sans-serif';
 document.body.appendChild(infoModal);
 
-// 【營養素頁面】
 const nutrientPage = document.createElement('div');
 nutrientPage.style.maxWidth = '800px';
 nutrientPage.style.margin = '0 auto';
@@ -497,50 +484,27 @@ nutrientPage.innerHTML = `
                 <tr>
                     <td style="padding:14px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">葉黃素、玉米黃素</td>
                     <td style="padding:14px; border:1px solid #2a3a5a;">黃斑部、中央凹</td>
-                    <td style="padding:14px; border:1px solid #2a3a5a;">構成黃斑色素，與中央視力、辨色有關；最直接對應黃斑部的營養素。</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a;">構成黃斑色素，與中央視力、辨色有關。</td>
                 </tr>
                 <tr style="background:#162b2b;">
                     <td style="padding:14px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">Propolins (尤其G)</td>
                     <td style="padding:14px; border:1px solid #2a3a5a;">視網膜色素上皮RPE；外層視網膜界面</td>
-                    <td style="padding:14px; border:1px solid #2a3a5a;">細胞實驗顯示可提高損傷下存活；乾性AMD大鼠模型中，ERG c-wave部分恢復表示RPE功能改善。</td>
+                    <td style="padding:14px; border:1px solid #2a3a5a;">細胞實驗顯示可提高損傷下存活；乾性AMD大鼠模型中，表示RPE功能改善。</td>
                 </tr>
                 <tr>
                     <td style="padding:14px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">維生素A／β-胡蘿蔔素</td>
                     <td style="padding:14px; border:1px solid #2a3a5a;">視網膜桿狀細胞；角結膜</td>
                     <td style="padding:14px; border:1px solid #2a3a5a;">維持眼表上皮；缺乏可能夜盲或乾眼。</td>
                 </tr>
-                <tr>
-                    <td style="padding:14px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">DHA & Omega-3</td>
-                    <td style="padding:14px; border:1px solid #2a3a5a;">感光細胞膜 / 淚膜、眼表</td>
-                    <td style="padding:14px; border:1px solid #2a3a5a;">具生理結構角色；可能影響發炎與淚膜油脂層。</td>
-                </tr>
-                <tr>
-                    <td style="padding:14px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">維生素C、E、鋅、銅</td>
-                    <td style="padding:14px; border:1px solid #2a3a5a;">水晶體、黃斑部</td>
-                    <td style="padding:14px; border:1px solid #2a3a5a;">抗氧化營養素，組成AREDS2可延緩特定AMD惡化。不適合未經診斷自行長期高劑量服用。</td>
-                </tr>
-                <tr>
-                    <td style="padding:14px; border:1px solid #2a3a5a; color:#00ffcc; font-weight:bold;">維生素B1、B12、葉酸</td>
-                    <td style="padding:14px; border:1px solid #2a3a5a;">視神經</td>
-                    <td style="padding:14px; border:1px solid #2a3a5a;">嚴重缺乏可能造成營養性視神經病變；主要為避免缺乏。</td>
-                </tr>
             </tbody>
         </table>
     </div>
-    <h3 style="color:#fffdd0; margin-bottom:12px; font-size:20px;">⚠️ 補充品使用注意</h3>
-    <ul style="color:#8b9bb4; font-size:17px; line-height:1.8; margin-bottom:30px; padding-left:20px;">
-        <li><strong style="color:#fffdd0;">不可自行點眼：</strong>專利式(II)是研究用眼科製劑，市售口服蜂膠絕不可自行滴入眼睛。</li>
-        <li><strong style="color:#fffdd0;">證據界線：</strong>Propolins 支持的是「受損RPE的細胞保護」，目前為細胞與動物前臨床證據，不能據此宣稱預防或治療人體AMD。</li>
-        <li><strong style="color:#fffdd0;">AREDS2：</strong>只適用眼科醫師判定的特定AMD；健康人或單純疲勞者不應自行套用高劑量配方。</li>
-        <li><strong style="color:#fffdd0;">就醫警訊：</strong>出現視野扭曲、單眼黑影/閃光、視力下降等，應盡快就醫，不應只靠補充品觀察。</li>
-    </ul>
     <div style="text-align:center; margin-top:40px;">
         <button id="btn-to-rpe" style="padding:15px 30px; background:#00ffcc; color:#0f141e; border:none; border-radius:30px; font-size:20px; font-weight:bold; cursor:pointer; box-shadow:0 4px 15px rgba(0,255,204,0.4);">👉 RPE 為什麼重要？</button>
     </div>
 `;
 infoModal.appendChild(nutrientPage);
 
-// 【RPE 說明頁面】
 const rpePage = document.createElement('div');
 rpePage.style.maxWidth = '800px';
 rpePage.style.margin = '0 auto';
@@ -551,19 +515,7 @@ rpePage.innerHTML = `
     <h2 style="color:#fffdd0; font-size:28px; border-bottom:2px solid #00ffcc; padding-bottom:10px; margin-bottom:20px;">🏭 垃圾處理廠與清潔工：認識 RPE</h2>
     <div style="color:#8b9bb4; font-size:17px; line-height:1.8;">
         <p style="margin-bottom:15px;">我們可以把眼底的「視網膜色素上皮細胞 (RPE)」想像成眼底的<strong style="color:#fffdd0;">垃圾處理廠</strong>，而上方的感光細胞則是負責看東西的員工。</p>
-        <h3 style="color:#00ffcc; margin-top:25px; margin-bottom:10px; font-size:20px;">一、什麼是脂褐質？它是怎麼形成的？</h3>
-        <ul style="padding-left:20px; margin-bottom:20px;">
-            <li><strong>員工天天產生垃圾：</strong>感光細胞每天工作會消耗能量，並脫落大量老舊廢棄物。</li>
-            <li><strong>清潔工天天回收：</strong>健康的 RPE 每天會把垃圾吞進去，用溶小體酵素徹底分解化為養分。</li>
-            <li><strong>變成陳年鐵鏽：</strong>若受藍光傷害或老化，處理廠酵素變弱。卡在肚子裡的油垢經光線照射後生鏽變質，形成了永遠無法清除的<strong style="color:#ff6b6b;">「脂褐質」</strong>。</li>
-        </ul>
-        <h3 style="color:#ff6b6b; margin-top:25px; margin-bottom:10px; font-size:20px;">三、不健康的 RPE（爛工廠）帶來的災難</h3>
-        <ul style="padding-left:20px; margin-bottom:25px;">
-            <li><strong style="color:#fffdd0;">1. 吃再多營養也吸收不了：</strong>就算吃再多高檔葉黃素，不健康的工廠也無法吸收利用。</li>
-            <li><strong style="color:#fffdd0;">2. 眼底長斑堆垃圾：</strong>肚子被脂褐質塞爆後，把垃圾往地基亂倒，形成「隱形斑(Drusen)」。</li>
-            <li><strong style="color:#fffdd0;">3. 眼睛結構大毀滅：</strong>防護牆破裂，引發濕性病變；最終員工集體餓死，導致視野中央出現黑洞失明。</li>
-        </ul>
-        <div style="background:#162b2b; padding:20px; border-radius:10px; text-align:center; border: 1px solid #00ffcc;">
+        <div style="background:#162b2b; padding:20px; border-radius:10px; text-align:center; border: 1px solid #00ffcc; margin-top:20px;">
             <p style="color:#fffdd0; font-size:19px; font-weight:bold; margin:0;">💡 總結</p>
             <p style="color:#00ffcc; font-size:18px; margin-top:10px; margin-bottom:0;">「健康的 RPE 能幫解消滅垃圾；<br>不健康的 RPE 會讓垃圾（脂褐質）堆成高山，最後把你的視力連根拔起。」</p>
         </div>
@@ -571,7 +523,6 @@ rpePage.innerHTML = `
 `;
 infoModal.appendChild(rpePage);
 
-// 【遊戲模組醫學原理介紹頁面】
 const moduleIntroPage = document.createElement('div');
 moduleIntroPage.style.maxWidth = '800px';
 moduleIntroPage.style.margin = '0 auto';
@@ -582,19 +533,23 @@ infoModal.appendChild(moduleIntroPage);
 const medicalPrinciples = {
     sop: { 
         icon: "🚀", title: "45秒快速舒緩", color: "#FF6B6B",
-        principle: "此模組結合了「睫狀肌放鬆」、「動態視覺刺激」與「淚膜重建」。<br><br>透過注視遠近變化的球體，能迅速解除水晶體對焦痙攣；隨機出現的視覺刺激球能活化大腦視覺皮層；最後的強制用力閉眼，則能擠壓眼瞼板腺，使其均勻分泌油脂與淚液，有效改善乾眼症狀與假性近視疲勞。" 
+        principle: "此模組結合了「睫狀肌放鬆」、「動態視覺刺激」與「淚膜重建」。<br><br>透過注視遠近變化的球體，能迅速解除水晶體對焦痙攣；最後的強制用力閉眼，則能擠壓眼瞼板腺均勻分泌油脂。" 
     },
     stretch: { 
         icon: "🔄", title: "動態 3D 眼肌伸展", color: "#4D96FF",
-        principle: "現代人長時間死盯著手機，眼球活動範圍極小，導致控制眼球的「眼外肌」僵硬缺血。<br><br>本模組利用最大範圍的 ∞ 字型（無限大）極限軌跡，強迫拉伸控制眼球的六條眼外肌，促進眼周血液循環；並配合 Z 軸的遠近空間感，全面恢復眼球靈活度與對焦彈性。" 
+        principle: "現代人長時間死盯著手機，導致控制眼球的「眼外肌」僵硬缺血。<br><br>本模組利用最大範圍的 ∞ 字型（無限大）極限軌跡，強迫拉伸控制眼球的六條眼外肌，促進眼周血液循環。" 
+    },
+    focus: { 
+        icon: "🎯", title: "Z 軸遠近對焦飛梭", color: "#FF3366",
+        principle: "這是一款「睫狀肌的幫浦重訓」。利用 Three.js 的 Z 軸深度與強烈透視，強迫睫狀肌進行極端收縮（看近）與極端放鬆（看遠）的快速切換，藉此恢復水晶體的對焦彈性。<br><br><strong style='color:#FF3366;'>⚠️ 這是重新訓練眼睛聚焦能力模組，屬於較高強度的眼肌運動，如有不適請立即停止並讓眼睛休息。</strong>" 
     },
     chaser: { 
         icon: "🎮", title: "睫狀肌深空追光", color: "#6BCB77",
-        principle: "當我們近距離看螢幕時，眼內的「睫狀肌」會處於極度緊繃收縮的狀態。<br><br>這個遊戲利用 3D 透視原理創造出「無限遠（Optical Infinity）」的視覺錯覺。藉由死盯流星飛向最深處，能強迫睫狀肌徹底放鬆、拉長，是解除深層視覺疲勞與預防度數加深的最佳物理復健法。" 
+        principle: "利用 3D 透視原理創造出「無限遠（Optical Infinity）」的視覺錯覺。藉由死盯流星飛向最深處，能強迫睫狀肌徹底放鬆、拉長，解除深層視覺疲勞。" 
     },
     breathe: { 
         icon: "🌌", title: "星雲散焦與神經放鬆", color: "#FFD93D",
-        principle: "高度專注盯著螢幕會造成「隧道視覺（Tunnel Vision）」，使大腦與自律神經長時間偏向緊繃的交感神經。<br><br>本模組引導您「放寬視野、不要對焦任何單顆星星」，啟動周邊視覺（Peripheral Vision），並配合深度共振呼吸法，能有效喚醒副交感神經，降低眼壓、放鬆眼底微血管，達到神經級的深度重置。" 
+        principle: "引導您「放寬視野、不要對焦任何單顆星星」，啟動周邊視覺（Peripheral Vision），配合深度共振呼吸法，喚醒副交感神經，達到神經級的深度重置。" 
     }
 };
 
@@ -658,10 +613,8 @@ document.addEventListener('click', function(e){
  });
 
 // ==========================================
-// 大廳：護眼百科、打卡月曆按鈕與訓練選單
+// 大廳選單
 // ==========================================
-
-// 1. 護眼百科入口按鈕
 const infoBanner = document.createElement('div');
 infoBanner.style.width = '100%';
 infoBanner.style.backgroundColor = '#162b2b';
@@ -677,14 +630,6 @@ infoBanner.innerHTML = `
     <h3 style="color:#00ffcc; font-size:22px; margin-bottom:10px;">📖 護眼常見營養素與 RPE 百科</h3>
     <p style="color:#8b9bb4; font-size:16px; margin:0;">點擊了解護眼成分作用部位，以及視網膜垃圾處理廠 (RPE) 的重要性</p>
 `;
-infoBanner.onmouseover = () => {
-    infoBanner.style.transform = 'translateY(-3px)';
-    infoBanner.style.boxShadow = '0 0 25px rgba(0, 255, 204, 0.4)';
-};
-infoBanner.onmouseout = () => {
-    infoBanner.style.transform = 'translateY(0)';
-    infoBanner.style.boxShadow = '0 0 15px rgba(0, 255, 204, 0.2)';
-};
 infoBanner.onclick = () => {
     dashboardUI.style.display = 'none';
     infoModal.style.display = 'block';
@@ -695,7 +640,6 @@ infoBanner.onclick = () => {
 };
 contentContainer.appendChild(infoBanner);
 
-// 2. 打卡月曆入口按鈕 (新增)
 const calendarEntryBtn = document.createElement('div');
 calendarEntryBtn.style.width = '100%';
 calendarEntryBtn.style.backgroundColor = '#161b22';
@@ -711,23 +655,14 @@ calendarEntryBtn.innerHTML = `
     <h3 style="color:#4D96FF; font-size:22px; margin-bottom:10px;">📅 每月復健進度</h3>
     <p style="color:#8b9bb4; font-size:16px; margin:0;">點擊查看您的打卡紀錄，分享給家人與醫師</p>
 `;
-calendarEntryBtn.onmouseover = () => {
-    calendarEntryBtn.style.transform = 'translateY(-3px)';
-    calendarEntryBtn.style.boxShadow = '0 0 25px rgba(77, 150, 255, 0.4)';
-};
-calendarEntryBtn.onmouseout = () => {
-    calendarEntryBtn.style.transform = 'translateY(0)';
-    calendarEntryBtn.style.boxShadow = '0 0 15px rgba(77, 150, 255, 0.2)';
-};
 calendarEntryBtn.onclick = () => {
     dashboardUI.style.display = 'none';
     calendarModal.style.display = 'block';
     calendarModal.scrollTo(0,0);
-    renderCalendar(); // 進入前重新渲染確保最新進度
+    renderCalendar(); 
 };
 contentContainer.appendChild(calendarEntryBtn);
 
-// 3. 遊戲選單區塊
 const menuGrid = document.createElement('div');
 menuGrid.style.display = 'flex';
 menuGrid.style.flexDirection = 'column';
@@ -742,18 +677,8 @@ function createModuleCard(title, desc, onClick, borderColor) {
     card.style.borderRadius = '12px';
     card.style.padding = '24px 20px'; 
     card.style.cursor = 'pointer';
-    card.style.transition = 'all 0.2s ease';
     card.style.boxSizing = 'border-box';
     card.style.width = '100%'; 
-
-    card.onmouseover = () => {
-        card.style.transform = 'translateY(-3px)';
-        card.style.boxShadow = `0 0 25px ${borderColor}90`; 
-    };
-    card.onmouseout = () => {
-        card.style.transform = 'translateY(0)';
-        card.style.boxShadow = 'none';
-    };
 
     const h3 = document.createElement('h3');
     h3.innerText = title;
@@ -774,13 +699,14 @@ function createModuleCard(title, desc, onClick, borderColor) {
 }
 
 menuGrid.appendChild(createModuleCard("🚀 45秒快速舒緩", "結合遠眺聚焦、隨機白球衝擊與深層閉眼潤滑。", () => showModuleIntro('sop'), '#FF6B6B')); 
-menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，並結合 Z 軸遠近對焦。", () => showModuleIntro('stretch'), '#4D96FF')); 
+menuGrid.appendChild(createModuleCard("🔄 動態 3D 眼肌伸展", "引導眼球進行 ∞ 字型極限軌跡，強迫拉伸控制眼球的六條眼外肌。", () => showModuleIntro('stretch'), '#4D96FF')); 
 menuGrid.appendChild(createModuleCard("🎮 睫狀肌深空追光", "【放鬆遊戲】死盯流星飛向深空，強迫睫狀肌徹底看遠放鬆。", () => showModuleIntro('chaser'), '#6BCB77')); 
 menuGrid.appendChild(createModuleCard("🌌 星雲散焦與神經放鬆", "【深度冥想】釋放隧道視覺，同步 3D 粒子星雲進行共振呼吸。", () => showModuleIntro('breathe'), '#FFD93D')); 
+menuGrid.appendChild(createModuleCard("🎯 Z 軸遠近對焦飛梭", "高強度睫狀肌重訓！利用極端遠近切換，恢復眼球對焦彈性。", () => showModuleIntro('focus'), '#FF3366')); 
 menuGrid.appendChild(createModuleCard("🔍 黃斑部自我檢測", "經典阿姆斯勒方格表數位化，快篩視網膜病變風險。", () => startTraining('amsler'), '#9D4EDD')); 
 menuGrid.appendChild(createModuleCard("👁️ 散光軸向自我檢測", "放射鐘測試。檢測是否因散光未矯正而導致嚴重疲勞。", () => startTraining('astigmatism'), '#FF9F1C')); 
 
-// 4. 大廳底部：隱藏式產品推廣按鈕
+// 大廳底部廣告
 const adBannerBtn = document.createElement('div');
 adBannerBtn.style.width = '100%';
 adBannerBtn.style.border = '2px dashed #ffff00'; 
@@ -804,9 +730,6 @@ adBannerBtn.onclick = () => {
 };
 contentContainer.appendChild(adBannerBtn);
 
-// ==========================================
-// 產品推廣互動視窗 (Ad Modal)
-// ==========================================
 const adModal = document.createElement('div');
 adModal.style.position = 'absolute';
 adModal.style.top = '0';
@@ -844,7 +767,6 @@ closeAdBtn.onclick = () => {
 };
 adContainer.appendChild(closeAdBtn);
 
-// 【產品推廣頁面】
 const adWhiteBox = document.createElement('div');
 adWhiteBox.style.backgroundColor = '#ffffff'; 
 adWhiteBox.style.borderRadius = '20px';
@@ -853,11 +775,7 @@ adWhiteBox.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.5)';
 adWhiteBox.innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
         <div style="font-weight:900; font-size:18px; color:#b8982a;">PP<span style="color:#333;">LS</span> <span style="font-size:12px; color:#999; font-weight:normal; letter-spacing:1px;">INSIDE</span></div>
-        <div style="display:flex; align-items:center;">
-            <img src="./NBM logo.jpg" alt="NBM Logo" style="height:40px; object-fit:contain;">
-        </div>
     </div>
-    
     <h2 style="text-align:center; color:#1A4B82; font-size:28px; font-weight:bold; margin-bottom:40px;">補充眼睛完整營養</h2>
     
     <div style="display:flex; justify-content:center; margin-bottom:45px;">
@@ -881,17 +799,12 @@ adWhiteBox.innerHTML = `
 
     <div style="text-align:center; margin-bottom:35px; font-size:20px; font-weight:bold; color:#444; line-height:2;">
         <div>維持補充 每日 <span style="color:#d9534f; font-size:28px; margin:0 5px;">2</span> 粒</div>
-        <div>加強提升 <span style="color:#d9534f; font-size:28px; margin:0 5px;">請洽專業藥師</span></div>
+        <div>加強提升 請洽專業藥師</div>
     </div>
 
     <div style="background-color:#f4f9ff; border:2px solid #b3d4f0; border-radius:15px; padding:20px 15px; text-align:center; margin-bottom:25px;">
         <div style="color:#1A4B82; font-size:22px; font-weight:bold; margin-bottom:8px;">補充專利PPLs®配方</div>
         <div style="color:#555; font-size:15px; font-weight:bold;">營養進得去，廢物出得來</div>
-    </div>
-
-    <div style="text-align:center; color:#999; font-size:12px; line-height:1.8;">
-        <div>專利字號：發明第 I 719962 號</div>
-        <div>專利字號：發明第 I 766565 號</div>
     </div>
 `;
 adContainer.appendChild(adWhiteBox);
@@ -948,7 +861,7 @@ backBtn.onclick = returnToDashboard;
 document.body.appendChild(backBtn);
 
 // ==========================================
-// 4. 建立 Three.js 場景與模組物件
+// 建立 Three.js 場景與模組物件
 // ==========================================
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0f141e);
@@ -979,28 +892,21 @@ stretchOrb.add(new THREE.PointLight(0xffaa00, 2.5, 60));
 stretchGroup.add(stretchOrb);
 scene.add(stretchGroup);
 
-// 模組 3: Amsler (黃斑部自我檢測)
-const amslerGroup = new THREE.Group();
-const gridHelper = new THREE.GridHelper(30, 30, 0x557799, 0x445566);
-gridHelper.rotation.x = Math.PI / 2; gridHelper.position.z = -15; 
-amslerGroup.add(gridHelper);
-const centerDot = new THREE.Mesh(new THREE.CircleGeometry(0.3, 32), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-centerDot.position.z = -14.9; 
-amslerGroup.add(centerDot);
-scene.add(amslerGroup);
+// 模組 3: Focus (Z 軸遠近對焦飛梭) - 【新增】
+const focusGroup = new THREE.Group();
+// 建立一個帶有缺口的環形 (Landolt C)，用來強迫使用者看細節
+const ringGeo = new THREE.RingGeometry(1.2, 1.8, 32, 1, 0, Math.PI * 1.7);
+const ringMat = new THREE.MeshBasicMaterial({ color: 0xff3366, side: THREE.DoubleSide });
+const focusRing = new THREE.Mesh(ringGeo, ringMat);
+focusGroup.add(focusRing);
+scene.add(focusGroup);
 
-// 模組 4: Astigmatism (散光軸向自我檢測)
-const astigGroup = new THREE.Group();
-for (let i = 0; i < 12; i++) {
-    const line = new THREE.Mesh(new THREE.PlaneGeometry(25, 0.3), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-    line.rotation.z = (i * Math.PI) / 12;
-    astigGroup.add(line);
-}
-const astigCenterDot = new THREE.Mesh(new THREE.CircleGeometry(0.8, 32), new THREE.MeshBasicMaterial({ color: 0xff3333 }));
-astigCenterDot.position.z = 0.1; 
-astigGroup.add(astigCenterDot);
-astigGroup.position.z = -25; 
-scene.add(astigGroup);
+// 模組 4: Chaser (睫狀肌深空追光)
+const chaserGroup = new THREE.Group();
+const chaserOrb = new THREE.Mesh(new THREE.SphereGeometry(3, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true }));
+chaserOrb.add(new THREE.PointLight(0xffd700, 2.5, 80)); 
+chaserGroup.add(chaserOrb);
+scene.add(chaserGroup);
 
 // 模組 5: Breathe (星雲散焦與神經放鬆)
 const breatheGroup = new THREE.Group();
@@ -1015,12 +921,27 @@ breatheGroup.add(particleSystem);
 breatheGroup.position.z = -20;
 scene.add(breatheGroup);
 
-// 模組 6: Chaser (睫狀肌深空追光)
-const chaserGroup = new THREE.Group();
-const chaserOrb = new THREE.Mesh(new THREE.SphereGeometry(3, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true }));
-chaserOrb.add(new THREE.PointLight(0xffd700, 2.5, 80)); 
-chaserGroup.add(chaserOrb);
-scene.add(chaserGroup);
+// 模組 6 & 7: 檢測模組
+const amslerGroup = new THREE.Group();
+const gridHelper = new THREE.GridHelper(30, 30, 0x557799, 0x445566);
+gridHelper.rotation.x = Math.PI / 2; gridHelper.position.z = -15; 
+amslerGroup.add(gridHelper);
+const centerDot = new THREE.Mesh(new THREE.CircleGeometry(0.3, 32), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+centerDot.position.z = -14.9; 
+amslerGroup.add(centerDot);
+scene.add(amslerGroup);
+
+const astigGroup = new THREE.Group();
+for (let i = 0; i < 12; i++) {
+    const line = new THREE.Mesh(new THREE.PlaneGeometry(25, 0.3), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    line.rotation.z = (i * Math.PI) / 12;
+    astigGroup.add(line);
+}
+const astigCenterDot = new THREE.Mesh(new THREE.CircleGeometry(0.8, 32), new THREE.MeshBasicMaterial({ color: 0xff3333 }));
+astigCenterDot.position.z = 0.1; 
+astigGroup.add(astigCenterDot);
+astigGroup.position.z = -25; 
+scene.add(astigGroup);
 
 function resetChaserOrb() {
     chaserOrb.position.set((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 15, -10);
@@ -1028,7 +949,7 @@ function resetChaserOrb() {
     chaserOrb.material.opacity = 1;
 }
 
-const allModules = [sopGroup, stretchGroup, amslerGroup, astigGroup, breatheGroup, chaserGroup];
+const allModules = [sopGroup, stretchGroup, focusGroup, amslerGroup, astigGroup, breatheGroup, chaserGroup];
 allModules.forEach(m => m.visible = false);
 const stimulusBalls = [];
 
@@ -1042,7 +963,7 @@ function spawnStimulusBall() {
 }
 
 // ==========================================
-// 5. 控制邏輯與切換函數
+// 控制邏輯與切換函數
 // ==========================================
 function startTraining(type) {
     currentModule = type;
@@ -1058,20 +979,21 @@ function startTraining(type) {
     if (type === 'sop') {
         sopGroup.visible = true; cycle = 1; phase = 'LOOKING'; sopTimeLeft = 10;
         sopMat.opacity = 1; coreMat.opacity = 1;
-        bgmPlayer.src = '/game1.mp3'; 
-        playBGM(); 
+        bgmPlayer.src = '/game1.mp3'; playBGM(); 
     } else if (type === 'stretch') {
         stretchGroup.visible = true; stretchTimeLeft = 45; stretchOrb.position.set(0, 0, -30);
-        bgmPlayer.src = '/game2.mp3'; 
-        playBGM();
+        bgmPlayer.src = '/game2.mp3'; playBGM();
+    } else if (type === 'focus') {
+        // 【新增】focus 模組初始化
+        focusGroup.visible = true; focusTimeLeft = 60; focusPhase = 'NEAR'; focusHoldTime = 3; focusCycleSpeed = 3;
+        focusRing.position.z = 3.5; 
+        bgmPlayer.src = '/game5.mp3'; playBGM();
     } else if (type === 'chaser') {
         chaserGroup.visible = true; breatheGroup.visible = true; chaserTimeLeft = 60; chaserScore = 0; resetChaserOrb();
-        bgmPlayer.src = '/game3.mp3'; 
-        playBGM();
+        bgmPlayer.src = '/game3.mp3'; playBGM();
     } else if (type === 'breathe') {
         breatheGroup.visible = true; breatheTimeLeft = 60; breathPhase = 'INHALE';
-        bgmPlayer.src = '/game4.mp3'; 
-        playBGM();
+        bgmPlayer.src = '/game4.mp3'; playBGM();
     } else if (type === 'amsler' || type === 'astigmatism') {
         if (type === 'amsler') amslerGroup.visible = true;
         if (type === 'astigmatism') astigGroup.visible = true;
@@ -1081,7 +1003,7 @@ function startTraining(type) {
 }
 
 function returnToDashboard() {
-    if (currentModule === 'sop' || currentModule === 'stretch' || currentModule === 'chaser' || currentModule === 'breathe') {
+    if (['sop', 'stretch', 'focus', 'chaser', 'breathe'].includes(currentModule)) {
         stopBGM(); 
     }
 
@@ -1100,68 +1022,51 @@ function returnToDashboard() {
 function updateTrainingUI() {
     if (currentModule === 'sop') {
         if (phase === 'COMPLETED') { 
-            trainingUI.style.top = '35%'; 
-            titleUI.innerText = "🎉 3 回合深層放鬆完成！"; 
-            timerUI.innerText = ""; 
-        } 
-        else if (phase === 'LOOKING') { 
-            trainingUI.style.top = '70%'; 
-            titleUI.innerText = `(第 ${cycle}/${maxCycles} 回合)\n請柔和注視中心橘點`; 
-            timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; 
-        } 
-        else if (phase === 'CLOSING') { 
-            trainingUI.style.top = '70%'; 
-            titleUI.innerText = "請用力閉上雙眼，徹底放鬆"; 
-            timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; 
+            trainingUI.style.top = '35%'; titleUI.innerText = "🎉 3 回合深層放鬆完成！"; timerUI.innerText = ""; 
+        } else if (phase === 'LOOKING') { 
+            trainingUI.style.top = '70%'; titleUI.innerText = `(第 ${cycle}/${maxCycles} 回合)\n請柔和注視中心橘點`; timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; 
+        } else if (phase === 'CLOSING') { 
+            trainingUI.style.top = '70%'; titleUI.innerText = "請用力閉上雙眼，徹底放鬆"; timerUI.innerText = `剩餘 ${sopTimeLeft} 秒`; 
         }
     } else if (currentModule === 'stretch') {
         if (stretchTimeLeft > 0) { 
-            trainingUI.style.top = '80%'; 
-            titleUI.innerText = "保持頭部靜止\n跟隨光球移動伸展眼肌"; 
-            timerUI.innerText = `剩餘 ${stretchTimeLeft} 秒`; 
-        } 
-        else if (isResting) {
-            trainingUI.style.top = '50%'; 
-            titleUI.innerText = "請閉眼休息5秒鐘"; 
-            timerUI.innerText = `休息 ${restTimeLeft} 秒`;
+            trainingUI.style.top = '80%'; titleUI.innerText = "保持頭部靜止\n跟隨光球移動伸展眼肌"; timerUI.innerText = `剩餘 ${stretchTimeLeft} 秒`; 
+        } else if (isResting) {
+            trainingUI.style.top = '50%'; titleUI.innerText = "請閉眼休息5秒鐘"; timerUI.innerText = `休息 ${restTimeLeft} 秒`;
+        } else { 
+            trainingUI.style.top = '50%'; titleUI.innerText = "🎉 眼肌與焦距重訓完成！"; timerUI.innerText = ""; 
         }
-        else { 
-            trainingUI.style.top = '50%'; 
-            titleUI.innerText = "🎉 眼肌與焦距重訓完成！"; 
-            timerUI.innerText = ""; 
+    } else if (currentModule === 'focus') {
+        // 【新增】focus 模組 UI 顯示
+        if (focusTimeLeft > 0) {
+            trainingUI.style.top = '85%';
+            if (focusPhase === 'NEAR') {
+                titleUI.innerHTML = `<span style="font-size: 28px; color:#FF3366;">【極近對焦】用力看清缺口方向！</span>`;
+            } else {
+                titleUI.innerHTML = `<span style="font-size: 28px; color:#00ffcc;">【瞬間深空】放鬆尋找遠方細節</span>`;
+            }
+            timerUI.innerText = `重訓剩餘：${focusTimeLeft} 秒`;
+        } else if (isResting) {
+            trainingUI.style.top = '50%'; titleUI.innerText = "請閉眼休息5秒鐘"; timerUI.innerText = `休息 ${restTimeLeft} 秒`;
+        } else {
+            trainingUI.style.top = '50%'; titleUI.innerText = "🎯 睫狀肌幫浦重訓完成！"; timerUI.innerText = "您的對焦彈性已獲得極大刺激";
         }
     } else if (currentModule === 'chaser') {
         if (chaserTimeLeft > 0) {
-            trainingUI.style.top = '80%'; 
-            titleUI.innerHTML = `【睫狀肌深空追光】<br><span style='font-size:16px; color:#8b9bb4;'>死盯流星飛向最深處直到消失<br>(已追蹤: ${chaserScore} 顆)</span>`; 
-            timerUI.innerText = `遊戲剩餘：${chaserTimeLeft} 秒`;
-        } 
-        else if (isResting) {
-            trainingUI.style.top = '50%'; 
-            titleUI.innerText = "請閉眼休息5秒鐘"; 
-            timerUI.innerText = `休息 ${restTimeLeft} 秒`;
-        }
-        else {
-            trainingUI.style.top = '50%'; 
-            titleUI.innerHTML = `🎮 遊戲結束！<br>您成功追蹤了 <span style="color:#00ffcc;">${chaserScore}</span> 顆深空流星`; 
-            timerUI.innerText = "睫狀肌已獲得充分的遠眺放鬆";
+            trainingUI.style.top = '80%'; titleUI.innerHTML = `【睫狀肌深空追光】<br><span style='font-size:16px; color:#8b9bb4;'>死盯流星飛向最深處直到消失<br>(已追蹤: ${chaserScore} 顆)</span>`; timerUI.innerText = `遊戲剩餘：${chaserTimeLeft} 秒`;
+        } else if (isResting) {
+            trainingUI.style.top = '50%'; titleUI.innerText = "請閉眼休息5秒鐘"; timerUI.innerText = `休息 ${restTimeLeft} 秒`;
+        } else {
+            trainingUI.style.top = '50%'; titleUI.innerHTML = `🎮 遊戲結束！<br>您成功追蹤了 <span style="color:#00ffcc;">${chaserScore}</span> 顆深空流星`; timerUI.innerText = "睫狀肌已獲得充分的遠眺放鬆";
         }
     } else if (currentModule === 'breathe') {
         if (breatheTimeLeft > 0) {
-            trainingUI.style.top = '85%'; 
-            const actionText = breathPhase === 'INHALE' ? "跟隨星雲【緩慢吸氣】" : "跟隨星雲【徹底吐氣】";
-            titleUI.innerHTML = `<span style="font-size: 28px;">${actionText}</span><br><span style='font-size:16px; color:#8b9bb4;'>(請不要對焦任何星星，放寬視野)</span>`; 
-            timerUI.innerText = `深度放鬆中：${breatheTimeLeft} 秒`;
-        }
-        else if (isResting) {
-            trainingUI.style.top = '50%'; 
-            titleUI.innerText = "請閉眼休息5秒鐘"; 
-            timerUI.innerText = `休息 ${restTimeLeft} 秒`;
-        }
-        else {
-            trainingUI.style.top = '50%'; 
-            titleUI.innerText = "🌌 視覺神經與自律神經已深度重置"; 
-            timerUI.innerText = "現在您的眼睛處於最佳狀態";
+            trainingUI.style.top = '85%'; const actionText = breathPhase === 'INHALE' ? "跟隨星雲【緩慢吸氣】" : "跟隨星雲【徹底吐氣】";
+            titleUI.innerHTML = `<span style="font-size: 28px;">${actionText}</span><br><span style='font-size:16px; color:#8b9bb4;'>(請不要對焦任何星星，放寬視野)</span>`; timerUI.innerText = `深度放鬆中：${breatheTimeLeft} 秒`;
+        } else if (isResting) {
+            trainingUI.style.top = '50%'; titleUI.innerText = "請閉眼休息5秒鐘"; timerUI.innerText = `休息 ${restTimeLeft} 秒`;
+        } else {
+            trainingUI.style.top = '50%'; titleUI.innerText = "🌌 視覺神經與自律神經已深度重置"; timerUI.innerText = "現在您的眼睛處於最佳狀態";
         }
     } else if (currentModule === 'amsler' || currentModule === 'astigmatism') {
         if (testPhase === 'COMPLETED') {
@@ -1176,7 +1081,7 @@ function updateTrainingUI() {
 }
 
 // ==========================================
-// 6. 核心渲染動畫
+// 核心渲染動畫
 // ==========================================
 function animate() {
     requestAnimationFrame(animate);
@@ -1209,14 +1114,16 @@ function animate() {
     if (currentModule === 'stretch' && stretchTimeLeft > 0) {
         const speed = time * 0.0012; 
         stretchOrb.scale.setScalar(1 + Math.cos(speed * 3) * 0.1);
-        
         const isMobile = window.innerWidth < 600;
         const xAmplitude = isMobile ? 8.5 : 18; 
         const yAmplitude = isMobile ? 12 : 8; 
-        const zCenter = -30;
-        const zAmplitude = 20;
-        
-        stretchOrb.position.set(Math.sin(speed) * xAmplitude, Math.sin(speed * 2) * yAmplitude, zCenter + Math.sin(speed * 0.5) * zAmplitude);
+        stretchOrb.position.set(Math.sin(speed) * xAmplitude, Math.sin(speed * 2) * yAmplitude, -30 + Math.sin(speed * 0.5) * 20);
+    }
+
+    if (currentModule === 'focus' && focusTimeLeft > 0) {
+        // 【新增】focus 動畫：依照狀態極速改變 Z 軸位置，欺騙自律神經與睫狀肌
+        const targetZ = (focusPhase === 'NEAR') ? 3.5 : -100;
+        focusRing.position.z += (targetZ - focusRing.position.z) * 0.15;
     }
     
     if (currentModule === 'breathe' || currentModule === 'chaser') {
@@ -1243,12 +1150,12 @@ function animate() {
 animate();
 
 // ==========================================
-// 7. 狀態機與倒數計時器 (整合寫入雲端與本地月曆邏輯)
+// 狀態機與倒數計時器
 // ==========================================
 setInterval(() => {
     if (currentModule === 'DASHBOARD') return;
 
-    if ((currentModule === 'stretch' || currentModule === 'chaser' || currentModule === 'breathe') && isResting) {
+    if (['stretch', 'focus', 'chaser', 'breathe'].includes(currentModule) && isResting) {
         restTimeLeft--;
         if (restTimeLeft <= 0) {
             isResting = false; 
@@ -1268,11 +1175,8 @@ setInterval(() => {
             } else if (phase === 'CLOSING') { 
                 cycle++; 
                 if (cycle > maxCycles) { 
-                    phase = 'COMPLETED'; 
-                    dipBGM(); // 【修改】：改為降低音量而非停止
-                    playDingSound(); 
-                    recordModuleCompletion('sop');
-                    logTraining('45秒快速舒緩', 45);
+                    phase = 'COMPLETED'; dipBGM(); playDingSound(); 
+                    recordModuleCompletion('sop'); logTraining('45秒快速舒緩', 45);
                 } else { 
                     phase = 'LOOKING'; sopTimeLeft = 10; playDingSound(); 
                 } 
@@ -1283,24 +1187,38 @@ setInterval(() => {
         if (stretchTimeLeft <= 0) return; 
         stretchTimeLeft--; 
         if (stretchTimeLeft <= 0) {
-            isResting = true;
-            restTimeLeft = 5;
-            dipBGM(); // 【修改】：改為降低音量而非停止
-            playDingSound(); 
-            recordModuleCompletion('stretch');
-            logTraining('動態 3D 眼肌伸展', 45);
+            isResting = true; restTimeLeft = 5; dipBGM(); playDingSound(); 
+            recordModuleCompletion('stretch'); logTraining('動態 3D 眼肌伸展', 45);
+        }
+    }
+    else if (currentModule === 'focus') { 
+        // 【新增】focus 模組倒數邏輯
+        if (focusTimeLeft <= 0) return;
+        focusTimeLeft--;
+        focusHoldTime--;
+        
+        // 隨著倒數，加快切換節奏
+        if (focusTimeLeft === 40) focusCycleSpeed = 2;
+        if (focusTimeLeft === 20) focusCycleSpeed = 1.5;
+
+        if (focusHoldTime <= 0 && focusTimeLeft > 0) {
+            focusPhase = (focusPhase === 'NEAR') ? 'FAR' : 'NEAR';
+            focusHoldTime = focusCycleSpeed;
+            focusRing.rotation.z = Math.random() * Math.PI * 2; // 改變環的缺口方向
+            // 可選：在這裡加個輕微的音效 playDingSound()
+        }
+
+        if (focusTimeLeft <= 0) {
+            isResting = true; restTimeLeft = 5; dipBGM(); playDingSound(); 
+            recordModuleCompletion('focus'); logTraining('Z 軸遠近對焦飛梭', 60);
         }
     }
     else if (currentModule === 'chaser') { 
         if (chaserTimeLeft <= 0) return; 
         chaserTimeLeft--; 
         if (chaserTimeLeft <= 0) {
-            isResting = true;
-            restTimeLeft = 5;
-            dipBGM(); // 【修改】：改為降低音量而非停止
-            playDingSound(); 
-            recordModuleCompletion('chaser');
-            logTraining('睫狀肌深空追光', 60);
+            isResting = true; restTimeLeft = 5; dipBGM(); playDingSound(); 
+            recordModuleCompletion('chaser'); logTraining('睫狀肌深空追光', 60);
         }
     }
     else if (currentModule === 'breathe') {
@@ -1310,12 +1228,8 @@ setInterval(() => {
             if (breatheTimeLeft % 10 === 5) { breathPhase = 'INHALE'; playDingSound(); } 
             else if (breatheTimeLeft % 10 === 0) { breathPhase = 'EXHALE'; playDingSound(); }
         } else {
-            isResting = true;
-            restTimeLeft = 5;
-            dipBGM(); // 【修改】：改為降低音量而非停止
-            playDingSound(); 
-            recordModuleCompletion('breathe');
-            logTraining('星雲散焦與神經放鬆', 60);
+            isResting = true; restTimeLeft = 5; dipBGM(); playDingSound(); 
+            recordModuleCompletion('breathe'); logTraining('星雲散焦與神經放鬆', 60);
         }
     }
     else if (currentModule === 'amsler' || currentModule === 'astigmatism') {

@@ -541,18 +541,29 @@ rpePage.innerHTML = `
     <h2 style="color:#fffdd0; font-size:28px; border-bottom:2px solid #00ffcc; padding-bottom:10px; margin-bottom:20px;">🏭 垃圾處理廠與清潔工：認識 RPE</h2>
     <div style="color:#8b9bb4; font-size:17px; line-height:1.8;">
         <p style="margin-bottom:15px;">我們可以把眼底的「視網膜色素上皮細胞 (RPE)」想像成眼底的<strong style="color:#fffdd0;">垃圾處理廠</strong>，而上方的感光細胞則是負責看東西的員工。</p>
+        
         <h3 style="color:#00ffcc; margin-top:25px; margin-bottom:10px; font-size:20px;">一、什麼是脂褐質？它是怎麼形成的？</h3>
         <ul style="padding-left:20px; margin-bottom:20px;">
             <li><strong>員工天天產生垃圾：</strong>感光細胞每天工作會消耗能量，並脫落大量老舊廢棄物。</li>
             <li><strong>清潔工天天回收：</strong>健康的 RPE 每天會把垃圾吞進去，用溶小體酵素徹底分解化為養分。</li>
             <li><strong>變成陳年鐵鏽：</strong>若受藍光傷害或老化，處理廠酵素變弱。卡在肚子裡的油垢經光線照射後生鏽變質，形成了永遠無法清除的<strong style="color:#ff6b6b;">「脂褐質」</strong>。</li>
         </ul>
+
+        <h3 style="color:#00ffcc; margin-top:25px; margin-bottom:10px; font-size:20px;">二、 健康的 RPE（好工廠）：如何阻擋傷害？</h3>
+        <p style="margin-bottom:15px;">當你的垃圾處理廠（RPE 細胞）還很健康、體力很好時，它可以這樣保護眼睛：</p>
+        <ul style="padding-left:20px; margin-bottom:20px;">
+            <li><strong style="color:#fffdd0;">天天清空垃圾：</strong>來多少廢棄物就吃多少、消化多少，不讓垃圾有機會在眼底生鏽變成脂褐質。</li>
+            <li><strong style="color:#fffdd0;">自帶超強防護罩：</strong>健康細胞體內有很多天然的防曬劑（黑色素與抗氧化酶），能把照進眼睛的有害光線擋掉，保護工廠機器不被曬壞。</li>
+            <li><strong style="color:#fffdd0;">精準控管原料：</strong>能把看東西需要的維生素 A 處理得很順暢，不會讓它們在眼底下亂套、亂結塊。</li>
+        </ul>
+
         <h3 style="color:#ff6b6b; margin-top:25px; margin-bottom:10px; font-size:20px;">三、不健康的 RPE（爛工廠）帶來的災難</h3>
         <ul style="padding-left:20px; margin-bottom:25px;">
             <li><strong style="color:#fffdd0;">1. 吃再多營養也吸收不了：</strong>就算吃再多高檔葉黃素，不健康的工廠也無法吸收利用。</li>
             <li><strong style="color:#fffdd0;">2. 眼底長斑堆垃圾：</strong>肚子被脂褐質塞爆後，把垃圾往地基亂倒，形成「隱形斑(Drusen)」。</li>
             <li><strong style="color:#fffdd0;">3. 眼睛結構大毀滅：</strong>防護牆破裂，引發濕性病變；最終員工集體餓死，導致視野中央出現黑洞失明。</li>
         </ul>
+        
         <div style="background:#162b2b; padding:20px; border-radius:10px; text-align:center; border: 1px solid #00ffcc;">
             <p style="color:#fffdd0; font-size:19px; font-weight:bold; margin:0;">💡 總結</p>
             <p style="color:#00ffcc; font-size:18px; margin-top:10px; margin-bottom:0;">「健康的 RPE 能幫解消滅垃圾；<br>不健康的 RPE 會讓垃圾（脂褐質）堆成高山，最後把你的視力連根拔起。」</p>
